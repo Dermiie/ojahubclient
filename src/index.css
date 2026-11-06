@@ -1,4 +1,289 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+/* Figma uses DM Sans everywhere — install with: npm i @fontsource-variable/dm-sans */
+@import '@fontsource-variable/dm-sans';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   1. OJAHUB DESIGN TOKENS (from Figma › Approved designs ✅)
+   Every token here becomes a utility: --color-text-primary → text-text-primary,
+   bg-text-primary, border-text-primary … ; --text-h4-bold → text-h4-bold.
+   ========================================================================== */
+@theme {
+  /* ---- Font ---- */
+  --font-sans: 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+
+  /* ---- Primary (Figma: primary/*) ----
+       bg-primary-base · bg-primary-hover · bg-primary-active · bg-primary-light · bg-primary-subtle */
+  --color-primary-base: #2e8b57;
+  --color-primary-hover: #257349;
+  --color-primary-active: #1c5e3a;
+  --color-primary-light: #cde7d8;
+  --color-primary-subtle: #e7f3ec;
+
+  /* ---- Secondary (Figma: secondary/*) ----  bg-secondary-base */
+  --color-secondary-base: #c4935f;
+
+  /* ---- Semantic (Figma: semantic/success/*) ----  bg-success-base · bg-success-light */
+  --color-success-base: #22a55b;
+  --color-success-light: #e8f6ec;
+
+  /* ---- Text (Figma: text/*) ----
+       text-text-primary · text-text-secondary · text-text-tertiary · text-text-disabled
+       text-text-inverse · text-text-secondary-inverse */
+  --color-text-primary: #1f2a24;
+  --color-text-secondary: #727e79;
+  --color-text-tertiary: #95a19c;
+  --color-text-disabled: #d3d6d4;
+  --color-text-inverse: #ffffff; /* Figma: text/50 — text on green buttons */
+  --color-text-secondary-inverse: #bfd2ca;
+
+  /* ---- Background (Figma: background/*) ----
+       bg-background-main · bg-background-card · bg-background-muted */
+  --color-background-main: #ffffff;
+  --color-background-card: #f4f6f5;
+  --color-background-muted: #e3e7e5;
+
+  /* ---- Border (Figma: Border/*) ----
+       border-border-default · border-border-strong · border-border-subtle */
+  --color-border-default: #d1d1d1;
+  --color-border-strong: #848e89; /* Figma: Border/default 2 */
+  --color-border-subtle: #eef0ef;
+
+  /* ---- Icon (Figma: icon/*) ----  text-icon-grey */
+  --color-icon-grey: #5d6862;
+
+  /* ---- Typography (Figma text styles) ----
+       Size, line-height, weight and tracking are baked in, one class per Figma style,
+       so <h1 className="text-d1-bold"> needs nothing else.
+       Line height: Figma reports these as "auto"; DM Sans auto ≈ 1.3 (matches the
+       23px text boxes on 18px labels in the designs). d1 and mobile h1 are fixed in Figma. */
+
+  /* web/display */
+  --text-d1-bold: 3.375rem; /* 54px */
+  --text-d1-bold--line-height: 4.0625rem; /* 65px */
+  --text-d1-bold--font-weight: 700;
+  --text-d2-bold: 2.625rem; /* 42px */
+  --text-d2-bold--line-height: 1.3;
+  --text-d2-bold--font-weight: 700;
+
+  /* web/header */
+  --text-h2-bold: 2.125rem; /* 34px */
+  --text-h2-bold--line-height: 1.3;
+  --text-h2-bold--font-weight: 700;
+
+  --text-h3-semibold: 1.875rem; /* 30px */
+  --text-h3-semibold--line-height: 1.3;
+  --text-h3-semibold--font-weight: 600;
+  --text-h3-bold: 1.875rem;
+  --text-h3-bold--line-height: 1.3;
+  --text-h3-bold--font-weight: 700;
+
+  --text-h4-medium: 1.5rem; /* 24px */
+  --text-h4-medium--line-height: 1.3;
+  --text-h4-medium--font-weight: 500;
+  --text-h4-semibold: 1.5rem;
+  --text-h4-semibold--line-height: 1.3;
+  --text-h4-semibold--font-weight: 600;
+  --text-h4-bold: 1.5rem;
+  --text-h4-bold--line-height: 1.3;
+  --text-h4-bold--font-weight: 700;
+
+  --text-h5-medium: 1.125rem; /* 18px */
+  --text-h5-medium--line-height: 1.3;
+  --text-h5-medium--font-weight: 500;
+  --text-h5-semibold: 1.125rem;
+  --text-h5-semibold--line-height: 1.3;
+  --text-h5-semibold--font-weight: 600;
+  --text-h5-bold: 1.125rem;
+  --text-h5-bold--line-height: 1.3;
+  --text-h5-bold--font-weight: 700;
+
+  --text-button-lg: 1.25rem; /* 20px — web/header/button text large */
+  --text-button-lg--line-height: 1.3;
+  --text-button-lg--font-weight: 700;
+
+  /* web/body — all -2% tracking */
+  --text-b1-medium: 1rem; /* 16px */
+  --text-b1-medium--line-height: 1.3;
+  --text-b1-medium--font-weight: 500;
+  --text-b1-medium--letter-spacing: -0.02em;
+
+  --text-b2-regular: 0.875rem; /* 14px */
+  --text-b2-regular--line-height: 1.3;
+  --text-b2-regular--font-weight: 400;
+  --text-b2-regular--letter-spacing: -0.02em;
+  --text-b2-medium: 0.875rem;
+  --text-b2-medium--line-height: 1.3;
+  --text-b2-medium--font-weight: 500;
+  --text-b2-medium--letter-spacing: -0.02em;
+
+  --text-b3-regular: 0.75rem; /* 12px */
+  --text-b3-regular--line-height: 1.3;
+  --text-b3-regular--font-weight: 400;
+  --text-b3-regular--letter-spacing: -0.02em;
+  --text-b3-medium: 0.75rem;
+  --text-b3-medium--line-height: 1.3;
+  --text-b3-medium--font-weight: 500;
+  --text-b3-medium--letter-spacing: -0.02em;
+
+  --text-b4-medium: 0.6875rem; /* 11px */
+  --text-b4-medium--line-height: 1.3;
+  --text-b4-medium--font-weight: 500;
+  --text-b4-medium--letter-spacing: -0.02em;
+
+  /* mobile/header — mobile body styles reuse the web b1–b3 classes above */
+  --text-m-h1-bold: 1.875rem; /* 30px */
+  --text-m-h1-bold--line-height: 2.125rem; /* 34px */
+  --text-m-h1-bold--font-weight: 700;
+  --text-m-h4-bold: 1.125rem; /* 18px */
+  --text-m-h4-bold--line-height: 1.3;
+  --text-m-h4-bold--font-weight: 700;
+
+  /* ---- Radius & shadows ----
+       Not defined as Figma variables on the approved page. Add them here once
+       confirmed (e.g. --radius-input: 8px; --shadow-card: …;). */
+}
+
+/* ==========================================================================
+   2. SHADCN WIRING
+   shadcn components use bg-primary, border-input, text-muted-foreground … .
+   These point at the OjaHub tokens above, so every shadcn component picks up
+   the Figma look without editing the components.
+   ========================================================================== */
+@theme inline {
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: var(--color-background-main);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-background-card);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-background-main);
+  --popover-foreground: var(--color-text-primary);
+  --primary: var(--color-primary-base);
+  --primary-foreground: var(--color-text-inverse);
+  /* shadcn "secondary" = subtle button style, so it uses the light green.
+       The Figma tan is available separately as bg-secondary-base. */
+  --secondary: var(--color-primary-subtle);
+  --secondary-foreground: var(--color-primary-active);
+  --muted: var(--color-background-muted);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-primary-subtle);
+  --accent-foreground: var(--color-primary-active);
+  --destructive: oklch(0.577 0.245 27.325); /* not in Figma — shadcn default */
+  --border: var(--color-border-default);
+  --input: var(--color-border-default);
+  --ring: var(--color-primary-base);
+  --chart-1: oklch(0.87 0 0); /* no charts in approved designs */
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: var(--color-background-main);
+  --sidebar-foreground: var(--color-text-primary);
+  --sidebar-primary: var(--color-primary-base);
+  --sidebar-primary-foreground: var(--color-text-inverse);
+  --sidebar-accent: var(--color-primary-subtle);
+  --sidebar-accent-foreground: var(--color-primary-active);
+  --sidebar-border: var(--color-border-default);
+  --sidebar-ring: var(--color-primary-base);
+}
+
+/* Figma has no dark mode yet — shadcn defaults kept until dark tokens exist. */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* @import 'tailwindcss';
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
@@ -130,4 +415,4 @@
   html {
     @apply font-sans;
     }
-}
+} */
