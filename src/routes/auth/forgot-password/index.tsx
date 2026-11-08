@@ -40,7 +40,7 @@ export default function ForgotPassword() {
           onClick={() => navigate("/auth/login")}
           className="hidden md:block rounded-full bg-[#E8F0EC] px-4 py-2 text-sm text-[#26332D]"
         >
-          ‹ Back to login
+          Back to login
         </button>
 
         <button
@@ -54,11 +54,11 @@ export default function ForgotPassword() {
       </header>
 
       {/* Form area */}
-      <div className="mx-auto flex min-h-[calc(100vh-100px)] w-full max-w-[500px] flex-col justify-between md:justify-center">
+      <div className="mx-auto flex min-h-[calc(100vh-100px)] w-full max-w-[500px] flex-col justify-between md:min-h-[calc(100vh-120px)] md:justify-center">
         <div className="mt-8 flex flex-1 flex-col md:mt-0 md:flex-none">
           {/* Lock icon */}
-          <div className="mb-4 flex h-[90px] w-[90px] items-center justify-center rounded-2xl bg-[#E8F5EC]">
-            <LockKeyhole size={32} className="text-[#258B55]" />
+          <div className="mb-4 flex h-[68px] w-[68px] items-center justify-center rounded-2xl bg-[#E8F5EC]">
+            <LockKeyhole size={30} className="text-[#258B55]" />
           </div>
 
           <h1 className="text-2xl font-bold text-[#26332D]">
@@ -93,7 +93,7 @@ export default function ForgotPassword() {
 
             <button
               type="submit"
-              className="mt-auto w-full rounded-full bg-[#258B55] py-3 font-semibold text-white"
+              className="mt-auto w-full rounded-full bg-[#258B55] py-3 font-semibold text-white md:mt-7"
             >
               Send reset code
             </button>
