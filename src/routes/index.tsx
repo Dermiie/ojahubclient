@@ -58,14 +58,14 @@ const routes = [
             },
           },
 
-          {
-            path: "set-new-password",
-            lazy: async () => {
-              const { default: Component } =
-                await import("./auth/set-new-password");
-              return { Component };
-            },
-          },
+          // {
+          //   path: "set-new-password",
+          //   lazy: async () => {
+          //     const { default: Component } =
+          //       await import("./auth/set-new-password");
+          //     return { Component };
+          //   },
+          // },
         ],
       },
     ],

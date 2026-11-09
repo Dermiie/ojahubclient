@@ -5,7 +5,6 @@ import desktopLogo from "@/assets/logo/Logo-forgot password.svg";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
-
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const handleSubmit = (

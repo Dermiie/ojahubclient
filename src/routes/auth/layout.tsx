@@ -30,7 +30,7 @@ export default function AuthLayout() {
       {isForgotPassword || isVerify || isSetNewPassword ? (
         <Outlet />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen bg-white p-0 md:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2  min-h-screen bg-white p-0 md:p-6">
           <div className="relative w-full flex items-start justify-center p-0 md:p-2">
             <div className="relative w-full md:w-auto">
               <picture className="block">
