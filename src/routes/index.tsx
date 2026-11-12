@@ -70,6 +70,23 @@ const routes = [
               return { Component: Component };
             },
           },
+          {
+            path:`success`,
+            lazy: async () =>{
+              const {default:Component } = 
+              await import (`./onboarding/success`);
+              return{Component:Component}
+            }
+          },
+          {
+            path: `expired`,
+            lazy: async () =>{
+              const{default:Component}=
+              await import (`./onboarding/expired`);
+              return{Component:Component}
+            }
+          }
+          
         ],
       },
     ],
@@ -79,3 +96,4 @@ const routes = [
 const router = createBrowserRouter(routes as RouteObject[]);
 
 export default router;
+
