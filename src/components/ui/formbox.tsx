@@ -58,6 +58,7 @@ export default function Formbox<T extends FieldValues>({
   inputType,
   registerOptions,
   control,
+  styles,
 }: FormFieldProps<T>) {
   const togglePassword = () => setShowPassword?.((prev: boolean) => !prev);
   const renderField = () => {
@@ -123,6 +124,7 @@ export default function Formbox<T extends FieldValues>({
               placeholder={placeholder}
               className={cn(
                 "focus:outline-blue-500 focus:ring-blue-500 h-[56px] border",
+                styles,
                 errors ? "border-red-500" : "",
               )}
               id={id}

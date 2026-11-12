@@ -30,10 +30,16 @@ export default function AuthLayout() {
       {isForgotPassword || isVerify || isSetNewPassword ? (
         <Outlet />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2  min-h-screen bg-white p-0 md:p-6">
-          <div className="relative w-full flex items-start justify-center p-0 md:p-2">
-            <div className="relative w-full md:w-auto">
-              <picture className="block">
+        <div className="mx-auto flex min-h-screen w-full flex-col bg-white p-0 md:w-[calc(100%-160px)] md:max-w-[1360px] md:flex-row md:items-center md:justify-center md:gap-[95px] md:pt-3">
+          <div
+            className={`relative w-full md:flex-none ${
+              isLogin
+                ? "md:h-[1000px] md:w-[702px] md:-translate-y-[5px]"
+                : "md:h-[999px] md:w-[667px] md:-translate-y-[44px]"
+            }`}
+          >
+            <div className="relative h-full w-full">
+              <picture className="block w-full">
                 <source
                   media="(max-width: 767px)"
                   srcSet={mobileImage ?? undefined}
@@ -42,7 +48,11 @@ export default function AuthLayout() {
                   <img
                     src={desktopImage}
                     alt="Ojahub promotional artwork"
-                    className="block w-full h-[320px] object-cover object-[center_20%] rounded-none md:w-auto md:h-auto md:max-h-[calc(100vh-64px)] md:object-contain md:rounded-[30px]"
+                    className={`block w-full h-[275px] rounded-none md:object-cover md:object-top md:rounded-[30px] ${
+                      isLogin
+                        ? "md:h-[1000px] md:w-[702px]"
+                        : "md:h-[999px] md:w-[667px]"
+                    }`}
                   />
                 )}
               </picture>
@@ -59,22 +69,20 @@ export default function AuthLayout() {
                 <img
                   src={mobileLogo}
                   alt="Ojahub"
-                  className="md:hidden absolute left-5 top-5 z-20 w-[110px] h-[42px] object-contain"
+                  className="md:hidden absolute left-[25px] top-[72px] z-20 w-[125px] h-[50px] object-contain"
                 />
               )}
 
               {isRegister && (
-                <div className="hidden md:block absolute left-8 top-[116px] z-10 max-w-[400px] text-white">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#E8F5EC] px-3 py-2 text-xs font-medium text-[#263B30] mb-7">
-                    <span className="text-green-700">✓</span>
-                    Built for Balogun, Alaba and Ariaria
-                  </span>
-
-                  <h2 className="text-[40px] font-bold leading-[1.08] tracking-tight mb-5">
-                    Get paid instantly. No more fake alerts
+                <div className="hidden md:block absolute left-8 top-[116px] z-10 max-w-[528px] text-white">
+                  <h2 className="text-[54px] font-bold leading-[65px] mb-5">
+                    <span className="block whitespace-nowrap">
+                      Get paid instantly. No
+                    </span>
+                    <span className="block">more fake alerts</span>
                   </h2>
 
-                  <p className="max-w-[390px] text-[13px] leading-[1.5] text-gray-200">
+                  <p className="max-w-[528px] text-[18px] font-normal leading-[1.3] text-gray-300">
                     Track stock across shops and warehouses, send invoices on
                     WhatsApp, and let OjaHub confirm every transfer for you.
                   </p>
@@ -82,16 +90,15 @@ export default function AuthLayout() {
               )}
 
               {isLogin && (
-                <div className="hidden md:block absolute left-8 top-[116px] z-10 max-w-[400px] text-white">
-                  <h2 className="text-[40px] font-bold leading-[1.08] tracking-tight mb-5">
+                <div className="hidden md:block absolute left-8 top-[116px] z-10 w-[500px] text-white">
+                  <h2 className="text-[49px] font-bold leading-[1.2] tracking-tight mb-2">
                     Your shop, your stock, your money. In one place.
                   </h2>
                 </div>
               )}
             </div>
           </div>
-
-          <section className="relative z-10 -mt-6 rounded-t-[24px] bg-white px-6 pt-8 md:mt-0 md:rounded-none md:bg-transparent md:px-0 md:pt-0 md:flex md:items-center md:justify-center">
+          <section className="relative z-10 w-full max-[375px]:-mt-[29px] -mt-[29px] rounded-t-[32px] bg-white px-4 pt-8 md:mt-0 md:h-[602px] md:w-[500px] md:flex-none md:flex md:items-center md:justify-center md:-translate-y-[81px] md:rounded-none md:bg-transparent md:px-0 md:pt-0">
             <Outlet />
           </section>
         </div>
