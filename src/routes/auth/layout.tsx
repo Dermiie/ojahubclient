@@ -97,7 +97,7 @@ export default function AuthLayout() {
 
         {/* ---------- Form panel ---------- */}
         <section className="relative z-10 -mt-[29px] flex-1 rounded-t-[32px] bg-background-main px-4 pb-10 pt-8 sm:px-8 lg:mt-0 lg:flex lg:items-center lg:justify-center lg:rounded-none lg:bg-transparent lg:px-0 lg:py-8">
-          <div className=" w-full max-w-[500px]">
+          <div className=" w-full mx-auto max-w-[500px]">
             <Outlet />
           </div>
         </section>
