@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useSearchParams } from "react-router";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, Clock3 } from "lucide-react";
 import notificationBell from "@/assets/logo/notification-bell.svg";
@@ -51,11 +51,13 @@ export default function Verify() {
       {/* Header */}
       <header className="flex items-center justify-between md:absolute md:left-0 md:right-0 md:top-0 md:px-[4vw] md:pt-[4px]">
         {/* Desktop logo */}
-        <img
-          src={desktopLogo}
-          alt="OjaHub"
-          className="hidden h-[29px] w-[78px] object-contain md:block"
-        />
+        <Link to="/" aria-label="Go to home page" className="hidden md:block">
+          <img
+            src={desktopLogo}
+            alt="OjaHub"
+            className="h-[29px] w-[78px] object-contain"
+          />
+        </Link>
 
         {/* Desktop back button */}
         <button

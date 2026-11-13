@@ -169,7 +169,7 @@ export default function Register() {
           </button>
         </p>
 
-        <p className="mx-auto mt-[13px] w-full whitespace-nowrap text-center text-[clamp(11px,3.3vw,13px)] leading-[1.3] font-medium text-[#727E79] md:mt-2 md:w-[477px] md:text-[14px] md:leading-[23px] [@media(max-height:860px)_and_(max-width:767px)]:mt-2">
+        <p className="mx-auto mt-[13px] w-full whitespace-nowrap text-center text-[clamp(11px,3.3vw,13px)] leading-[1.3] font-medium text-[#727E79] md:mt-2  md:w-[477px] md:text-[14px] md:leading-[23px] [@media(max-height:860px)_and_(max-width:767px)]:mt-2">
           By continuing you agree to the{" "}
           <span className="cursor-pointer text-[#2E8B57] underline">Terms</span>{" "}
           and{" "}

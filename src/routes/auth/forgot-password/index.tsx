@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ChevronLeft } from "lucide-react";
 import desktopLogo from "@/assets/logo/Logo-forgot password.svg";
 import forgotPasswordIcon from "@/assets/logo/forgot password icon.svg";
@@ -33,11 +33,13 @@ export default function ForgotPassword() {
       {/* Header */}
       <header className="flex items-center justify-between md:absolute md:left-0 md:right-0 md:top-0 md:px-[4vw] md:pt-[4px]">
         {/* Desktop logo */}
-        <img
-          src={desktopLogo}
-          alt="OjaHub"
-          className="hidden h-[29px] w-[78px] object-contain md:block"
-        />
+        <Link to="/" aria-label="Go to home page" className="hidden md:block">
+          <img
+            src={desktopLogo}
+            alt="OjaHub"
+            className="h-[29px] w-[78px] object-contain"
+          />
+        </Link>
 
         {/* Desktop back button */}
         <button

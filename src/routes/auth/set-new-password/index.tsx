@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { Eye, EyeOff, ChevronLeft, Check } from "lucide-react";
 import desktopLogo from "@/assets/logo/Logo-forgot password.svg";
 
@@ -43,11 +43,13 @@ export default function SetNewPassword() {
       {/* Header */}
       <header className="flex items-center justify-between md:absolute md:left-0 md:right-0 md:top-0 md:px-[4vw] md:pt-[4px]">
         {/* Desktop logo */}
-        <img
-          src={desktopLogo}
-          alt="OjaHub"
-          className="hidden h-[29px] w-[78px] object-contain md:block"
-        />
+        <Link to="/" aria-label="Go to home page" className="hidden md:block">
+          <img
+            src={desktopLogo}
+            alt="OjaHub"
+            className="h-[29px] w-[78px] object-contain"
+          />
+        </Link>
 
         {/* Desktop back button */}
         <button
