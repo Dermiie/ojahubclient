@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router';
+import { Link, Outlet, useLocation } from 'react-router';
 import loginDesktop from '@/assets/Images/Login desktop.png';
 import loginMobile from '@/assets/Images/Login-mobile.png';
 import registerDesktop from '@/assets/Images/Registration-desktop.png';
@@ -7,15 +7,20 @@ import desktopLogo from '@/assets/logo/Desktop logo + wordmark.svg';
 import mobileLogo from '@/assets/logo/Mobile logo + wordmark.svg';
 
 /**
- * Layout strategy (mobile-first):
- * - < lg (1024px): stacked. A 275px artwork banner, with the form sheet
- *   overlapping it by 29px with rounded top corners.
- * - ≥ lg: two columns. The artwork panel is sticky and sized to the viewport
- *   (100dvh minus the page padding), so it can never be taller than the screen
- *   and never causes a scroll by itself. If the form is taller than the
- *   viewport, only the form column scrolls while the artwork stays in place.
- * - No fixed pixel widths/heights or translate offsets: columns flex, and the
- *   whole thing is capped and centred at 1440px on very wide screens.
+ * Responsive strategy (mobile-first):
+ *
+ * < md (phones)      Stacked: 275px artwork banner, form sheet overlaps it
+ *                    (29px on login, 125px on register) with rounded top corners.
+ * md – lg (tablets)  Same stacked layout, form centred in the space below the banner.
+ * ≥ lg (desktop)     Two columns. The artwork is sticky and sized from the viewport
+ *                    height, capped at the Figma size (702×1000 login, 690×890
+ *                    register), so it never causes a scroll. When everything fits,
+ *                    the row is centred vertically; if the form is taller than the
+ *                    screen, only the form scrolls while the artwork stays put.
+ * ≥ 2xl              Full Figma display type sizes (text-d1-bold).
+ *
+ * Needs the `short` variant in the global CSS (see index.css):
+ *   @custom-variant short (@media (max-height: 860px));
  */
 export default function AuthLayout() {
   const location = useLocation();
@@ -41,14 +46,32 @@ export default function AuthLayout() {
     return <Outlet />;
   }
 
+  const desktopLogoImg = (
+    <img
+      src={desktopLogo}
+      alt="Ojahub"
+      className="h-[52px] w-[140px] object-contain"
+    />
+  );
+
   return (
-    <div className="min-h-dvh bg-background-main">
-      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col lg:flex-row lg:gap-12 lg:p-6 xl:gap-12 xl:px-10">
+    <div className="flex min-h-dvh flex-col bg-background-main lg:justify-center lg:p-6 xl:px-10">
+      <div
+        className={`mx-auto flex w-full max-w-[1360px] flex-1 flex-col lg:flex-none lg:flex-row lg:gap-12 ${
+          isRegister ? 'xl:gap-20' : 'xl:gap-24'
+        }`}
+      >
         {/* ---------- Artwork panel ---------- */}
-        <aside className="relative h-[275px] w-full shrink-0 overflow-hidden lg:sticky lg:top-6 lg:h-[calc(100dvh-3rem)] lg:w-1/2 lg:max-w-[702px] lg:self-start lg:rounded-[30px]">
+        <aside
+          className={`relative h-[275px] w-full shrink-0 overflow-hidden lg:sticky lg:top-6 lg:h-[calc(100dvh-3rem)] lg:w-1/2 lg:self-start lg:rounded-[30px] ${
+            isLogin
+              ? 'lg:max-h-[1000px] lg:max-w-[702px]'
+              : 'lg:max-h-[890px] lg:max-w-[690px]'
+          }`}
+        >
           {desktopImage && (
             <picture>
-              {/* Matches Tailwind's lg breakpoint (64rem) */}
+              {/* 64rem = Tailwind's lg breakpoint */}
               <source media="(min-width: 64rem)" srcSet={desktopImage} />
               <img
                 src={mobileImage ?? desktopImage}
@@ -58,29 +81,34 @@ export default function AuthLayout() {
             </picture>
           )}
 
-          {/* Mobile logo — login only (unchanged behaviour) */}
+          {/* Mobile logo — login only */}
           {isLogin && (
             <img
               src={mobileLogo}
               alt="Ojahub"
-              className="absolute left-[25px] top-[72px] z-10 h-12.5 w-31.25 object-contain lg:hidden"
+              className="absolute left-[25px] top-[72px] z-10 h-[50px] w-[125px] object-contain lg:hidden"
             />
           )}
 
-          {/* Desktop overlay: logo + headline flow in a column, no magic offsets */}
-          <div className="absolute inset-0 z-10 hidden flex-col gap-8 p-8 text-text-inverse lg:flex">
-            <img
-              src={desktopLogo}
-              alt="Ojahub"
-              className="h-[52px] w-[140px] object-contain"
-            />
+          {/* Desktop overlay: logo + headline in a padded column */}
+          <div className="absolute inset-0 z-10 hidden flex-col items-start gap-8 p-8 text-text-inverse lg:flex">
+            {isRegister ? (
+              <Link to="/" aria-label="Go to home page">
+                {desktopLogoImg}
+              </Link>
+            ) : (
+              desktopLogoImg
+            )}
 
             {isRegister && (
-              <div className="max-w-[528px]">
-                <h2 className="mb-5 text-balance text-d2-bold xl:text-d1-bold">
-                  Get paid instantly. No more fake alerts
+              <div className="max-w-[600px]">
+                <h2 className="mb-5 text-balance text-d2-bold 2xl:text-d1-bold">
+                  <span className="2xl:block 2xl:whitespace-nowrap">
+                    Get paid instantly. No
+                  </span>{' '}
+                  <span className="2xl:block">more fake alerts</span>
                 </h2>
-                <p className="text-h5-medium font-normal text-text-secondary-inverse">
+                <p className="text-h5-medium font-normal text-text-secondary-inverse xl:text-button-lg xl:font-normal">
                   Track stock across shops and warehouses, send invoices on
                   WhatsApp, and let OjaHub confirm every transfer for you.
                 </p>
@@ -88,7 +116,7 @@ export default function AuthLayout() {
             )}
 
             {isLogin && (
-              <h2 className="max-w-[500px] text-balance text-h3-bold tracking-tight xl:text-d2-bold">
+              <h2 className="max-w-[500px] text-balance text-d2-bold tracking-tight 2xl:text-d1-bold">
                 Your shop, your stock, your money. In one place.
               </h2>
             )}
@@ -96,8 +124,14 @@ export default function AuthLayout() {
         </aside>
 
         {/* ---------- Form panel ---------- */}
-        <section className="relative z-10 -mt-[29px] flex-1 rounded-t-[32px] bg-background-main px-4 pb-10 pt-8 sm:px-8 lg:mt-0 lg:flex lg:items-center lg:justify-center lg:rounded-none lg:bg-transparent lg:px-0 lg:py-8">
-          <div className=" w-full mx-auto max-w-[500px]">
+        <section
+          className={`relative z-10 flex-1 rounded-t-[32px] bg-background-main px-4 pb-6 sm:px-8 md:flex md:items-center md:justify-center md:py-12 lg:mt-0 lg:rounded-none lg:bg-transparent lg:px-0 lg:py-8 ${
+            isRegister
+              ? '-mt-[125px] pt-[53px] max-md:short:pt-9'
+              : '-mt-[29px] pt-8'
+          }`}
+        >
+          <div className="mx-auto w-full max-w-[515px]">
             <Outlet />
           </div>
         </section>
