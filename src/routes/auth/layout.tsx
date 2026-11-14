@@ -1,18 +1,35 @@
-import { Link, Outlet, useLocation } from "react-router";
-import loginDesktop from "@/assets/Images/Login desktop.png";
-import loginMobile from "@/assets/Images/Login-mobile.png";
-import registerDesktop from "@/assets/Images/Registration-desktop.png";
-import registerMobile from "@/assets/Images/Registration mobile.png";
-import desktopLogo from "@/assets/logo/Desktop logo + wordmark.svg";
-import mobileLogo from "@/assets/logo/Mobile logo + wordmark.svg";
+import { Link, Outlet, useLocation } from 'react-router';
+import loginDesktop from '@/assets/Images/Login desktop.png';
+import loginMobile from '@/assets/Images/Login-mobile.png';
+import registerDesktop from '@/assets/Images/Registration-desktop.png';
+import registerMobile from '@/assets/Images/Registration mobile.png';
+import desktopLogo from '@/assets/logo/Desktop logo + wordmark.svg';
+import mobileLogo from '@/assets/logo/Mobile logo + wordmark.svg';
 
+/**
+ * Responsive strategy (mobile-first):
+ *
+ * < md (phones)      Stacked: 275px artwork banner, form sheet overlaps it
+ *                    (29px on login, 125px on register) with rounded top corners.
+ * md – lg (tablets)  Same stacked layout, form centred in the space below the banner.
+ * ≥ lg (desktop)     Two columns. The artwork is sticky and sized from the viewport
+ *                    height, capped at the Figma size (702×1000 login, 690×890
+ *                    register), so it never causes a scroll. When everything fits,
+ *                    the row is centred vertically; if the form is taller than the
+ *                    screen, only the form scrolls while the artwork stays put.
+ * ≥ 2xl              Full Figma display type sizes (text-d1-bold).
+ *
+ * Needs the `short` variant in the global CSS (see index.css):
+ *   @custom-variant short (@media (max-height: 860px));
+ */
 export default function AuthLayout() {
   const location = useLocation();
-  const isLogin = location.pathname === "/auth/login";
-  const isRegister = location.pathname === "/auth/register";
-  const isForgotPassword = location.pathname === "/auth/forgot-password";
-  const isVerify = location.pathname === "/auth/verify";
-  const isSetNewPassword = location.pathname === "/auth/set-new-password";
+  const isLogin = location.pathname === '/auth/login';
+  const isRegister = location.pathname === '/auth/register';
+  const isForgotPassword = location.pathname === '/auth/forgot-password';
+  const isVerify = location.pathname === '/auth/verify';
+  const isSetNewPassword = location.pathname === '/auth/set-new-password';
+
   const desktopImage = isLogin
     ? loginDesktop
     : isRegister
@@ -25,104 +42,100 @@ export default function AuthLayout() {
       ? registerMobile
       : null;
 
+  if (isForgotPassword || isVerify || isSetNewPassword) {
+    return <Outlet />;
+  }
+
+  const desktopLogoImg = (
+    <img
+      src={desktopLogo}
+      alt="Ojahub"
+      className="h-[52px] w-[140px] object-contain"
+    />
+  );
+
   return (
-    <>
-      {isForgotPassword || isVerify || isSetNewPassword ? (
-        <Outlet />
-      ) : (
-        <div
-          className={`mx-auto flex min-h-screen w-full flex-col bg-white p-0 md:w-[min(100%-64px, 1360px)] md:max-w-[1360px] md:[zoom:clamp(0.7,min(calc((100vw-64px)/1280px),calc((100vh-120px)/1024px)),1)] md:flex-row md:items-center md:justify-center ${isRegister ? "md:gap-[80px]" : "md:gap-[95px]"} md:pt-3`}
+    <div className="flex min-h-dvh flex-col bg-background-main lg:justify-center lg:p-6 xl:px-10">
+      <div
+        className={`mx-auto flex w-full max-w-[1360px] flex-1 flex-col lg:flex-none lg:flex-row lg:gap-12 ${
+          isRegister ? 'xl:gap-20' : 'xl:gap-24'
+        }`}
+      >
+        {/* ---------- Artwork panel ---------- */}
+        <aside
+          className={`relative h-[275px] w-full shrink-0 overflow-hidden lg:sticky lg:top-6 lg:h-[calc(100dvh-3rem)] lg:w-1/2 lg:self-start lg:rounded-[30px] ${
+            isLogin
+              ? 'lg:max-h-[1000px] lg:max-w-[702px]'
+              : 'lg:max-h-[890px] lg:max-w-[690px]'
+          }`}
         >
-          <div
-            className={`relative w-full md:flex-none ${
-              isLogin
-                ? "md:h-[1000px] md:w-[702px] md:-translate-y-[5px]"
-                : "md:h-[890px] md:w-[690px]"
-            }`}
-          >
-            <div className="relative h-full w-full">
-              <picture className="block w-full">
-                <source
-                  media="(max-width: 767px)"
-                  srcSet={mobileImage ?? undefined}
-                />
-                {desktopImage && (
-                  <img
-                    src={desktopImage}
-                    alt="Ojahub promotional artwork"
-                    className={`block w-full h-[275px] rounded-none md:object-cover md:object-top md:rounded-[30px] ${
-                      isRegister ? "max-md:object-cover max-md:object-top" : ""
-                    } ${
-                      isLogin
-                        ? "md:h-[1000px] md:w-[702px]"
-                        : "md:h-[890px] md:w-[690px] md:-translate-y-[5.5px]"
-                    }`}
-                  />
-                )}
-              </picture>
-              {isRegister ? (
-                <Link
-                  to="/"
-                  aria-label="Go to home page"
-                  className="hidden md:block absolute left-8 top-8 z-10 cursor-pointer"
-                >
-                  <img
-                    src={desktopLogo}
-                    alt="Ojahub"
-                    className="block w-[140px] h-[52px] object-contain"
-                  />
-                </Link>
-              ) : (
-                <picture className="hidden md:block absolute left-8 top-8 z-10">
-                  <source media="(max-width: 767px)" srcSet={mobileLogo} />
-                  <img
-                    src={desktopLogo}
-                    alt="Ojahub"
-                    className="block w-[140px] h-[52px] object-contain"
-                  />
-                </picture>
-              )}
+          {desktopImage && (
+            <picture>
+              {/* 64rem = Tailwind's lg breakpoint */}
+              <source media="(min-width: 64rem)" srcSet={desktopImage} />
+              <img
+                src={mobileImage ?? desktopImage}
+                alt="Ojahub promotional artwork"
+                className="absolute inset-0 size-full object-cover object-top"
+              />
+            </picture>
+          )}
 
-              {isLogin && (
-                <img
-                  src={mobileLogo}
-                  alt="Ojahub"
-                  className="md:hidden absolute left-[25px] top-[72px] z-20 w-[125px] h-[50px] object-contain"
-                />
-              )}
+          {/* Mobile logo — login only */}
+          {isLogin && (
+            <img
+              src={mobileLogo}
+              alt="Ojahub"
+              className="absolute left-[25px] top-[72px] z-10 h-[50px] w-[125px] object-contain lg:hidden"
+            />
+          )}
 
-              {isRegister && (
-                <div className="hidden md:block absolute left-8 top-[116px] z-10 max-w-[600px] text-white">
-                  <h2 className="text-[54px] font-bold leading-[65px] mb-5">
-                    <span className="block whitespace-nowrap">
-                      Get paid instantly. No
-                    </span>
-                    <span className="block">more fake alerts</span>
-                  </h2>
+          {/* Desktop overlay: logo + headline in a padded column */}
+          <div className="absolute inset-0 z-10 hidden flex-col items-start gap-8 p-8 text-text-inverse lg:flex">
+            {isRegister ? (
+              <Link to="/" aria-label="Go to home page">
+                {desktopLogoImg}
+              </Link>
+            ) : (
+              desktopLogoImg
+            )}
 
-                  <p className="max-w-[600px] text-[20px] font-normal leading-[1.3] text-gray-300">
-                    Track stock across shops and warehouses, send invoices on
-                    WhatsApp, and let OjaHub confirm every transfer for you.
-                  </p>
-                </div>
-              )}
+            {isRegister && (
+              <div className="max-w-[600px]">
+                <h2 className="mb-5 text-balance text-d2-bold 2xl:text-d1-bold">
+                  <span className="2xl:block 2xl:whitespace-nowrap">
+                    Get paid instantly. No
+                  </span>{' '}
+                  <span className="2xl:block">more fake alerts</span>
+                </h2>
+                <p className="text-h5-medium font-normal text-text-secondary-inverse xl:text-button-lg xl:font-normal">
+                  Track stock across shops and warehouses, send invoices on
+                  WhatsApp, and let OjaHub confirm every transfer for you.
+                </p>
+              </div>
+            )}
 
-              {isLogin && (
-                <div className="hidden md:block absolute left-8 top-[116px] z-10 w-[500px] text-white">
-                  <h2 className="text-[49px] font-bold leading-[1.2] tracking-tight mb-2">
-                    Your shop, your stock, your money. In one place.
-                  </h2>
-                </div>
-              )}
-            </div>
+            {isLogin && (
+              <h2 className="max-w-[500px] text-balance text-d2-bold tracking-tight 2xl:text-d1-bold">
+                Your shop, your stock, your money. In one place.
+              </h2>
+            )}
           </div>
-          <section
-            className={`relative z-10 w-full ${isRegister ? "max-md:-mt-[125px]" : "max-md:-mt-[29px]"} md:-mt-[29px] rounded-t-[32px] bg-white px-4 ${isRegister ? "pt-[53px] [@media(max-height:860px)_and_(max-width:767px)]:pt-[36px]" : "pt-8"} max-md:pb-6 md:w-[515px] md:flex-none md:flex md:items-center md:justify-center md:rounded-none md:bg-transparent md:px-0 md:pt-0 ${isRegister ? "md:h-[700px] md:translate-y-0" : "md:h-[602px] md:-translate-y-[81px]"}`}
-          >
+        </aside>
+
+        {/* ---------- Form panel ---------- */}
+        <section
+          className={`relative z-10 flex-1 rounded-t-[32px] bg-background-main px-4 pb-6 sm:px-8 md:flex md:items-center md:justify-center md:py-12 lg:mt-0 lg:rounded-none lg:bg-transparent lg:px-0 lg:py-8 ${
+            isRegister
+              ? '-mt-[125px] pt-[53px] max-md:short:pt-9'
+              : '-mt-[29px] pt-8'
+          }`}
+        >
+          <div className="mx-auto w-full max-w-[515px]">
             <Outlet />
-          </section>
-        </div>
-      )}
-    </>
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }
