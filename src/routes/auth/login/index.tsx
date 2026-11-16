@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { Eye, EyeOff } from 'lucide-react';
 import Actionbtn from '@/components/ui/action-btn';
 import { useForm } from 'react-hook-form';
@@ -7,8 +7,19 @@ import Formbox from '@/components/ui/formbox';
 import { loginSchema } from '@/lib/validations';
 import type { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useLogin } from '@/api/auth/authApi';
+import { parseApiError } from '@/api/api';
 
 type LoginValues = z.infer<typeof loginSchema>;
+
+const FIELDS: (keyof LoginValues)[] = ['emailOrPhone', 'password'];
+
+/** Only follow internal paths, so a crafted link can't send users to another site. */
+function safeRedirect(target: string | null): string {
+  if (target && target.startsWith('/') && !target.startsWith('//'))
+    return target;
+  return '/';
+}
 
 /*
  * Mobile-first: base classes = mobile design, `lg:` = desktop design.
@@ -27,20 +38,56 @@ const labelClass =
 const pillButtonClass =
   'flex h-11 w-full items-center justify-center gap-2.5 rounded-full px-2.5 text-b1-medium font-semibold transition-colors lg:h-14';
 
+const errorTextClass = 'mt-1 text-b3-medium text-red-600';
+
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { mutate: login, isPending } = useLogin();
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
+    defaultValues: { emailOrPhone: '', password: '', rememberMe: false },
   });
 
   const onFormSubmit = (data: LoginValues) => {
+    clearErrors('root');
     console.log(data);
+
+    login(data, {
+      // useLogin has cached the user, so the guards see the new session.
+      // protectedLoader sends a user without a business on to onboarding.
+      onSuccess: () => {
+        navigate(safeRedirect(searchParams.get('redirectTo')), {
+          replace: true,
+        });
+      },
+      onError: (err) => {
+        const { message, fieldErrors } = parseApiError(err);
+        let mapped = false;
+
+        // 400 validation → under each field
+        for (const [name, msg] of Object.entries(fieldErrors)) {
+          if (FIELDS.includes(name as keyof LoginValues)) {
+            setError(name as keyof LoginValues, {
+              type: 'server',
+              message: msg,
+            });
+            mapped = true;
+          }
+        }
+
+        // 401 wrong credentials, unverified email, locked account, 429, network → banner
+        if (!mapped) setError('root.server', { type: 'server', message });
+      },
+    });
   };
 
   return (
@@ -60,14 +107,14 @@ export default function Login() {
       >
         <Formbox
           className="[&>fieldset>legend>div>label]:text-b3-medium [&>fieldset>legend>div>label]:font-semibold lg:[&>fieldset>legend>div>label]:text-b1-medium lg:[&>fieldset>legend>div>label]:font-semibold"
-          label="Email address"
-          type="email"
+          label="Email or Phone Number"
+          type="text"
           inputType="input"
-          id="email"
+          id="emailOrPhone"
           register={register}
-          name="email"
-          placeholder="Johnny@example.com"
-          errors={errors?.email}
+          name="emailOrPhone"
+          placeholder="Email Address or Phone number"
+          errors={errors?.emailOrPhone}
           styles={inputClass}
         />
 
@@ -92,7 +139,7 @@ export default function Login() {
               placeholder="At least 8 characters"
               // autoComplete="current-password"
               {...register('password')}
-              className={`${inputClass} pr-11 lg:pr-14`}
+              className={`${inputClass} pr-11 lg:pr-14 ${errors.password ? 'border-red-500' : ''}`}
             />
 
             <button
@@ -108,12 +155,18 @@ export default function Login() {
               )}
             </button>
           </div>
+          {errors.password?.message && (
+            <p role="alert" className={errorTextClass}>
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
             id="keepLoggedIn"
+            {...register('rememberMe')}
             className="size-4 shrink-0 cursor-pointer accent-primary-base"
           />
           <label
@@ -123,13 +176,20 @@ export default function Login() {
             Keep me logged in on this computer
           </label>
         </div>
-
+        {errors.root?.server && (
+          <p
+            role="alert"
+            className="rounded-xl bg-red-50 px-3 py-2.5 text-b3-medium text-red-700"
+          >
+            {errors.root.server.message}
+          </p>
+        )}
         {/* Actions: extra breathing room on mobile instead of the old !mt-30 hack */}
         <div className="mt-12 flex flex-col gap-5 lg:mt-3">
           <Actionbtn
             type="submit"
             text="Log in"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isPending}
             classname={`${pillButtonClass} bg-primary-base text-text-inverse hover:bg-primary-hover active:bg-primary-active lg:text-h5-bold`}
           />
 
@@ -170,7 +230,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => navigate('/auth/register')}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPending}
               className="font-medium text-primary-base hover:text-primary-hover hover:underline"
             >
               Create an account

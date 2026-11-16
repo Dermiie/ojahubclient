@@ -19,6 +19,12 @@ const routes = [
     Component: Root,
     ErrorBoundary,
     hydrateFallbackElement: <Suspense />,
+    handle: {
+      seo: {
+        title: 'Oja Hub',
+        description: 'Trade and connect with your customers.',
+      },
+    },
     children: [
       {
         path: 'auth',
@@ -27,6 +33,12 @@ const routes = [
         children: [
           {
             path: 'login',
+            handle: {
+              seo: {
+                title: 'Oja Hub',
+                description: 'Login to your account',
+              },
+            },
             lazy: async () => {
               const { default: Component } = await import('./auth/login');
               return { Component: Component };
@@ -34,6 +46,12 @@ const routes = [
           },
           {
             path: 'register',
+            handle: {
+              seo: {
+                title: 'Oja Hub',
+                description: 'create an account',
+              },
+            },
             lazy: async () => {
               const { default: Component } = await import('./auth/register');
               return { Component: Component };
