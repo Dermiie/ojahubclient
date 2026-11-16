@@ -1,4 +1,4 @@
-import { createBrowserRouter, type RouteObject } from 'react-router';
+import { createBrowserRouter, redirect, type RouteObject } from 'react-router';
 import Root from './root/layout';
 import Home from '@/routes/home';
 import AuthLayout from '@/routes/auth/layout';
@@ -6,17 +6,24 @@ import ErrorBoundary from '@/components/provider/error-boundary';
 import Suspense from '@/components/ui/suspense';
 import Onboarding from './onboarding/layout';
 
+import {
+  guestLoader,
+  onboardingLoader,
+  protectedLoader,
+  requireBusinessLoader,
+} from './guards';
+
 const routes = [
   {
     path: '/',
     Component: Root,
-    ErrorBoundary: ErrorBoundary,
+    ErrorBoundary,
     hydrateFallbackElement: <Suspense />,
     children: [
-      { index: true, Component: Home },
       {
         path: 'auth',
         Component: AuthLayout,
+        loader: guestLoader,
         children: [
           {
             path: 'login',
@@ -58,21 +65,15 @@ const routes = [
               return { Component };
             },
           },
-
-          // {
-          //   path: "set-new-password",
-          //   lazy: async () => {
-          //     const { default: Component } =
-          //       await import("./auth/set-new-password");
-          //     return { Component };
-          //   },
-          // },
         ],
       },
+
       {
         path: 'onboarding',
         Component: Onboarding,
+        loader: onboardingLoader,
         children: [
+          { index: true, loader: () => redirect('step-one') },
           {
             path: 'step-one',
             lazy: async () => {
@@ -83,14 +84,16 @@ const routes = [
           },
           {
             path: 'step-two',
+            loader: requireBusinessLoader,
             lazy: async () => {
               const { default: Component } =
                 await import('./onboarding/steptwo');
-              return { Component: Component };
+              return { Component };
             },
           },
           {
             path: 'step-three',
+            loader: requireBusinessLoader,
             lazy: async () => {
               const { default: Component } =
                 await import('./onboarding/stepthree');
@@ -99,6 +102,7 @@ const routes = [
           },
           {
             path: 'step-four',
+            loader: requireBusinessLoader,
             lazy: async () => {
               const { default: Component } =
                 await import('./onboarding/stepfour');
@@ -106,6 +110,10 @@ const routes = [
             },
           },
         ],
+      },
+      {
+        loader: protectedLoader,
+        children: [{ index: true, Component: Home }],
       },
     ],
   },

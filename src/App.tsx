@@ -1,6 +1,31 @@
 import { RouterProvider } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import router from './routes';
+import { setAuthHandlers } from './api/api';
+import { queryClient } from './lib/queryClient';
+import { authKeys } from './api/auth/authApi';
+
+const LOGIN = '/auth/login';
+const ONBOARDING_START = '/onboarding/step-one';
+
+setAuthHandlers({
+  onUnauthorized: () => {
+    // Forget the user first,
+    queryClient.setQueryData(authKeys.me, null);
+
+    const { pathname, search } = window.location;
+    if (pathname.startsWith('/auth')) return; // already there; also stops loops
+
+    const here = pathname + search;
+    router.navigate(`${LOGIN}?redirectTo=${encodeURIComponent(here)}`, {
+      replace: true,
+    });
+  },
+  onOnboardingRequired: () => {
+    if (window.location.pathname.startsWith('/onboarding')) return;
+    router.navigate(ONBOARDING_START, { replace: true });
+  },
+});
 
 export default function App() {
   const queryClient = new QueryClient();
