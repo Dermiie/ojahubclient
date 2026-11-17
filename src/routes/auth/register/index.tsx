@@ -71,8 +71,9 @@ export default function Register() {
     registerUser(payload, {
       onSuccess: (user) => {
         // User created but NOT logged in: the session starts after the OTP is verified
+        console.log(user);
         navigate('/auth/verify?flow=register', {
-          state: { email: user.email }, // server-normalised (lowercased) email
+          state: { email: user.email, codeSent: true }, // server-normalised (lowercased) email
         });
       },
       onError: (err) => {
@@ -94,10 +95,6 @@ export default function Register() {
         if (!mapped) setError('root.server', { type: 'server', message });
       },
     });
-
-    // TODO: call the register mutation with `payload`
-    // on success → navigate('/auth/verify?flow=register', { state: { email } })
-    console.log(payload);
   };
 
   return (
@@ -212,16 +209,25 @@ export default function Register() {
             <FieldError message={errors.password?.message} />
           </div>
 
+          {errors.root?.server && (
+            <p
+              role="alert"
+              className="rounded-[12px] bg-red-50 px-[12px] py-[10px] text-[13px] leading-[17px] font-medium text-red-700 md:text-[14px]"
+            >
+              {errors.root.server.message}
+            </p>
+          )}
+
           {/* Buttons */}
           <div
             className={`space-y-4 pt-[10px] md:space-y-7 md:pt-0 ${compactMobile}:space-y-3 ${compactMobile}:pt-[4px]`}
           >
             <button
               type="submit"
-              disabled={isSubmitting || isPending}
+              disabled={isPending || isSubmitting}
               className="flex h-[44px] w-full items-center justify-center gap-[6px] rounded-[60px] bg-[#278B53] px-[10px] py-[12px] text-[16px] leading-[1] font-bold text-white transition hover:bg-[#207544] disabled:cursor-not-allowed disabled:opacity-70 md:h-[45px] md:text-[18px]"
             >
-              Create account
+              {isPending ? 'Creating account...' : 'Create account'}
             </button>
 
             <Actionbtn

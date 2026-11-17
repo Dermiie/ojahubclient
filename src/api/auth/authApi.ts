@@ -31,7 +31,18 @@ export interface ResetPasswordInput {
   newPassword: string;
 }
 
+export interface EmailOnlyInput {
+  email: string;
+}
+
 type UserResponse = ApiSuccess<{ user: User }>;
+
+interface MessageResponse {
+  success: true;
+  message: string;
+}
+
+const EMAIL_SENDING_TIMEOUT_MS = 60_000;
 
 export async function verifyMe(): Promise<User | null> {
   try {
@@ -67,6 +78,23 @@ export async function register(input: RegisterInput): Promise<User> {
     input,
   );
   return data.body.user;
+}
+
+export async function resendOtp(input: EmailOnlyInput): Promise<string> {
+  const { data } = await publicApi.post<MessageResponse>(
+    '/api/auth/resend-otp',
+    input,
+    { timeout: EMAIL_SENDING_TIMEOUT_MS },
+  );
+  return data.message;
+}
+
+export async function forgotPassword(input: EmailOnlyInput): Promise<string> {
+  const { data } = await publicApi.post<MessageResponse>(
+    '/api/auth/forgot-password',
+    input,
+  );
+  return data.message;
 }
 
 export async function verifyEmail(input: VerifyEmailInput): Promise<User> {
@@ -108,6 +136,14 @@ function useEndSession() {
 export function useRegister() {
   // No session yet, so nothing to cache
   return useMutation({ mutationFn: register });
+}
+
+export function useResendOtp() {
+  return useMutation({ mutationFn: resendOtp });
+}
+
+export function useForgotPassword() {
+  return useMutation({ mutationFn: forgotPassword });
 }
 
 export function useVerifyEmail() {
