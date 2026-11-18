@@ -42,6 +42,10 @@ const errorTextClass = 'mt-1 text-b3-medium text-red-600';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  // Set when login fails because the email is not verified yet (403)
+  const [isUnverified, setIsUnverified] = useState(false);
+  // The email to verify. Stays null if the user logged in with a phone number.
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { mutate: login, isPending } = useLogin();
@@ -59,6 +63,8 @@ export default function Login() {
 
   const onFormSubmit = (data: LoginValues) => {
     clearErrors('root');
+    setIsUnverified(false);
+    setUnverifiedEmail(null);
     console.log(data);
 
     login(data, {
@@ -70,8 +76,15 @@ export default function Login() {
         });
       },
       onError: (err) => {
-        const { message, fieldErrors } = parseApiError(err);
+        const { status, message, fieldErrors } = parseApiError(err);
         let mapped = false;
+
+        // Login only returns 403 when the email is not verified yet
+        if (status === 403) {
+          setIsUnverified(true);
+          const loggedInWithEmail = data.emailOrPhone.includes('@');
+          if (loggedInWithEmail) setUnverifiedEmail(data.emailOrPhone);
+        }
 
         // 400 validation → under each field
         for (const [name, msg] of Object.entries(fieldErrors)) {
@@ -182,6 +195,25 @@ export default function Login() {
             className="rounded-xl bg-red-50 px-3 py-2.5 text-b3-medium text-red-700"
           >
             {errors.root.server.message}
+          </p>
+        )}
+        {isUnverified && unverifiedEmail && (
+          <button
+            type="button"
+            onClick={() =>
+              navigate('/auth/verify?flow=register', {
+                state: { email: unverifiedEmail },
+              })
+            }
+            className="self-start text-b3-medium font-semibold text-primary-base hover:text-primary-hover hover:underline lg:text-b2-medium"
+          >
+            Verify your email now
+          </button>
+        )}
+        {isUnverified && !unverifiedEmail && (
+          <p className="text-b3-medium text-text-secondary lg:text-b2-medium">
+            To get a new code, log in with your email address instead of your
+            phone number.
           </p>
         )}
         {/* Actions: extra breathing room on mobile instead of the old !mt-30 hack */}

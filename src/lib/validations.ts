@@ -88,8 +88,5 @@ export const registerSchema = z.object({
     .min(1, 'Please enter your email.')
     .regex(EMAIL_PATTERN, 'Please enter a valid email address.'),
 
-  password: z
-    .string()
-    .min(1, 'Please enter a password.')
-    .min(8, 'Your password must contain at least 8 characters.'),
+  password: strongPasswordSchema,
 });
