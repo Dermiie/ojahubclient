@@ -1,3 +1,18 @@
+import { useLogout } from '@/api/auth/authApi';
+
 export default function Home() {
-  return <div>Home</div>;
+  const { mutate: logOut } = useLogout();
+
+  return (
+    <div className='flex justify-between'>
+      Home
+      <button
+        onClick={() => {
+          logOut();
+        }}
+      >
+        logout
+      </button>
+    </div>
+  );
 }
