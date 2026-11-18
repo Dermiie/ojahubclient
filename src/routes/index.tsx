@@ -1,6 +1,5 @@
 import { createBrowserRouter, redirect, type RouteObject } from "react-router";
 import Root from "./root/layout";
-import Home from "@/routes/home";
 import AuthLayout from "@/routes/auth/layout";
 import ErrorBoundary from "@/components/provider/error-boundary";
 import Suspense from "@/components/ui/suspense";
@@ -13,7 +12,7 @@ import {
   protectedLoader,
   requireBusinessLoader,
 } from "./guards";
-import type index from "./Dashboard";
+
 import DashboardOverview from "./Dashboard";
 
 const routes = [
@@ -135,13 +134,11 @@ const routes = [
       {
         loader: protectedLoader,
         children: [
-          { index: true, Component: DashboardLayout },
           {
-            path: "dashboard",
             Component: DashboardLayout,
             children: [
               {
-                index: true,
+                path: "dashboard",
                 Component: DashboardOverview,
               },
               {
@@ -155,7 +152,7 @@ const routes = [
               {
                 path: "customers",
                 lazy: async () => {
-                  const {default: Component} =
+                  const { default: Component } =
                     await import("./Dashboard/customers");
                   return { Component };
                 },

@@ -27,27 +27,26 @@ const navigationGroups = [
   {
     title: "Sell",
     items: [
-      { label: "Invoices", path: "/dashboard/invoices", icon: FileText },
-      { label: "Customers", path: "/dashboard/customers", icon: Users },
+      { label: "Invoices", path: "/invoices", icon: FileText },
+      { label: "Customers", path: "/customers", icon: Users },
     ],
   },
   {
     title: "Stocks",
     items: [
-      { label: "Products", path: "/dashboard/products", icon: Package },
-      { label: "Locations", path: "/dashboard/locations", icon: MapPin },
-      { label: "Transfer", path: "/dashboard/transfers", icon: ArrowLeftRight },
+      { label: "Products", path: "/products", icon: Package },
+      { label: "Locations", path: "/locations", icon: MapPin },
+      { label: "Transfer", path: "/transfers", icon: ArrowLeftRight },
     ],
   },
   {
     title: "Money",
     items: [
-      { label: "Payments", path: "/dashboard/payments", icon: CreditCard },
-      { label: "Settings", path: "/dashboard/settings", icon: Settings },
+      { label: "Payments", path: "/payments", icon: CreditCard },
+      { label: "Settings", path: "/settings", icon: Settings },
     ],
   },
 ];
-
 const mobileNavigationGroups = [
   {
     title: "Sell",
