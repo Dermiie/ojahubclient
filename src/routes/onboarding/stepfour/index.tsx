@@ -150,7 +150,7 @@ export default function StepFour() {
             navigate('/onboarding/step-four');
           }}
         >
-          Continue {<ArrowRight />}
+        {plan === 'yearly' ? PLANS[2].description : plan === 'six-months' ? PLANS[1].description : PLANS[0].description}
         </Button>
       </div>
     </div>

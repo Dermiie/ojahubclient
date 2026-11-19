@@ -137,9 +137,17 @@ export function parseApiError(error: unknown): ParsedApiError {
     }
   }
 
+  const isTimeout =
+    error.code === axios.AxiosError.ECONNABORTED ||
+    error.code === axios.AxiosError.ETIMEDOUT;
+
   let message = data?.message;
+
   if (!message) {
-    if (status === 0)
+    if (isTimeout)
+      message =
+        'The server is taking too long to respond. Please wait a minute and try again.';
+    else if (status === 0)
       message = "Can't reach the server. Check your connection.";
     else if (status === 429)
       message = 'Too many attempts. Please try again later.';

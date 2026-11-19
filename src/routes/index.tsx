@@ -1,6 +1,5 @@
 import { createBrowserRouter, redirect, type RouteObject } from 'react-router';
 import Root from './root/layout';
-import Home from '@/routes/home';
 import AuthLayout from '@/routes/auth/layout';
 import ErrorBoundary from '@/components/provider/error-boundary';
 import Suspense from '@/components/ui/suspense';
@@ -12,6 +11,9 @@ import {
   protectedLoader,
   requireBusinessLoader,
 } from './guards';
+
+import DashboardOverview from './Dashboard';
+import DashboardLayout from './Dashboard/layout';
 
 const routes = [
   {
@@ -127,11 +129,104 @@ const routes = [
               return { Component: Component };
             },
           },
+          {
+            path: `success`,
+            lazy: async () => {
+              const { default: Component } = await import(
+                `./onboarding/success`
+              );
+              return { Component: Component };
+            },
+          },
+          {
+            path: `expired`,
+            lazy: async () => {
+              const { default: Component } = await import(
+                `./onboarding/expired`
+              );
+              return { Component: Component };
+            },
+          },
         ],
       },
       {
         loader: protectedLoader,
-        children: [{ index: true, Component: Home }],
+        children: [
+          {
+            Component: DashboardLayout,
+            children: [
+              {
+                index: true,
+                Component: DashboardOverview,
+              },
+              { path: 'dashboard', loader: () => redirect('/') },
+              {
+                path: 'invoices',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/invoices');
+                  return { Component };
+                },
+              },
+              {
+                path: 'customers',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/customers');
+                  return { Component };
+                },
+              },
+              {
+                path: 'products',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/products');
+                  return { Component };
+                },
+              },
+              {
+                path: 'locations',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/locations');
+                  return { Component };
+                },
+              },
+              {
+                path: 'transfers',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/transfers');
+                  return { Component };
+                },
+              },
+              {
+                path: 'payments',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/payments');
+                  return { Component };
+                },
+              },
+              {
+                path: 'settings',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/settings');
+                  return { Component };
+                },
+              },
+              {
+                path: 'support',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/support');
+                  return { Component };
+                },
+              },
+            ],
+          },
+        ],
       },
     ],
   },

@@ -15,4 +15,18 @@ export default function Home() {
       </button>
     </div>
   );
+  const { mutate: logOut } = useLogout();
+
+  return (
+    <div className="flex justify-between">
+      Home
+      <button
+        onClick={() => {
+          logOut();
+        }}
+      >
+        logout
+      </button>
+    </div>
+  );
 }
