@@ -130,22 +130,23 @@ const routes = [
             },
           },
           {
-            path:`success`,
-            lazy: async () =>{
-              const {default:Component } = 
-              await import (`./onboarding/success`);
-              return{Component:Component}
-            }
+            path: `success`,
+            lazy: async () => {
+              const { default: Component } = await import(
+                `./onboarding/success`
+              );
+              return { Component: Component };
+            },
           },
           {
             path: `expired`,
-            lazy: async () =>{
-              const{default:Component}=
-              await import (`./onboarding/expired`);
-              return{Component:Component}
-            }
-          }
-          
+            lazy: async () => {
+              const { default: Component } = await import(
+                `./onboarding/expired`
+              );
+              return { Component: Component };
+            },
+          },
         ],
       },
       {
@@ -215,6 +216,14 @@ const routes = [
                   return { Component };
                 },
               },
+              {
+                path: 'support',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('./Dashboard/support');
+                  return { Component };
+                },
+              },
             ],
           },
         ],
@@ -226,4 +235,3 @@ const routes = [
 const router = createBrowserRouter(routes as RouteObject[]);
 
 export default router;
-

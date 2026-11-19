@@ -43,9 +43,10 @@ const errorTextClass = 'mt-1 text-b3-medium text-red-600';
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   // Set when login fails because the email is not verified yet (403)
-  const [isUnverified, setIsUnverified] = useState(false);
-  // The email to verify. Stays null if the user logged in with a phone number.
-  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  // const [isUnverified, setIsUnverified] = useState(false);
+  // // The email to verify. Stays null if the user logged in with a phone number.
+  // const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [needsEmailToVerify, setNeedsEmailToVerify] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { mutate: login, isPending } = useLogin();
@@ -63,8 +64,7 @@ export default function Login() {
 
   const onFormSubmit = (data: LoginValues) => {
     clearErrors('root');
-    setIsUnverified(false);
-    setUnverifiedEmail(null);
+    setNeedsEmailToVerify(false);
     console.log(data);
 
     login(data, {
@@ -81,9 +81,19 @@ export default function Login() {
 
         // Login only returns 403 when the email is not verified yet
         if (status === 403) {
-          setIsUnverified(true);
           const loggedInWithEmail = data.emailOrPhone.includes('@');
-          if (loggedInWithEmail) setUnverifiedEmail(data.emailOrPhone);
+
+          if (loggedInWithEmail) {
+            // Send them straight to the verify page.
+            // No code was sent yet, so "Resend code" is ready there at once.
+            navigate('/auth/verify?flow=register', {
+              state: { email: data.emailOrPhone },
+            });
+            return;
+          }
+
+          // Logged in with a phone number: show the message below the banner
+          setNeedsEmailToVerify(true);
         }
 
         // 400 validation → under each field
@@ -197,20 +207,7 @@ export default function Login() {
             {errors.root.server.message}
           </p>
         )}
-        {isUnverified && unverifiedEmail && (
-          <button
-            type="button"
-            onClick={() =>
-              navigate('/auth/verify?flow=register', {
-                state: { email: unverifiedEmail },
-              })
-            }
-            className="self-start text-b3-medium font-semibold text-primary-base hover:text-primary-hover hover:underline lg:text-b2-medium"
-          >
-            Verify your email now
-          </button>
-        )}
-        {isUnverified && !unverifiedEmail && (
+        {needsEmailToVerify && (
           <p className="text-b3-medium text-text-secondary lg:text-b2-medium">
             To get a new code, log in with your email address instead of your
             phone number.

@@ -48,7 +48,7 @@ export default function Verify() {
   );
   const [errorMessage, setErrorMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
-
+  const [hasCodeBeenSent, setHasCodeBeenSent] = useState(codeSent);
   const { mutate: verifyEmail, isPending: isVerifying } = useVerifyEmail();
   const { mutate: resendOtp, isPending: isResendingOtp } = useResendOtp();
   const { mutate: forgotPassword, isPending: isResendingReset } =
@@ -125,6 +125,7 @@ export default function Verify() {
     const callbacks = {
       onSuccess: (message: string) => {
         setInfoMessage(message);
+        setHasCodeBeenSent(true);
         setResendCountdown(RESEND_WAIT_SECONDS);
         inputRefs.current[0]?.focus();
       },
@@ -213,11 +214,19 @@ export default function Verify() {
             Enter your OTP
           </h1>
 
-          <p className="mx-auto mt-2 text-[16px] leading-[1.4] font-semibold text-text-primary">
-            We sent a 6-digit code to{' '}
-            <span className="text-primary-base">{email}</span>. Check your
-            inbox.
-          </p>
+          {hasCodeBeenSent ? (
+            <p className="mx-auto mt-2 text-[16px] leading-[1.4] font-semibold text-text-primary">
+              We sent a 6-digit code to{' '}
+              <span className="text-primary-base">{email}</span>. Check your
+              inbox.
+            </p>
+          ) : (
+            <p className="mx-auto mt-2 text-[16px] leading-[1.4] font-semibold text-text-primary">
+              <span className="text-primary-base">{email}</span> isn't verified
+              yet. Tap <span className="text-primary-base">Resend code</span> to
+              get a 6-digit code.
+            </p>
+          )}
 
           {/* Verification code inputs */}
           <div className="mx-auto mt-6 w-fit md:mt-12">
