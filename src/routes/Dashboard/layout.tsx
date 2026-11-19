@@ -1,7 +1,7 @@
-import { Outlet } from "react-router";
-import Sidebar from "@/components/dashboard/sidebar";
-import Navbar from "@/components/dashboard/navbar";
-import { useState } from "react";
+import { Outlet } from 'react-router';
+import Sidebar from '@/components/dashboard/sidebar';
+import Navbar from '@/components/dashboard/navbar';
+import { useState } from 'react';
 
 export default function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -18,7 +18,7 @@ export default function DashboardLayout() {
 
       <div
         className={`flex min-w-0 flex-col transition-all duration-300 ${
-          collapsed ? "lg:ml-[80px]" : "lg:ml-[18%] md:ml-[18%]"
+          collapsed ? 'lg:ml-[80px]' : 'lg:ml-[18%] md:ml-[18%]'
         }`}
       >
         <Navbar onMenuClick={() => setMobileMenuOpen(true)} />
