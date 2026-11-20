@@ -3,10 +3,14 @@ import { Link, useNavigate } from "react-router";
 import { ChevronLeft } from "lucide-react";
 import desktopLogo from "@/assets/logo/Logo-forgot password.svg";
 import forgotPasswordIcon from "@/assets/logo/forgot password icon.svg";
+import { parseApiError } from "@/api/api";
+import { useForgotPassword } from "@/api/auth/authApi";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const { mutate: forgotPassword, isPending: isSending } = useForgotPassword();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -23,9 +27,22 @@ export default function ForgotPassword() {
       return;
     }
 
-    navigate("/auth/verify?flow=forgot-password", {
-      state: { email: trimmedEmail },
-    });
+    setErrorMessage("");
+
+    // Ask the backend to email the code, and only move on once it succeeds
+    forgotPassword(
+      { email: trimmedEmail },
+      {
+        onSuccess: () => {
+          navigate("/auth/verify?flow=forgot-password", {
+            state: { email: trimmedEmail, codeSent: true },
+          });
+        },
+        onError: (error) => {
+          setErrorMessage(parseApiError(error).message);
+        },
+      },
+    );
   };
 
   return (
@@ -98,17 +115,30 @@ export default function ForgotPassword() {
                   type="email"
                   autoComplete="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setErrorMessage("");
+                  }}
                   placeholder="Enter your email address"
                   className="w-full rounded-[18px] border border-gray-300 px-5 py-3 text-sm outline-none focus:border-[#258B55] focus:ring-1 focus:ring-[#258B55] md:h-[54px] md:text-[18px]"
                 />
+
+                {errorMessage && (
+                  <p
+                    role="alert"
+                    className="mt-3 rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-700 md:text-[15px]"
+                  >
+                    {errorMessage}
+                  </p>
+                )}
               </div>
 
               <button
                 type="submit"
-                className="mt-auto w-full rounded-full bg-[#2E8B57] py-3 font-semibold text-white md:mt-[50px] md:h-[54px] md:py-0 md:text-[18px] md:font-bold"
+                disabled={isSending}
+                className="mt-auto w-full rounded-full bg-[#2E8B57] py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 md:mt-[50px] md:h-[54px] md:py-0 md:text-[18px] md:font-bold"
               >
-                Send reset code
+                {isSending ? "Sending code..." : "Send reset code"}
               </button>
             </form>
           </div>
