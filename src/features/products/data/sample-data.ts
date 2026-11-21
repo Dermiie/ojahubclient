@@ -8,7 +8,12 @@ import asoOkeBundle from "../assets/images/aso-oke-bundle.png";
 
 export const LOCATIONS: StockLocation[] = [
   { id: "stall-3", name: "Balogun Stall 3", shortName: "Stall 3" },
-  { id: "maza-maza", name: "Maza Maza Warehouse", shortName: "Maza Maza" },
+  {
+    id: "maza-maza",
+    name: "Maza Maza Warehouse",
+    shortName: "Maza Maza",
+    mobileName: "Warehouse",
+  },
   { id: "trade-fair", name: "Trade Fair", shortName: "Trade Fair" },
 ];
 

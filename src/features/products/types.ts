@@ -1,9 +1,10 @@
-export type Unit = 'bundle' | 'piece' | 'yard';
+export type Unit = "bundle" | "piece" | "yard";
 
 export type StockLocation = {
   id: string;
   name: string;
   shortName: string;
+  mobileName?: string;
 };
 
 export type Product = {
