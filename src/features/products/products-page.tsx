@@ -1,8 +1,8 @@
 // The Products page. adding the piecs together...
 
-// The Products page. We add one piece at a time inside it.
 import ProductsHeader from "./components/products-header";
 import ProductsTabs from "./components/products-tabs";
+import SummaryCards from "./components/summary-cards";
 
 export default function ProductsPage() {
   return (
@@ -11,6 +11,7 @@ export default function ProductsPage() {
         <ProductsHeader />
         <ProductsTabs />
       </div>
+      <SummaryCards />
     </div>
   );
 }
