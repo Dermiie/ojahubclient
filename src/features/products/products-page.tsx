@@ -4,6 +4,7 @@ import ProductsHeader from "./components/products-header";
 import ProductsTabs from "./components/products-tabs";
 import SummaryCards from "./components/summary-cards";
 import ProductsFilters from "./components/products-filters";
+import ProductsTable from "./components/products-table";
 
 export default function ProductsPage() {
   return (
@@ -14,6 +15,7 @@ export default function ProductsPage() {
       </div>
       <SummaryCards />
       <ProductsFilters />
+      <ProductsTable />
     </div>
   );
 }
