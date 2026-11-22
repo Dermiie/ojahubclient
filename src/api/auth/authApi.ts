@@ -3,9 +3,9 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
-} from '@tanstack/react-query';
-import { publicApi, type ApiSuccess, type User } from '../api';
-import axios from 'axios';
+} from "@tanstack/react-query";
+import { publicApi, type ApiSuccess, type User } from "../api";
+import axios from "axios";
 
 export interface RegisterInput {
   name: string;
@@ -47,7 +47,7 @@ const EMAIL_SENDING_TIMEOUT_MS = 60_000;
 export async function verifyMe(): Promise<User | null> {
   try {
     const { data } =
-      await publicApi.get<ApiSuccess<{ user: User }>>('/api/auth/me');
+      await publicApi.get<ApiSuccess<{ user: User }>>("/api/auth/me");
     return data.body.user;
   } catch (err) {
     const status = axios.isAxiosError(err) ? err.response?.status : undefined;
@@ -58,7 +58,7 @@ export async function verifyMe(): Promise<User | null> {
 }
 
 export const authKeys = {
-  me: ['auth', 'me'] as const,
+  me: ["auth", "me"] as const,
 };
 
 export const meQueryOptions = queryOptions({
@@ -74,7 +74,7 @@ export const useMe = () => useQuery(meQueryOptions);
 
 export async function register(input: RegisterInput): Promise<User> {
   const { data } = await publicApi.post<UserResponse>(
-    '/api/auth/register',
+    "/api/auth/register",
     input,
   );
   return data.body.user;
@@ -82,7 +82,7 @@ export async function register(input: RegisterInput): Promise<User> {
 
 export async function resendOtp(input: EmailOnlyInput): Promise<string> {
   const { data } = await publicApi.post<MessageResponse>(
-    '/api/auth/resend-otp',
+    "/api/auth/resend-otp",
     input,
     { timeout: EMAIL_SENDING_TIMEOUT_MS },
   );
@@ -91,7 +91,18 @@ export async function resendOtp(input: EmailOnlyInput): Promise<string> {
 
 export async function forgotPassword(input: EmailOnlyInput): Promise<string> {
   const { data } = await publicApi.post<MessageResponse>(
-    '/api/auth/forgot-password',
+    "/api/auth/forgot-password",
+    input,
+    { timeout: EMAIL_SENDING_TIMEOUT_MS },
+  );
+  return data.message;
+}
+
+export async function resetPassword(
+  input: ResetPasswordInput,
+): Promise<string> {
+  const { data } = await publicApi.post<MessageResponse>(
+    "/api/auth/reset-password",
     input,
   );
   return data.message;
@@ -99,7 +110,7 @@ export async function forgotPassword(input: EmailOnlyInput): Promise<string> {
 
 export async function verifyEmail(input: VerifyEmailInput): Promise<User> {
   const { data } = await publicApi.post<UserResponse>(
-    '/api/auth/verify-email',
+    "/api/auth/verify-email",
     input,
   );
   return data.body.user;
@@ -107,14 +118,14 @@ export async function verifyEmail(input: VerifyEmailInput): Promise<User> {
 
 export async function login(input: LoginInput): Promise<User> {
   const { data } = await publicApi.post<ApiSuccess<{ user: User }>>(
-    '/api/auth/login',
+    "/api/auth/login",
     input,
   );
   return data.body.user;
 }
 
 export async function logout(): Promise<void> {
-  await publicApi.post('/api/auth/logout');
+  await publicApi.post("/api/auth/logout");
 }
 
 // ---------- Mutation hooks ----------
@@ -144,6 +155,10 @@ export function useResendOtp() {
 
 export function useForgotPassword() {
   return useMutation({ mutationFn: forgotPassword });
+}
+
+export function useResetPassword() {
+  return useMutation({ mutationFn: resetPassword });
 }
 
 export function useVerifyEmail() {

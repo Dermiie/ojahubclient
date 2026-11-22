@@ -1,14 +1,19 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
+import { Link, useNavigate, useLocation, Navigate } from "react-router";
 import { Eye, EyeOff, ChevronLeft, Check } from "lucide-react";
 import desktopLogo from "@/assets/logo/Logo-forgot password.svg";
+import { parseApiError } from "@/api/api";
+import { useForgotPassword, useResetPassword } from "@/api/auth/authApi";
+import { strongPasswordSchema } from "@/lib/validations";
 
 export default function SetNewPassword() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Receive the email from the previous page
-  const email = (location.state as { email?: string } | null)?.email;
+  // Receive the email and the code from the previous pages
+  const routeState = location.state as { email?: string; otp?: string } | null;
+  const email = routeState?.email;
+  const otp = routeState?.otp;
 
   // Password fields
   const [newPassword, setNewPassword] = useState("");
@@ -18,17 +23,36 @@ export default function SetNewPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Feedback from the server
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const { mutate: resetPassword, isPending: isSaving } = useResetPassword();
+  const { mutate: sendNewCode, isPending: isResending } = useForgotPassword();
+
   // Password requirements
-  const hasMinLength = newPassword.length >= 8;
+  // (same rules as registration, see strongPasswordSchema)
+  const hasValidLength = newPassword.length >= 8 && newPassword.length <= 16;
+  const hasUppercase = /[A-Z]/.test(newPassword);
+  const hasLowercase = /[a-z]/.test(newPassword);
   const hasNumber = /\d/.test(newPassword);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+  const allRequirementsMet =
+    hasValidLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
   const passwordsMatch =
     newPassword === confirmPassword && confirmPassword.length > 0;
 
-  // Calculate password strength
-  const strengthScore = Number(hasMinLength) + Number(hasNumber);
+  // Calculate password strength (how many of the 5 rules are met)
+  const strengthScore =
+    Number(hasValidLength) +
+    Number(hasUppercase) +
+    Number(hasLowercase) +
+    Number(hasNumber) +
+    Number(hasSpecial);
   const strengthLabel =
-    strengthScore === 0 ? "weak" : strengthScore === 1 ? "fair" : "strong";
-  const activeBars = strengthScore === 0 ? 0 : strengthScore === 1 ? 2 : 3;
+    strengthScore <= 2 ? "weak" : strengthScore <= 4 ? "fair" : "strong";
+  // 0 rules = 0 bars, 1-2 rules = 1 bar, then one more bar per rule, 5 rules = 4 bars
+  const activeBars =
+    strengthScore <= 2 ? Math.min(strengthScore, 1) : strengthScore - 1;
 
   const inputClass =
     "w-full rounded-xl border border-gray-300 px-4 py-3 pr-12 text-sm outline-none focus:border-[#258B55] focus:ring-1 focus:ring-[#258B55] md:h-[54px] md:rounded-[18px] md:px-5 md:text-[18px]";
@@ -37,6 +61,81 @@ export default function SetNewPassword() {
     `flex items-center gap-[6px] rounded-full px-2 py-1 text-xs md:px-[14px] md:py-[6px] md:text-[15px] md:font-semibold ${
       met ? "bg-[#E7F3EC] text-[#258B55]" : "bg-gray-100 text-gray-500"
     }`;
+
+  // Opened directly (no email or code from the verify page): send them back to start
+  if (!email || !otp) {
+    return <Navigate to="/auth/forgot-password" replace />;
+  }
+
+  const handleSave = () => {
+    setErrorMessage("");
+
+    if (!allRequirementsMet) {
+      alert("Please meet all password requirements.");
+      return;
+    }
+
+    if (!passwordsMatch) {
+      alert("Your passwords do not match.");
+      return;
+    }
+
+    // Same password rules as registration
+    const strength = strongPasswordSchema.safeParse(newPassword);
+    if (!strength.success) {
+      setErrorMessage(strength.error.issues[0].message);
+      return;
+    }
+
+    resetPassword(
+      { email, otp, newPassword },
+      {
+        onSuccess: (message) => {
+          setSuccessMessage(message);
+          setTimeout(() => navigate("/auth/login", { replace: true }), 1500);
+        },
+        onError: (error) => {
+          const { message, fieldErrors } = parseApiError(error);
+
+          // Wrong or expired code: send the user back to enter it again
+          const isOtpProblem =
+            Boolean(fieldErrors.otp) ||
+            (/\b(otp|code)\b/i.test(message) && !/password/i.test(message));
+
+          if (isOtpProblem) {
+            navigate("/auth/verify?flow=forgot-password", {
+              replace: true,
+              state: { email, codeSent: true, errorMessage: message },
+            });
+            return;
+          }
+
+          // Anything else (e.g. "can't reuse your old password") stays here
+          setErrorMessage(fieldErrors.newPassword ?? message);
+        },
+      },
+    );
+  };
+
+  // Request a fresh code, then go back to the verify page to enter it
+  const handleResend = () => {
+    setErrorMessage("");
+
+    sendNewCode(
+      { email },
+      {
+        onSuccess: () => {
+          navigate("/auth/verify?flow=forgot-password", {
+            replace: true,
+            state: { email, codeSent: true },
+          });
+        },
+        onError: (error) => {
+          setErrorMessage(parseApiError(error).message);
+        },
+      },
+    );
+  };
 
   return (
     <div className="relative min-h-screen w-full bg-white px-6 py-6 md:p-0">
@@ -82,11 +181,11 @@ export default function SetNewPassword() {
             </h1>
 
             <p className="mt-2 text-sm leading-relaxed text-gray-500 md:mt-[6px] md:max-w-[440px] md:text-[15px]">
-              Enter the code sent to{" "}
+              Choose a new password for{" "}
               <strong className="text-[#1F2A24]">
                 {email || "your email address"}
               </strong>
-              , then choose a new password.
+              .
             </p>
           </div>
 
@@ -100,7 +199,11 @@ export default function SetNewPassword() {
               <input
                 type={showPassword ? "text" : "password"}
                 value={newPassword}
-                onChange={(event) => setNewPassword(event.target.value)}
+                maxLength={16}
+                onChange={(event) => {
+                  setNewPassword(event.target.value);
+                  setErrorMessage("");
+                }}
                 placeholder="Enter new password"
                 className={inputClass}
               />
@@ -135,13 +238,28 @@ export default function SetNewPassword() {
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2 md:mt-4 md:gap-[10px]">
-              <span className={chipClass(hasMinLength)}>
-                {hasMinLength ? <Check size={14} /> : <span>○</span>}
-                8+ characters
+              <span className={chipClass(hasValidLength)}>
+                {hasValidLength ? <Check size={14} /> : <span>○</span>}
+                8-16 characters
+              </span>
+
+              <span className={chipClass(hasUppercase)}>
+                {hasUppercase ? <Check size={14} /> : <span>○</span>}
+                Uppercase letter
+              </span>
+
+              <span className={chipClass(hasLowercase)}>
+                {hasLowercase ? <Check size={14} /> : <span>○</span>}
+                Lowercase letter
               </span>
 
               <span className={chipClass(hasNumber)}>
                 {hasNumber ? <Check size={14} /> : <span>○</span>}A number
+              </span>
+
+              <span className={chipClass(hasSpecial)}>
+                {hasSpecial ? <Check size={14} /> : <span>○</span>}
+                Special character
               </span>
             </div>
           </div>
@@ -177,26 +295,33 @@ export default function SetNewPassword() {
             </p>
           )}
 
+          {/* Error or success message from the server */}
+          {errorMessage && (
+            <p
+              role="alert"
+              className="mt-4 rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-700 md:text-[15px]"
+            >
+              {errorMessage}
+            </p>
+          )}
+          {successMessage && (
+            <p
+              role="status"
+              className="mt-4 rounded-xl bg-[#E7F3EC] px-3 py-2.5 text-sm text-[#258B55] md:text-[15px]"
+            >
+              {successMessage}
+            </p>
+          )}
+
           {/* Save new password button */}
           <div className="mt-auto md:mt-[34px]">
             <button
               type="button"
-              onClick={() => {
-                if (!hasMinLength || !hasNumber) {
-                  alert("Please meet all password requirements.");
-                  return;
-                }
-
-                if (!passwordsMatch) {
-                  alert("Your passwords do not match.");
-                  return;
-                }
-
-                alert("Password update is not connected yet.");
-              }}
-              className="mt-6 w-full rounded-full bg-[#2E8B57] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1F7548] md:mt-0 md:h-[54px] md:py-0 md:text-[18px] md:font-bold"
+              onClick={handleSave}
+              disabled={isSaving || Boolean(successMessage)}
+              className="mt-6 w-full rounded-full bg-[#2E8B57] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1F7548] disabled:cursor-not-allowed disabled:opacity-50 md:mt-0 md:h-[54px] md:py-0 md:text-[18px] md:font-bold"
             >
-              Save new password
+              {isSaving ? "Saving..." : "Save new password"}
             </button>
 
             {/* Resend code */}
@@ -204,14 +329,11 @@ export default function SetNewPassword() {
               Didn't get a code?{" "}
               <button
                 type="button"
-                onClick={() =>
-                  alert(
-                    "Resending OTP is not available until SMS verification is enabled.",
-                  )
-                }
-                className="font-bold text-[#258B55]"
+                onClick={handleResend}
+                disabled={isResending}
+                className="font-bold text-[#258B55] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Resend
+                {isResending ? "Sending..." : "Resend"}
               </button>
             </p>
           </div>
