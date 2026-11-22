@@ -3,7 +3,6 @@ import {
   PRODUCT_UNITS,
   useOnboardingState,
   useSaveProduct,
-  useSkipProduct,
   type ProductInput,
   type ProductUnit,
 } from '@/api/onboarding/onboarding';
@@ -55,8 +54,6 @@ export default function StepThree() {
   const navigate = useNavigate();
   const { data: savedProgress } = useOnboardingState();
   const { mutate: saveProduct, isPending: isSaving } = useSaveProduct();
-  const { mutate: skipProduct, isPending: isSkipping } = useSkipProduct();
-  const isBusy = isSaving || isSkipping;
 
   const {
     register,
@@ -126,17 +123,6 @@ export default function StepThree() {
     };
 
     saveProduct(payload, {
-      onSuccess: () => {
-        navigate('/onboarding/step-four');
-      },
-      onError: showServerError,
-    });
-  };
-
-  const onSkip = () => {
-    clearErrors();
-
-    skipProduct(undefined, {
       onSuccess: () => {
         navigate('/onboarding/step-four');
       },
@@ -241,23 +227,14 @@ export default function StepThree() {
             type="button"
             variant="outline"
             size="lg"
-            disabled={isBusy}
+            disabled={isSaving}
             onClick={() => navigate('/onboarding/step-two')}
           >
             Back
           </Button>
 
           <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="ghost"
-              size="lg"
-              disabled={isBusy}
-              onClick={onSkip}
-            >
-              {isSkipping ? 'Skipping...' : 'Skip for now'}
-            </Button>
-            <Button type="submit" size="lg" disabled={isBusy}>
+            <Button type="submit" size="lg" disabled={isSaving}>
               {isSaving ? 'Saving...' : 'Continue'}
               <ArrowRight />
             </Button>

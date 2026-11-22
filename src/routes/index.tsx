@@ -10,6 +10,8 @@ import {
   onboardingLoader,
   protectedLoader,
   requireBusinessLoader,
+  stepFourLoader,
+  stepThreeLoader,
 } from './guards';
 
 import DashboardOverview from './Dashboard';
@@ -113,7 +115,7 @@ const routes = [
           },
           {
             path: 'step-three',
-            loader: requireBusinessLoader,
+            loader: stepThreeLoader,
             lazy: async () => {
               const { default: Component } =
                 await import('./onboarding/stepthree');
@@ -122,7 +124,7 @@ const routes = [
           },
           {
             path: 'step-four',
-            loader: requireBusinessLoader,
+            loader: stepFourLoader,
             lazy: async () => {
               const { default: Component } =
                 await import('./onboarding/stepfour');

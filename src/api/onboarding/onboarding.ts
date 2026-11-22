@@ -218,15 +218,22 @@ export const onboardingStateQueryOptions = queryOptions({
 export const useOnboardingState = () => useQuery(onboardingStateQueryOptions);
 
 /** After any step is saved, the saved progress is out of date: refetch it. */
-function useRefreshOnboardingState() {
+function useUpdateOnboardingStep() {
   const queryClient = useQueryClient();
-  return () =>
+
+  return (onboardingStep: number) => {
+    queryClient.setQueryData<OnboardingState>(onboardingKeys.state, (state) => {
+      if (!state) return state; // nothing cached yet: the guard will fetch it
+      return { ...state, onboardingStep };
+    });
+
     queryClient.invalidateQueries({ queryKey: onboardingKeys.state });
+  };
 }
 
 export function useSaveBusiness() {
   const queryClient = useQueryClient();
-  const refreshOnboardingState = useRefreshOnboardingState();
+  const updateOnboardingStep = useUpdateOnboardingStep();
 
   return useMutation({
     mutationFn: saveBusiness,
@@ -238,39 +245,39 @@ export function useSaveBusiness() {
         return { ...user, businessId: result.business._id };
       });
 
-      refreshOnboardingState();
+      updateOnboardingStep(result.onboardingStep);
     },
   });
 }
 
 export function useSaveLocation() {
-  const refreshOnboardingState = useRefreshOnboardingState();
+  const updateOnboardingStep = useUpdateOnboardingStep();
   return useMutation({
     mutationFn: saveLocation,
-    onSuccess: refreshOnboardingState,
+    onSuccess: (result) => updateOnboardingStep(result.onboardingStep),
   });
 }
 
 export function useSaveProduct() {
-  const refreshOnboardingState = useRefreshOnboardingState();
+  const updateOnboardingStep = useUpdateOnboardingStep();
   return useMutation({
     mutationFn: saveProduct,
-    onSuccess: refreshOnboardingState,
+    onSuccess: (result) => updateOnboardingStep(result.onboardingStep),
   });
 }
 
 export function useSkipProduct() {
-  const refreshOnboardingState = useRefreshOnboardingState();
+  const updateOnboardingStep = useUpdateOnboardingStep();
   return useMutation({
     mutationFn: skipProduct,
-    onSuccess: refreshOnboardingState,
+    onSuccess: (result) => updateOnboardingStep(result.onboardingStep),
   });
 }
 
 export function useChoosePlan() {
-  const refreshOnboardingState = useRefreshOnboardingState();
+  const updateOnboardingStep = useUpdateOnboardingStep();
   return useMutation({
     mutationFn: choosePlan,
-    onSuccess: refreshOnboardingState,
+    onSuccess: (result) => updateOnboardingStep(result.onboardingStep),
   });
 }
