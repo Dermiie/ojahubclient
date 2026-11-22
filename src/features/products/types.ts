@@ -16,3 +16,5 @@ export type Product = {
   stock: Record<string, number>;
   lowStockLevel: number;
 };
+
+export type StockFilter = "all" | "low";
