@@ -1,31 +1,31 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { z } from 'zod';
-import { Eye, EyeOff } from 'lucide-react';
-import Actionbtn from '@/components/ui/action-btn';
-import googleLogo from '@/assets/logo/google-logo.svg';
-import { normalizePrefixedPhone, registerSchema } from '@/lib/validations';
-import { useRegister, type RegisterInput } from '@/api/auth/authApi';
-import { parseApiError } from '@/api/api';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
+import { Eye, EyeOff } from "lucide-react";
+import Actionbtn from "@/components/ui/action-btn";
+import googleLogo from "@/assets/logo/google-logo.svg";
+import { normalizePrefixedPhone, registerSchema } from "@/lib/validations";
+import { useRegister, type RegisterInput } from "@/api/auth/authApi";
+import { parseApiError } from "@/api/api";
 
 type RegisterValues = z.infer<typeof registerSchema>;
 
-const FIELDS: (keyof RegisterValues)[] = ['name', 'phone', 'email', 'password'];
+const FIELDS: (keyof RegisterValues)[] = ["name", "phone", "email", "password"];
 
 // ---------- Shared styles ----------
 
 // One input style for every field, mobile and desktop
 const inputClass =
-  'h-[44px] w-full rounded-[16px] border border-[#D1D1D1] px-[12px] text-[13px] leading-[17px] font-medium text-[#1F2A24] outline-none placeholder:text-[#95A19C] focus:border-[#2E8B57] md:h-[48px] md:px-[15px] md:text-[14px] md:leading-[18px] md:placeholder:text-[14px]';
+  "h-[44px] w-full rounded-[16px] border border-[#D1D1D1] px-[12px] text-[13px] leading-[17px] font-medium text-[#1F2A24] outline-none placeholder:text-[#95A19C] focus:border-[#2E8B57] md:h-[48px] md:px-[15px] md:text-[14px] md:leading-[18px] md:placeholder:text-[14px]";
 
-const inputErrorClass = 'border-red-500 focus:border-red-500';
+const inputErrorClass = "border-red-500 focus:border-red-500";
 
 const labelClass =
-  'mb-2 block w-full text-[13px] leading-[17px] font-semibold md:text-[16px] md:leading-[18px]';
+  "mb-2 block w-full text-[13px] leading-[17px] font-semibold md:text-[16px] md:leading-[18px]";
 
-const compactMobile = '[@media(max-height:860px)_and_(max-width:767px)]';
+const compactMobile = "[@media(max-height:860px)_and_(max-width:767px)]";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -51,15 +51,16 @@ export default function Register() {
     handleSubmit,
     setError,
     clearErrors,
+
     formState: { errors, isSubmitting },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
-    mode: 'onTouched', // validate after leaving a field, then on every change
-    defaultValues: { name: '', phone: '', email: '', password: '' },
+    mode: "onTouched", // validate after leaving a field, then on every change
+    defaultValues: { name: "", phone: "", email: "", password: "" },
   });
 
   const onSubmit = (values: RegisterValues) => {
-    clearErrors('root');
+    clearErrors("root");
     // Shape the body the backend expects
     const payload: RegisterInput = {
       name: values.name,
@@ -72,7 +73,7 @@ export default function Register() {
       onSuccess: (user) => {
         // User created but NOT logged in: the session starts after the OTP is verified
         console.log(user);
-        navigate('/auth/verify?flow=register', {
+        navigate("/auth/verify?flow=register", {
           state: { email: user.email, codeSent: true }, // server-normalised (lowercased) email
         });
       },
@@ -84,7 +85,7 @@ export default function Register() {
         for (const [name, msg] of Object.entries(fieldErrors)) {
           if (FIELDS.includes(name as keyof RegisterValues)) {
             setError(name as keyof RegisterValues, {
-              type: 'server',
+              type: "server",
               message: msg,
             });
             mapped = true;
@@ -92,7 +93,7 @@ export default function Register() {
         }
 
         // 409 email/phone already used, 503 email not sent, 429, network → banner
-        if (!mapped) setError('root.server', { type: 'server', message });
+        if (!mapped) setError("root.server", { type: "server", message });
       },
     });
   };
@@ -124,8 +125,8 @@ export default function Register() {
               autoComplete="name"
               placeholder="Enter your full name"
               aria-invalid={!!errors.name}
-              className={`${inputClass} ${errors.name ? inputErrorClass : ''}`}
-              {...register('name')}
+              className={`${inputClass} ${errors.name ? inputErrorClass : ""}`}
+              {...register("name")}
             />
             <FieldError message={errors.name?.message} />
           </div>
@@ -138,7 +139,7 @@ export default function Register() {
 
             <div
               className={`flex h-[44px] w-full items-center gap-[8px] overflow-hidden rounded-[16px] border border-[#D1D1D1] px-[9px] focus-within:border-[#2E8B57] md:h-[48px] md:gap-0 md:px-0 ${
-                errors.phone ? inputErrorClass : ''
+                errors.phone ? inputErrorClass : ""
               }`}
             >
               <span className="flex h-[26px] w-[62px] shrink-0 items-center border-r border-[#D1D1D1] text-[12px] leading-[1] font-medium text-[#1F2A24] md:h-[34px] md:w-[95px] md:px-[10px] md:text-[17px]">
@@ -153,7 +154,7 @@ export default function Register() {
                 placeholder="803 000 0000"
                 aria-invalid={!!errors.phone}
                 className="min-w-0 flex-1 text-[13px] leading-[1] font-medium text-[#1F2A24] outline-none placeholder:text-[#95A19C] md:px-[15px] md:text-[14px] md:placeholder:text-[14px]"
-                {...register('phone')}
+                {...register("phone")}
               />
             </div>
             <FieldError message={errors.phone?.message} />
@@ -170,8 +171,8 @@ export default function Register() {
               autoComplete="email"
               placeholder="you@example.com"
               aria-invalid={!!errors.email}
-              className={`${inputClass} ${errors.email ? inputErrorClass : ''}`}
-              {...register('email')}
+              className={`${inputClass} ${errors.email ? inputErrorClass : ""}`}
+              {...register("email")}
             />
             <FieldError message={errors.email?.message} />
           </div>
@@ -185,18 +186,18 @@ export default function Register() {
             <div className="relative">
               <input
                 id="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="At least 8 characters"
                 aria-invalid={!!errors.password}
-                className={`${inputClass} pr-10 md:pr-16 ${errors.password ? inputErrorClass : ''}`}
-                {...register('password')}
+                className={`${inputClass} pr-10 md:pr-16 ${errors.password ? inputErrorClass : ""}`}
+                {...register("password")}
               />
 
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute right-[8px] top-1/2 z-10 -translate-y-1/2 text-gray-400 md:right-4"
               >
                 {showPassword ? (
@@ -227,7 +228,7 @@ export default function Register() {
               disabled={isPending || isSubmitting}
               className="flex h-[44px] w-full items-center justify-center gap-[6px] rounded-[60px] bg-[#278B53] px-[10px] py-[12px] text-[16px] leading-[1] font-bold text-white transition hover:bg-[#207544] disabled:cursor-not-allowed disabled:opacity-70 md:h-[45px] md:text-[18px]"
             >
-              {isPending ? 'Creating account...' : 'Create account'}
+              {isPending ? "Creating account..." : "Create account"}
             </button>
 
             <Actionbtn
@@ -247,7 +248,7 @@ export default function Register() {
         <p
           className={`mt-[29px] text-center text-[13px] leading-[17px] font-medium text-[#727E79] md:mt-6 md:text-[14px] ${compactMobile}:mt-[20px]`}
         >
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link
             to="/auth/login"
             className="font-semibold text-[#2E8B57] underline"
@@ -259,9 +260,9 @@ export default function Register() {
         <p
           className={`mx-auto mt-[13px] w-full whitespace-nowrap text-center text-[clamp(11px,3.3vw,13px)] leading-[1.3] font-medium text-[#727E79] md:mt-2 md:w-[477px] md:text-[14px] md:leading-[23px] ${compactMobile}:mt-2`}
         >
-          By continuing you agree to the{' '}
-          <span className="cursor-pointer text-[#2E8B57] underline">Terms</span>{' '}
-          and{' '}
+          By continuing you agree to the{" "}
+          <span className="cursor-pointer text-[#2E8B57] underline">Terms</span>{" "}
+          and{" "}
           <span className="cursor-pointer text-[#2E8B57] underline">
             Privacy Policy
           </span>
