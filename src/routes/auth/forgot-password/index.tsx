@@ -3,18 +3,13 @@ import { Link, useNavigate } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
 import desktopLogo from '@/assets/logo/Logo-forgot password.svg';
 import forgotPasswordIcon from '@/assets/logo/forgot password icon.svg';
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { ChevronLeft } from 'lucide-react';
-import desktopLogo from '@/assets/logo/Logo-forgot password.svg';
-import forgotPasswordIcon from '@/assets/logo/forgot password icon.svg';
 import { parseApiError } from '@/api/api';
 import { useForgotPassword } from '@/api/auth/authApi';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [email, setEmail] = useState('');
+
   const [errorMessage, setErrorMessage] = useState('');
   const { mutate: forgotPassword, isPending: isSending } = useForgotPassword();
 
