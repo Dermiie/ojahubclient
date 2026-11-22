@@ -7,7 +7,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const strongPasswordSchema = z
   .string()
   .min(8, {
-    message: 'Password should be at least 8 characters',
+    message: 'At least 8 characters required.',
   })
   .max(16, {
     message: 'Password should not exceed 16 characters',
