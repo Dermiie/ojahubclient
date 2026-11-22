@@ -5,7 +5,13 @@ import dropdownIcon from "../assets/icons/dropdown.svg";
 import dropdownMobileIcon from "../assets/icons/dropdown-mobile.svg";
 import pinIcon from "../assets/icons/pin.svg";
 
-export default function ProductsFilters() {
+export default function ProductsFilters({
+  search,
+  onSearchChange,
+}: {
+  search: string;
+  onSearchChange: (value: string) => void;
+}) {
   return (
     <div className="flex flex-wrap items-center gap-[8.86px] lg:gap-[10px]">
       {/* search box, desktop only (on mobile the search button in the header does this) */}
@@ -13,6 +19,8 @@ export default function ProductsFilters() {
         <img src={searchIcon} alt="" className="size-[18px]" />
         <input
           type="text"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
           placeholder="Search products"
           className="min-w-0 flex-1 bg-transparent text-[16px] tracking-[-0.02em] text-text-primary outline-none placeholder:text-text-tertiary"
         />

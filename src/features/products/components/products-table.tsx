@@ -1,5 +1,5 @@
 // The products table: the header row, then one row for each product. On mobile it is a card for each product instead.
-import { LOCATIONS, SAMPLE_PRODUCTS } from "../data/sample-data";
+import { LOCATIONS } from "../data/sample-data";
 import type { Product } from "../types";
 
 const COLUMNS =
@@ -28,7 +28,7 @@ function getLowAt(product: Product) {
   });
 }
 
-export default function ProductsTable() {
+export default function ProductsTable({ products }: { products: Product[] }) {
   return (
     <>
       {/* desktop view */}
@@ -45,7 +45,7 @@ export default function ProductsTable() {
           <div className={HEAD_LEFT}>Status</div>
         </div>
 
-        {SAMPLE_PRODUCTS.map((product) => {
+        {products.map((product) => {
           const total = getTotal(product);
           const lowAt = getLowAt(product);
 
@@ -120,7 +120,7 @@ export default function ProductsTable() {
 
       {/* mobile view: one card for each product */}
       <div className="flex flex-col gap-[10px] lg:hidden">
-        {SAMPLE_PRODUCTS.map((product) => {
+        {products.map((product) => {
           const total = getTotal(product);
           const lowAt = getLowAt(product);
 

@@ -55,7 +55,7 @@ export default function SummaryCards() {
           <img
             src={ringsMobileImage}
             alt=""
-            className="absolute -right-[70px] -top-[70px] size-[160px] max-w-none"
+            className="absolute right-0 top-0 size-[90px] max-w-none"
           />
 
           <p className="relative text-[13px] leading-[1.3] text-[#cfe8d9]">
