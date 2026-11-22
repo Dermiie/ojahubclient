@@ -30,7 +30,10 @@ export default function Onboarding() {
           >
             Log Out
           </Button>
-          <Button>Finish later</Button>
+          {location.pathname !== '/onboarding/step-one' &&
+            location.pathname !== '/onboarding/step-two' && (
+              <Button variant={'ghost'}>Skip for later</Button>
+            )}
         </div>
       )}
       <section>

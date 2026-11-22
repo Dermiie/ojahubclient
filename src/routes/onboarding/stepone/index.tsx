@@ -166,7 +166,7 @@ export default function Stepone() {
           </p>
         )}
 
-        <div className="flex w-full justify-end">
+        <div className="flex w-full justify-end mt-8">
           <Button type="submit" size="lg" disabled={isPending}>
             {isPending ? 'Saving...' : 'Continue'}
             <ArrowRight />
