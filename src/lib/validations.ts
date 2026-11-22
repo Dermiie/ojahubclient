@@ -1,3 +1,4 @@
+import { BUSINESS_CATEGORIES } from '@/api/onboarding/onboarding';
 import { z } from 'zod';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,4 +90,23 @@ export const registerSchema = z.object({
     .regex(EMAIL_PATTERN, 'Please enter a valid email address.'),
 
   password: strongPasswordSchema,
+});
+
+// ---------- Onboarding ----------
+
+// Step 1: same rules as the backend's businessStep1Schema
+export const businessStepSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Enter your business name')
+    .max(100, 'Business name is too long'),
+  category: z.enum(BUSINESS_CATEGORIES, {
+    message: 'Choose what you sell',
+  }),
+  businessLocation: z
+    .string()
+    .trim()
+    .min(2, 'Enter your business location')
+    .max(200, 'Business location is too long'),
 });
