@@ -3,6 +3,10 @@ type CategorySelectProps = {
   options: string[];
   value: string;
   onChange: (value: string) => void;
+  // Optional: the text to show for an option, when it should differ from
+  // the value sent to the API (e.g. value "piece", shown as "Piece").
+  // Leave it out to show the option itself.
+  getOptionLabel?: (option: string) => string;
 };
 
 export default function CategorySelect({
@@ -10,6 +14,7 @@ export default function CategorySelect({
   options,
   value,
   onChange,
+  getOptionLabel,
 }: CategorySelectProps) {
   return (
     <div>
@@ -18,6 +23,7 @@ export default function CategorySelect({
       <div className="flex flex-wrap gap-3">
         {options.map((option) => {
           const isSelected = option === value;
+          const optionLabel = getOptionLabel ? getOptionLabel(option) : option;
 
           return (
             <button
@@ -45,7 +51,7 @@ export default function CategorySelect({
                   />
                 </svg>
               )}
-              {option}
+              {optionLabel}
             </button>
           );
         })}
