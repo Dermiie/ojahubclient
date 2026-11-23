@@ -40,6 +40,14 @@ export interface SubscriptionState {
   subscription: Subscription | null;
 }
 
+export const TRIAL_DAYS = 14;
+
+export const PLANS: Plan[] = [
+  { id: 'monthly', label: 'Monthly', priceKobo: 500000, months: 1 }, // ₦5,000
+  { id: 'six_months', label: '6 months', priceKobo: 2700000, months: 6 }, // ₦27,000
+  { id: 'yearly', label: 'Yearly', priceKobo: 4800000, months: 12 }, // ₦48,000
+];
+
 // ---------- Query keys ----------
 
 export const subscriptionKeys = {

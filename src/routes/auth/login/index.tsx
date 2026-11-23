@@ -217,7 +217,7 @@ export default function Login() {
         <div className="mt-12 flex flex-col gap-5 lg:mt-3">
           <Actionbtn
             type="submit"
-            text="Log in"
+            text={isPending ? 'Logging in...' : 'Log in'}
             disabled={isSubmitting || isPending}
             classname={`${pillButtonClass} bg-primary-base text-text-inverse hover:bg-primary-hover active:bg-primary-active lg:text-h5-bold`}
           />
