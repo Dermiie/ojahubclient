@@ -194,10 +194,10 @@ export async function skipProduct(): Promise<SkipProductResult> {
 }
 
 /** Step 4. PUT /api/onboarding/plan. Starts the 14-day free trial (no payment). */
-export async function choosePlan(input: PlanInput): Promise<ChoosePlanResult> {
+export async function choosePlan(input?: PlanInput): Promise<ChoosePlanResult> {
   const { data } = await api.put<ApiSuccess<ChoosePlanResult>>(
     '/api/onboarding/plan',
-    input,
+    input ? input : null,
   );
   return data.body;
 }
