@@ -28,3 +28,15 @@ export function nairaToKobo(naira: number): number {
 export function koboToNaira(kobo: number): number {
   return kobo / 100;
 }
+
+export function formatNaira(kobo: number): string {
+  const naira = koboToNaira(kobo);
+  const hasKobo = !Number.isInteger(naira);
+
+  const text = naira.toLocaleString('en-NG', {
+    minimumFractionDigits: hasKobo ? 2 : 0,
+    maximumFractionDigits: 2,
+  });
+
+  return `₦${text}`;
+}
