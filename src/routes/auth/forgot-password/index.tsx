@@ -28,9 +28,9 @@ export default function ForgotPassword() {
       return;
     }
 
-    navigate('/auth/verify?flow=forgot-password', {
-      state: { email: trimmedEmail },
-    });
+    // navigate('/auth/verify?flow=forgot-password', {
+    //   state: { email: trimmedEmail },
+    // });
     setErrorMessage('');
 
     // Ask the backend to email the code, and only move on once it succeeds

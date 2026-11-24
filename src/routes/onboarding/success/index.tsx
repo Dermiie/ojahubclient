@@ -1,4 +1,5 @@
 import { ArrowRight, Check } from 'lucide-react';
+import { useNavigate } from 'react-router';
 
 const subscriptionDetails = [
   { label: 'Plan', value: 'Yearly' },
@@ -7,6 +8,8 @@ const subscriptionDetails = [
 ];
 
 export default function SubscriptionSuccess() {
+  const navigate = useNavigate();
+
   return (
     <main className="fixed inset-0 z-[9999] overflow-y-auto bg-white px-4 pt-[60px] pb-10 font-sans sm:pt-[80px]">
       <section className="mx-auto w-full max-w-[400px] sm:max-w-[520px]">
@@ -93,6 +96,7 @@ export default function SubscriptionSuccess() {
           <button
             type="button"
             className="order-1 flex h-[44px] items-center justify-center gap-2 rounded-full bg-primary-base text-[14px] leading-none font-semibold text-white transition-colors hover:bg-primary-hover sm:order-2 sm:h-[44px] sm:text-[14px]"
+            onClick={() => navigate('/')}
           >
             Go to Dashboard
             <ArrowRight className="size-[16px]" />
