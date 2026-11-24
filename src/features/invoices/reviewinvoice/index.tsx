@@ -1,11 +1,5 @@
-
 import { useState } from "react";
-import {
-  Box,
-  ShieldCheck,
-  ArrowLeft,
-  CalendarDays,
-} from "lucide-react";
+import { Box, ShieldCheck, ArrowLeft, CalendarDays } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
@@ -151,17 +145,17 @@ export default function ReviewPage() {
   if (!validDraft || !draft) {
     return (
       <main className="min-h-[350px] bg-background-main p-5 sm:p-8">
-        <div className="mx-auto max-w-xl rounded-xl border border-border-default bg-background-main p-6">
-          <h1 className="text-lg font-bold text-text-primary">
+        <div className="mx-auto max-w-xl rounded-2xl border border-border-default bg-background-main p-6 sm:p-8">
+          <h1 className="text-xl font-bold text-text-primary sm:text-2xl">
             Nothing to review
           </h1>
 
-          <p className="mt-2 text-sm leading-6 text-text-secondary">
+          <p className="mt-3 text-sm leading-7 text-text-secondary sm:text-base">
             Add a customer and at least one valid product first.
           </p>
 
           <Button
-            className="mt-5 rounded-full bg-primary-base px-6 text-text-inverse hover:bg-primary-hover"
+            className="mt-6 rounded-full bg-primary-base px-6 py-3 text-sm font-semibold text-text-inverse hover:bg-primary-hover"
             onClick={() => navigate(backPath)}
           >
             <ArrowLeft className="mr-2 size-4" />
@@ -176,8 +170,6 @@ export default function ReviewPage() {
     (sum, line) => sum + line.qty * line.price,
     0,
   );
-
-  const totalQuantity = draft.lines.reduce((sum, line) => sum + line.qty, 0);
 
   const today = new Date().toLocaleDateString("en-NG", {
     day: "2-digit",
@@ -194,77 +186,79 @@ export default function ReviewPage() {
     .toUpperCase();
 
   return (
-    <main className="w-full min-w-0 bg-background-main px-3 py-4 sm:px-5 sm:py-5">
+    <main className="w-full min-w-0 bg-background-main px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
       {/* Page heading */}
-      <header className="mb-5">
+      <header className="mb-7">
         <button
           type="button"
           onClick={() => navigate(backPath)}
-          className="mb-3 inline-flex size-7 items-center justify-center rounded-full border border-border-default text-icon-grey transition hover:bg-background-card"
+          className="mb-4 inline-flex size-9 items-center justify-center rounded-full border border-border-default bg-background-main text-primary-base transition hover:bg-primary-subtle"
           aria-label="Go back"
         >
-          <ArrowLeft size={15} />
+          <ArrowLeft size={18} />
         </button>
 
-        <p className="text-[10px] text-text-secondary">Invoices</p>
+        <p className="text-sm font-medium text-text-secondary">Invoices</p>
 
-        <h1 className="mt-1 text-lg font-bold tracking-tight text-text-primary sm:text-xl">
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
           Review before sending
         </h1>
 
-        <p className="mt-2 text-[10px] text-text-secondary">
+        <p className="mt-2 text-sm leading-6 text-text-secondary sm:text-base">
           This is exactly what {draft.customerName.split(" ")[0]} will see when
           she opens the link.
         </p>
       </header>
 
       {/* Main Figma layout */}
-      <div className="grid min-w-0 items-start gap-3 lg:grid-cols-2 xl:gap-4">
-        {/* LEFT: Compact invoice preview */}
+      <div className="grid min-w-0 items-start gap-5 lg:grid-cols-2 xl:gap-6">
+        {/* LEFT: Invoice preview */}
         <section className="min-w-0 overflow-hidden rounded-2xl border border-border-default bg-background-main">
           {/* Business and invoice heading */}
-          <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-3 py-3 sm:px-4">
-            <div className="flex min-w-0 items-center gap-2">
-              <div className="grid size-8 flex-none place-items-center rounded-full bg-secondary-base text-[10px] font-bold text-text-inverse">
+          <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-4 sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="grid size-10 flex-none place-items-center rounded-full bg-secondary-base text-sm font-bold text-text-inverse">
                 OH
               </div>
 
               <div className="min-w-0">
-                <p className="text-[11px] font-bold text-text-primary">OjaHub</p>
-                <p className="mt-0.5 text-[9px] text-text-secondary">
+                <p className="text-base font-bold text-text-primary">OjaHub</p>
+                <p className="mt-1 text-xs text-text-secondary">
                   Invoice preview
                 </p>
               </div>
             </div>
 
             <div className="text-right">
-              <p className="text-[9px] text-text-secondary">INVOICE</p>
-              <p className="mt-1 text-[11px] font-semibold text-text-primary">
+              <p className="text-xs font-semibold text-text-secondary">
+                INVOICE
+              </p>
+              <p className="mt-1 text-sm font-semibold text-text-primary">
                 New invoice
               </p>
-              <p className="mt-1 text-[9px] text-text-secondary">{today}</p>
+              <p className="mt-1 text-xs text-text-secondary">{today}</p>
             </div>
           </div>
 
           {/* Customer information */}
-          <div className="flex items-start justify-between gap-3 px-3 py-4 sm:px-4">
+          <div className="flex items-start justify-between gap-3 px-4 py-5 sm:px-5">
             <div className="min-w-0">
-              <p className="text-[9px] font-semibold uppercase tracking-wide text-text-secondary">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
                 Bill to
               </p>
 
-              <div className="mt-2 flex items-center gap-2">
-                <div className="grid size-8 flex-none place-items-center rounded-xl bg-primary-subtle text-[10px] font-semibold text-primary-base">
+              <div className="mt-3 flex items-center gap-3">
+                <div className="grid size-10 flex-none place-items-center rounded-xl bg-primary-subtle text-sm font-semibold text-primary-base">
                   {initials}
                 </div>
 
                 <div className="min-w-0">
-                  <p className="break-words text-[10px] font-semibold text-text-primary">
+                  <p className="break-words text-sm font-semibold text-text-primary sm:text-base">
                     {draft.customerName}
                   </p>
 
                   {draft.customerPhone && (
-                    <p className="mt-1 text-[9px] text-text-secondary">
+                    <p className="mt-1 text-sm text-text-secondary">
                       {draft.customerPhone}
                     </p>
                   )}
@@ -273,22 +267,22 @@ export default function ReviewPage() {
             </div>
 
             <div className="flex-none text-right">
-              <p className="text-[9px] font-semibold uppercase tracking-wide text-text-secondary">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
                 Date issued
               </p>
 
-              <div className="mt-2 flex items-center gap-1.5 text-[10px] font-medium text-text-primary">
-                <CalendarDays size={12} className="text-text-secondary" />
+              <div className="mt-3 flex items-center gap-2 text-sm font-medium text-text-primary">
+                <CalendarDays size={16} className="text-primary-base" />
                 {today}
               </div>
             </div>
           </div>
 
           {/* Product list */}
-          <div className="px-3 pb-3 sm:px-4 sm:pb-4">
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
             <div className="overflow-hidden rounded-xl border border-border-subtle">
               {/* Table heading */}
-              <div className="grid grid-cols-[minmax(0,1fr)_42px_85px] gap-2 bg-background-card px-3 py-2.5 text-[8px] font-semibold uppercase tracking-wide text-text-secondary sm:grid-cols-[minmax(0,1fr)_48px_95px]">
+              <div className="grid grid-cols-[minmax(0,1fr)_48px_100px] gap-2 border-b border-border-subtle bg-primary-subtle px-3 py-3 text-xs font-semibold uppercase tracking-wide text-text-primary sm:grid-cols-[minmax(0,1fr)_55px_115px] sm:px-4">
                 <span>Product</span>
                 <span className="text-center">Qty</span>
                 <span className="text-right">Amount</span>
@@ -299,22 +293,22 @@ export default function ReviewPage() {
                 {draft.lines.map((line, index) => (
                   <div
                     key={`${line.name}-${index}`}
-                    className="grid grid-cols-[minmax(0,1fr)_42px_85px] items-center gap-2 px-3 py-3 sm:grid-cols-[minmax(0,1fr)_48px_95px]"
+                    className="grid grid-cols-[minmax(0,1fr)_48px_100px] items-center gap-2 px-3 py-4 sm:grid-cols-[minmax(0,1fr)_55px_115px] sm:px-4"
                   >
                     <div className="min-w-0">
-                      <p className="break-words text-[10px] font-medium text-text-primary">
+                      <p className="break-words text-sm font-medium text-text-primary">
                         {line.name}
                       </p>
-                      <p className="mt-1 text-[9px] text-text-secondary">
+                      <p className="mt-1 text-xs text-text-secondary">
                         {naira(line.price)} per unit
                       </p>
                     </div>
 
-                    <span className="text-center text-[10px] text-text-secondary">
+                    <span className="text-center text-sm font-medium text-text-primary">
                       {line.qty}
                     </span>
 
-                    <span className="text-right text-[10px] font-semibold text-text-primary">
+                    <span className="text-right text-sm font-semibold text-text-primary">
                       {naira(line.qty * line.price)}
                     </span>
                   </div>
@@ -323,12 +317,12 @@ export default function ReviewPage() {
             </div>
 
             {/* Total due */}
-            <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-primary-subtle px-3 py-3.5">
-              <span className="text-[10px] font-medium text-text-primary">
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-primary-light bg-primary-subtle px-4 py-4">
+              <span className="text-sm font-semibold text-text-primary sm:text-base">
                 Total due
               </span>
 
-              <span className="text-base font-bold text-primary-active">
+              <span className="text-xl font-bold text-primary-active sm:text-2xl">
                 {naira(total)}
               </span>
             </div>
@@ -336,19 +330,19 @@ export default function ReviewPage() {
         </section>
 
         {/* RIGHT: Alerts and actions */}
-        <aside className="min-w-0 space-y-2">
+        <aside className="min-w-0 space-y-4">
           {/* Account verification notice */}
-          <section className="flex gap-2.5 rounded-2xl border border-success-light bg-success-light p-3">
-            <div className="grid size-7 flex-none place-items-center rounded-full bg-background-main">
-              <ShieldCheck size={14} className="text-success-base" />
+          <section className="flex gap-3 rounded-2xl border border-success-base/20 bg-success-light p-4 sm:p-5">
+            <div className="grid size-10 flex-none place-items-center rounded-full bg-background-main">
+              <ShieldCheck size={20} className="text-success-base" />
             </div>
 
             <div className="min-w-0">
-              <h2 className="text-[10px] font-semibold text-success-base">
+              <h2 className="text-sm font-semibold text-success-base sm:text-base">
                 No alerts to check
               </h2>
 
-              <p className="mt-1 text-[9px] leading-[1.6] text-text-secondary">
+              <p className="mt-2 text-sm leading-6 text-text-primary">
                 {draft.customerName} gets her own one-time account number. When
                 she transfers, OjaHub confirms it and marks this invoice paid.
               </p>
@@ -356,30 +350,30 @@ export default function ReviewPage() {
           </section>
 
           {/* Stock update notice */}
-          <section className="flex gap-2.5 rounded-2xl border border-border-default bg-background-card p-3">
-            <div className="grid size-7 flex-none place-items-center rounded-full bg-secondary-base/15">
-              <Box size={14} className="text-secondary-base" />
+          <section className="flex gap-3 rounded-2xl border border-primary-light bg-background-main p-4 sm:p-5">
+            <div className="grid size-10 flex-none place-items-center rounded-full bg-primary-subtle">
+              <Box size={20} className="text-primary-base" />
             </div>
 
             <div className="min-w-0">
-              <h2 className="text-[10px] font-semibold text-text-primary">
+              <h2 className="text-sm font-semibold text-text-primary sm:text-base">
                 Stock updates on payment
               </h2>
 
-              <p className="mt-1 text-[9px] leading-[1.6] text-text-secondary">
+              <p className="mt-2 text-sm leading-6 text-text-secondary">
                 Stock updates will happen when the invoice is paid.
               </p>
             </div>
           </section>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 pt-1">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
             <Button
               type="button"
               variant="outline"
               disabled={sending}
               onClick={() => navigate(backPath)}
-              className="h-9 flex-1 rounded-full border border-border-default bg-background-main text-[11px] font-semibold text-text-primary hover:bg-background-card"
+              className="h-11 flex-1 rounded-full border border-primary-base bg-background-main text-sm font-semibold text-primary-base hover:bg-primary-subtle"
             >
               Edit
             </Button>
@@ -388,7 +382,7 @@ export default function ReviewPage() {
               type="button"
               disabled={sending}
               onClick={createInvoice}
-              className="h-9 flex-[1.8] rounded-full bg-primary-base text-[11px] font-semibold text-text-inverse hover:bg-primary-hover"
+              className="h-11 flex-[1.8] rounded-full bg-primary-base text-sm font-semibold text-text-inverse hover:bg-primary-hover"
             >
               {sending ? "Creating invoice..." : "Create and send"}
             </Button>
@@ -398,7 +392,7 @@ export default function ReviewPage() {
           {error && (
             <div
               role="alert"
-              className="rounded-xl border border-border-default bg-background-card p-3 text-[10px] leading-5 text-text-primary"
+              className="rounded-xl border border-primary-light bg-primary-subtle p-4 text-sm leading-6 text-text-primary"
             >
               {error}
             </div>

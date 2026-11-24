@@ -190,19 +190,19 @@ export default function AddItemModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-item-title"
-        className="flex max-h-[92vh] w-full max-w-[560px] flex-col overflow-hidden rounded-t-[24px] bg-background-main shadow-2xl sm:max-h-[85vh] sm:rounded-[22px]"
+        className="flex max-h-[92vh] w-full max-w-[560px] flex-col overflow-hidden rounded-t-[24px] border border-border-subtle bg-background-main shadow-2xl sm:max-h-[85vh] sm:rounded-[22px]"
       >
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between px-5 pb-3 pt-5 sm:px-6 sm:pt-6">
+        <div className="flex shrink-0 items-center justify-between px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
           <div>
             <h2
               id="add-item-title"
-              className="text-base font-bold text-text-primary"
+              className="text-xl font-bold text-text-primary sm:text-2xl"
             >
               {showCreateForm ? "Create new product" : "Add item"}
             </h2>
 
-            <p className="mt-1 text-[11px] text-text-secondary">
+            <p className="mt-1.5 text-sm text-text-secondary">
               Prices shown from Bulk importer
             </p>
           </div>
@@ -211,17 +211,17 @@ export default function AddItemModal({
             type="button"
             onClick={onClose}
             aria-label="Close add item dialog"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-background-card text-icon-grey transition hover:bg-background-muted"
+            className="flex size-10 items-center justify-center rounded-full border border-primary-light bg-background-main text-primary-base transition hover:bg-primary-subtle"
           >
-            <X size={16} />
+            <X size={19} />
           </button>
         </div>
 
         {showCreateForm ? (
           <div className="flex-1 overflow-y-auto px-5 pb-6 sm:px-6">
-            <div className="space-y-4 pt-3">
+            <div className="space-y-5 pt-3">
               <div>
-                <label className="mb-2 block text-xs font-semibold text-text-primary">
+                <label className="mb-2 block text-sm font-semibold text-text-primary">
                   Product name
                 </label>
 
@@ -232,12 +232,12 @@ export default function AddItemModal({
                     setError("");
                   }}
                   placeholder="Enter product name"
-                  className="h-11 w-full rounded-xl border border-border-default bg-background-main px-3 text-sm text-text-primary outline-none transition focus:border-primary-base"
+                  className="h-12 w-full rounded-xl border border-border-default bg-background-main px-4 text-base text-text-primary outline-none transition placeholder:text-text-tertiary focus:border-primary-base"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-xs font-semibold text-text-primary">
+                <label className="mb-2 block text-sm font-semibold text-text-primary">
                   Selling price (₦)
                 </label>
 
@@ -250,12 +250,12 @@ export default function AddItemModal({
                     setError("");
                   }}
                   placeholder="Enter selling price"
-                  className="h-11 w-full rounded-xl border border-border-default bg-background-main px-3 text-sm text-text-primary outline-none transition focus:border-primary-base"
+                  className="h-12 w-full rounded-xl border border-border-default bg-background-main px-4 text-base text-text-primary outline-none transition placeholder:text-text-tertiary focus:border-primary-base"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-xs font-semibold text-text-primary">
+                <label className="mb-2 block text-sm font-semibold text-text-primary">
                   Available stock
                 </label>
 
@@ -267,12 +267,17 @@ export default function AddItemModal({
                     setNewProductStock(event.target.value);
                     setError("");
                   }}
-                  className="h-11 w-full rounded-xl border border-border-default bg-background-main px-3 text-sm text-text-primary outline-none transition focus:border-primary-base"
+                  className="h-12 w-full rounded-xl border border-border-default bg-background-main px-4 text-base text-text-primary outline-none transition focus:border-primary-base"
                 />
               </div>
 
               {error && (
-                <p className="text-xs font-medium text-text-primary">{error}</p>
+                <p
+                  role="alert"
+                  className="text-sm font-medium text-primary-active"
+                >
+                  {error}
+                </p>
               )}
 
               <div className="flex gap-3 pt-2">
@@ -282,7 +287,7 @@ export default function AddItemModal({
                     setShowCreateForm(false);
                     setError("");
                   }}
-                  className="h-11 flex-1 rounded-full border border-border-default text-sm font-semibold text-text-secondary transition hover:bg-background-card"
+                  className="h-12 flex-1 rounded-full border border-primary-base bg-background-main text-sm font-semibold text-primary-base transition hover:bg-primary-subtle"
                 >
                   Cancel
                 </button>
@@ -290,13 +295,13 @@ export default function AddItemModal({
                 <button
                   type="button"
                   onClick={createProduct}
-                  className="h-11 flex-1 rounded-full bg-primary-base text-sm font-semibold text-text-inverse transition hover:bg-primary-hover"
+                  className="h-12 flex-1 rounded-full bg-primary-base text-sm font-semibold text-text-inverse transition hover:bg-primary-hover"
                 >
                   Create product
                 </button>
               </div>
 
-              <p className="text-center text-[10px] text-text-secondary">
+              <p className="text-center text-xs leading-5 text-text-secondary">
                 Temporary product data. Backend integration will be added later.
               </p>
             </div>
@@ -304,15 +309,15 @@ export default function AddItemModal({
         ) : (
           <>
             {/* Search */}
-            <div className="shrink-0 px-5 pb-3 sm:px-6">
-              <div className="flex h-10 items-center gap-2 rounded-full bg-background-card px-3">
-                <Search size={15} className="text-text-tertiary" />
+            <div className="shrink-0 px-5 pb-4 sm:px-6">
+              <div className="flex h-12 items-center gap-3 rounded-full border border-border-default bg-background-main px-4">
+                <Search size={18} className="flex-none text-primary-base" />
 
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Search name or phone"
-                  className="h-full min-w-0 flex-1 bg-transparent text-xs text-text-primary outline-none placeholder:text-text-tertiary"
+                  className="h-full min-w-0 flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-tertiary"
                 />
 
                 {search && (
@@ -320,28 +325,28 @@ export default function AddItemModal({
                     type="button"
                     onClick={() => setSearch("")}
                     aria-label="Clear search"
-                    className="text-text-tertiary transition hover:text-text-primary"
+                    className="text-primary-base transition hover:text-primary-active"
                   >
-                    <X size={14} />
+                    <X size={17} />
                   </button>
                 )}
               </div>
             </div>
 
             {/* Products */}
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-2 sm:px-6">
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-3 sm:px-6">
               {filteredProducts.length === 0 ? (
                 <div className="py-12 text-center">
                   <ShoppingBag
-                    size={26}
-                    className="mx-auto mb-3 text-text-tertiary"
+                    size={30}
+                    className="mx-auto mb-3 text-primary-base"
                   />
 
-                  <p className="text-sm font-semibold text-text-primary">
+                  <p className="text-base font-semibold text-text-primary">
                     No products found
                   </p>
 
-                  <p className="mt-1 text-xs text-text-secondary">
+                  <p className="mt-2 text-sm leading-6 text-text-secondary">
                     Try a different search or create a new product.
                   </p>
                 </div>
@@ -354,11 +359,11 @@ export default function AddItemModal({
                     return (
                       <div
                         key={product.id}
-                        className="flex min-h-[65px] items-center gap-3 py-2.5"
+                        className="flex min-h-[76px] items-center gap-3 py-3"
                       >
                         {/* Product thumbnail */}
                         <div
-                          className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl text-xl"
+                          className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl"
                           style={{
                             backgroundColor: product.imageColor,
                           }}
@@ -368,16 +373,16 @@ export default function AddItemModal({
 
                         {/* Product information */}
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-bold text-text-primary">
+                          <p className="truncate text-sm font-bold text-text-primary sm:text-base">
                             {product.name}
                           </p>
 
-                          <p className="mt-1 text-[10px] text-text-secondary">
+                          <p className="mt-1.5 text-xs leading-5 text-text-secondary">
                             {product.stock > 0
                               ? `${product.stock} at ${product.warehouse}`
                               : `None at ${product.warehouse}`}
                             {product.bulk && (
-                              <span className="ml-1.5 rounded-full bg-primary-subtle px-1.5 py-0.5 text-[9px] font-semibold text-primary-base">
+                              <span className="ml-2 inline-block rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] font-semibold text-primary-base">
                                 Bulk
                               </span>
                             )}
@@ -385,18 +390,18 @@ export default function AddItemModal({
                         </div>
 
                         {/* Price and action */}
-                        <div className="flex shrink-0 flex-col items-end gap-1">
-                          <p className="text-[11px] font-bold text-text-primary">
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <p className="text-sm font-bold text-text-primary sm:text-base">
                             {formatPrice(product.price)}
                           </p>
 
                           {outOfStock ? (
-                            <span className="text-[10px] font-medium text-text-tertiary">
+                            <span className="text-xs font-medium text-text-secondary">
                               Out of stock
                             </span>
                           ) : added ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2.5 py-1 text-[9px] font-semibold text-success-base">
-                              <Check size={10} strokeWidth={3} />
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-success-light px-3 py-1.5 text-xs font-semibold text-success-base">
+                              <Check size={13} strokeWidth={3} />
                               Added
                             </span>
                           ) : (
@@ -404,9 +409,9 @@ export default function AddItemModal({
                               type="button"
                               onClick={() => addProduct(product)}
                               aria-label={`Add ${product.name}`}
-                              className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-active text-text-inverse transition hover:bg-primary-base"
+                              className="flex size-9 items-center justify-center rounded-full bg-primary-base text-text-inverse transition hover:bg-primary-hover"
                             >
-                              <Plus size={16} />
+                              <Plus size={19} />
                             </button>
                           )}
                         </div>
@@ -418,16 +423,16 @@ export default function AddItemModal({
             </div>
 
             {/* Footer */}
-            <div className="shrink-0 border-t border-border-subtle bg-background-main px-5 pb-5 pt-3 sm:px-6">
+            <div className="shrink-0 border-t border-border-subtle bg-background-main px-5 pb-5 pt-4 sm:px-6">
               <button
                 type="button"
                 onClick={() => {
                   setShowCreateForm(true);
                   setError("");
                 }}
-                className="flex h-10 w-full items-center justify-center gap-2 rounded-full border border-dashed border-primary-light text-xs font-semibold text-primary-base transition hover:bg-primary-subtle"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-dashed border-primary-base text-sm font-semibold text-primary-base transition hover:bg-primary-subtle"
               >
-                <Plus size={15} />
+                <Plus size={18} />
                 Create a new product
               </button>
             </div>
