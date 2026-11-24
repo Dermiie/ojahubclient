@@ -1,4 +1,5 @@
 // The products table: the header row, then one row for each product. On mobile it is a card for each product instead.
+import { Link } from "react-router";
 import { LOCATIONS } from "../data/sample-data";
 import type { Product } from "../types";
 
@@ -32,7 +33,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
   return (
     <>
       {/* desktop view */}
-      <div className="hidden flex-col rounded-[28.94px] border-[1.03px] border-background-muted pt-[6.2px] lg:flex">
+      <div className="hidden flex-col overflow-hidden rounded-[28.94px] border-[1.03px] border-background-muted pt-[6.2px] lg:flex">
         <div className={COLUMNS}>
           <div className={HEAD_LEFT}>Product</div>
           <div className={HEAD_RIGHT}>Retail price</div>
@@ -49,10 +50,12 @@ export default function ProductsTable({ products }: { products: Product[] }) {
           const total = getTotal(product);
           const lowAt = getLowAt(product);
 
+          // the whole row is a link to that product's page
           return (
-            <div
+            <Link
               key={product.id}
-              className={`${COLUMNS} [&:last-child>*]:border-b-0`}
+              to={`/products/${product.id}`}
+              className={`${COLUMNS} hover:bg-background-card [&:last-child>*]:border-b-0`}
             >
               {/* product */}
               <div
@@ -113,7 +116,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                   </span>
                 )}
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -134,9 +137,11 @@ export default function ProductsTable({ products }: { products: Product[] }) {
             )
             .join(" · ");
 
+          // the whole card is a link to that product's page
           return (
-            <div
+            <Link
               key={product.id}
+              to={`/products/${product.id}`}
               className="flex items-center gap-3 rounded-[22px] border border-border-default p-3"
             >
               {/* photo */}
@@ -174,7 +179,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                   </span>
                 )}
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

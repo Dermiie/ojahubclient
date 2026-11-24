@@ -186,6 +186,14 @@ const routes = [
                   return { Component };
                 },
               },
+               {
+                path: 'products/:productId',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('@/features/products/product-details-page');
+                  return { Component };
+                },
+              },
               {
                 path: 'locations',
                 lazy: async () => {
