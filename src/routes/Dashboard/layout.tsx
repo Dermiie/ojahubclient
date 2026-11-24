@@ -23,7 +23,7 @@ export default function DashboardLayout() {
       >
         <Navbar onMenuClick={() => setMobileMenuOpen(true)} />
 
-        <main>
+        <main className="px-3 py-4 sm:px-5 sm:py-6 lg:px-7">
           <Outlet />
         </main>
       </div>

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Search,
   Plus,
@@ -10,8 +10,8 @@ import {
   Clock3,
   CircleAlert,
   Receipt,
-} from "lucide-react";
-import { Link } from "react-router";
+} from 'lucide-react';
+import { Link } from 'react-router';
 
 import {
   fetchInvoices,
@@ -20,27 +20,27 @@ import {
   getInvoiceTotal,
   getInvoiceBalance,
   getItemsSummary,
-} from "@/lib/invoices";
+} from '@/lib/invoices';
 
-import type { Invoice } from "@/lib/invoices";
+import type { Invoice } from '@/lib/invoices';
 
-type InvoiceFilter = "All" | Invoice["status"] | "Outstanding";
+type InvoiceFilter = 'All' | Invoice['status'] | 'Outstanding';
 
-const statusStyles: Record<Invoice["status"], string> = {
-  Waiting: "bg-background-muted text-text-secondary",
-  Paid: "bg-success-light text-success-base",
-  "Part-paid": "bg-primary-subtle text-primary-base",
-  Owing: "bg-secondary-base/15 text-secondary-base",
+const statusStyles: Record<Invoice['status'], string> = {
+  Waiting: 'bg-background-muted text-text-secondary',
+  Paid: 'bg-success-light text-success-base',
+  'Part-paid': 'bg-primary-subtle text-primary-base',
+  Owing: 'bg-secondary-base/15 text-secondary-base',
 };
 
-const statusDots: Record<Invoice["status"], string> = {
-  Waiting: "bg-text-tertiary",
-  Paid: "bg-success-base",
-  "Part-paid": "bg-primary-base",
-  Owing: "bg-secondary-base",
+const statusDots: Record<Invoice['status'], string> = {
+  Waiting: 'bg-text-tertiary',
+  Paid: 'bg-success-base',
+  'Part-paid': 'bg-primary-base',
+  Owing: 'bg-secondary-base',
 };
 
-function StatusBadge({ status }: { status: Invoice["status"] }) {
+function StatusBadge({ status }: { status: Invoice['status'] }) {
   return (
     <span
       className={`inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold ${statusStyles[status]}`}
@@ -53,23 +53,23 @@ function StatusBadge({ status }: { status: Invoice["status"] }) {
 
 function CustomerAvatar({ name }: { name: string }) {
   const initials = name
-    .split(" ")
+    .split(' ')
     .filter(Boolean)
     .map((part) => part[0])
-    .join("")
+    .join('')
     .slice(0, 2)
     .toUpperCase();
 
   return (
     <div className="grid size-9 flex-none place-items-center rounded-xl bg-primary-subtle text-xs font-bold text-primary-base">
-      {initials || "CU"}
+      {initials || 'CU'}
     </div>
   );
 }
 
 export default function InvoicesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeStatus, setActiveStatus] = useState<InvoiceFilter>("All");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeStatus, setActiveStatus] = useState<InvoiceFilter>('All');
 
   const {
     data: invoices = [],
@@ -77,7 +77,7 @@ export default function InvoicesPage() {
     isError: invoicesError,
     refetch: refetchInvoices,
   } = useQuery({
-    queryKey: ["invoices"],
+    queryKey: ['invoices'],
     queryFn: fetchInvoices,
   });
 
@@ -87,7 +87,7 @@ export default function InvoicesPage() {
     isError: customersError,
     refetch: refetchCustomers,
   } = useQuery({
-    queryKey: ["customers"],
+    queryKey: ['customers'],
     queryFn: fetchCustomers,
   });
 
@@ -103,13 +103,13 @@ export default function InvoicesPage() {
     customerMap.get(invoice.customerId)?.name ?? invoice.customerId;
 
   const stats = useMemo(() => {
-    const waiting = invoices.filter((invoice) => invoice.status === "Waiting");
+    const waiting = invoices.filter((invoice) => invoice.status === 'Waiting');
 
     const outstanding = invoices.filter(
-      (invoice) => invoice.status === "Owing" || invoice.status === "Part-paid",
+      (invoice) => invoice.status === 'Owing' || invoice.status === 'Part-paid',
     );
 
-    const paid = invoices.filter((invoice) => invoice.status === "Paid");
+    const paid = invoices.filter((invoice) => invoice.status === 'Paid');
 
     return {
       waitingAmount: waiting.reduce(
@@ -132,11 +132,11 @@ export default function InvoicesPage() {
   const statusCounts = useMemo(
     () => ({
       All: invoices.length,
-      Waiting: invoices.filter((item) => item.status === "Waiting").length,
-      Paid: invoices.filter((item) => item.status === "Paid").length,
-      "Part-paid": invoices.filter((item) => item.status === "Part-paid")
+      Waiting: invoices.filter((item) => item.status === 'Waiting').length,
+      Paid: invoices.filter((item) => item.status === 'Paid').length,
+      'Part-paid': invoices.filter((item) => item.status === 'Part-paid')
         .length,
-      Owing: invoices.filter((item) => item.status === "Owing").length,
+      Owing: invoices.filter((item) => item.status === 'Owing').length,
     }),
     [invoices],
   );
@@ -149,9 +149,9 @@ export default function InvoicesPage() {
         customerMap.get(invoice.customerId)?.name ?? invoice.customerId;
 
       const matchesStatus =
-        activeStatus === "All" ||
-        (activeStatus === "Outstanding"
-          ? invoice.status === "Owing" || invoice.status === "Part-paid"
+        activeStatus === 'All' ||
+        (activeStatus === 'Outstanding'
+          ? invoice.status === 'Owing' || invoice.status === 'Part-paid'
           : invoice.status === activeStatus);
 
       const searchableText = [
@@ -161,21 +161,21 @@ export default function InvoicesPage() {
         getItemsSummary(invoice),
         invoice.status,
       ]
-        .join(" ")
+        .join(' ')
         .toLowerCase();
 
       return matchesStatus && (!search || searchableText.includes(search));
     });
   }, [invoices, customerMap, activeStatus, searchTerm]);
 
-  const hasFilters = Boolean(searchTerm) || activeStatus !== "All";
+  const hasFilters = Boolean(searchTerm) || activeStatus !== 'All';
 
-  const filters: Array<"All" | Invoice["status"]> = [
-    "All",
-    "Waiting",
-    "Paid",
-    "Part-paid",
-    "Owing",
+  const filters: Array<'All' | Invoice['status']> = [
+    'All',
+    'Waiting',
+    'Paid',
+    'Part-paid',
+    'Owing',
   ];
 
   const handleRetry = () => {
@@ -184,12 +184,12 @@ export default function InvoicesPage() {
   };
 
   const clearFilters = () => {
-    setSearchTerm("");
-    setActiveStatus("All");
+    setSearchTerm('');
+    setActiveStatus('All');
   };
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-[1600px] space-y-6 bg-background-main px-3 py-4 sm:px-5 sm:py-6 lg:px-7">
+    <main className="mx-auto w-full min-w-0 max-w-[1600px] space-y-6 bg-background-main ">
       {/* Page heading */}
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -220,8 +220,8 @@ export default function InvoicesPage() {
         {/* Waiting */}
         <button
           type="button"
-          onClick={() => setActiveStatus("Waiting")}
-          aria-pressed={activeStatus === "Waiting"}
+          onClick={() => setActiveStatus('Waiting')}
+          aria-pressed={activeStatus === 'Waiting'}
           className="group rounded-2xl bg-primary-active p-5 text-left text-text-inverse transition hover:shadow-md sm:p-6"
         >
           <div className="flex items-center justify-between">
@@ -237,8 +237,8 @@ export default function InvoicesPage() {
 
           <div className="mt-4 flex items-center justify-between">
             <span className="text-xs text-text-secondary-inverse">
-              {stats.waitingCount}{" "}
-              {stats.waitingCount === 1 ? "invoice" : "invoices"} awaiting
+              {stats.waitingCount}{' '}
+              {stats.waitingCount === 1 ? 'invoice' : 'invoices'} awaiting
               payment
             </span>
 
@@ -252,8 +252,8 @@ export default function InvoicesPage() {
         {/* Outstanding */}
         <button
           type="button"
-          onClick={() => setActiveStatus("Outstanding")}
-          aria-pressed={activeStatus === "Outstanding"}
+          onClick={() => setActiveStatus('Outstanding')}
+          aria-pressed={activeStatus === 'Outstanding'}
           className="group rounded-2xl bg-secondary-base/15 p-5 text-left transition hover:shadow-md sm:p-6"
         >
           <div className="flex items-center justify-between">
@@ -269,8 +269,8 @@ export default function InvoicesPage() {
 
           <div className="mt-4 flex items-center justify-between">
             <span className="text-xs text-text-secondary">
-              {stats.outstandingCount}{" "}
-              {stats.outstandingCount === 1 ? "invoice" : "invoices"} part-paid
+              {stats.outstandingCount}{' '}
+              {stats.outstandingCount === 1 ? 'invoice' : 'invoices'} part-paid
               or owing
             </span>
 
@@ -284,8 +284,8 @@ export default function InvoicesPage() {
         {/* Fully paid */}
         <button
           type="button"
-          onClick={() => setActiveStatus("Paid")}
-          aria-pressed={activeStatus === "Paid"}
+          onClick={() => setActiveStatus('Paid')}
+          aria-pressed={activeStatus === 'Paid'}
           className="group rounded-2xl border border-border-default bg-background-main p-5 text-left transition hover:shadow-md sm:col-span-2 sm:p-6 xl:col-span-1"
         >
           <div className="flex items-center justify-between">
@@ -301,8 +301,8 @@ export default function InvoicesPage() {
 
           <div className="mt-4 flex items-center justify-between">
             <span className="text-xs text-text-tertiary">
-              {stats.paidCount} completed{" "}
-              {stats.paidCount === 1 ? "payment" : "payments"}
+              {stats.paidCount} completed{' '}
+              {stats.paidCount === 1 ? 'payment' : 'payments'}
             </span>
 
             <ChevronRight
@@ -334,7 +334,7 @@ export default function InvoicesPage() {
           {searchTerm && (
             <button
               type="button"
-              onClick={() => setSearchTerm("")}
+              onClick={() => setSearchTerm('')}
               aria-label="Clear search"
               className="absolute right-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-text-tertiary transition hover:bg-background-muted"
             >
@@ -357,15 +357,15 @@ export default function InvoicesPage() {
                   aria-pressed={active}
                   className={`inline-flex h-10 flex-none items-center gap-2 rounded-full border px-4 text-sm font-medium transition ${
                     active
-                      ? "border-primary-base bg-primary-base text-text-inverse"
-                      : "border-border-default bg-background-main text-text-secondary hover:border-primary-base/50"
+                      ? 'border-primary-base bg-primary-base text-text-inverse'
+                      : 'border-border-default bg-background-main text-text-secondary hover:border-primary-base/50'
                   }`}
                 >
                   {status}
 
                   <span
                     className={`text-xs ${
-                      active ? "text-text-inverse/75" : "text-text-tertiary"
+                      active ? 'text-text-inverse/75' : 'text-text-tertiary'
                     }`}
                   >
                     {statusCounts[status]}
@@ -376,13 +376,13 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        {activeStatus === "Outstanding" && (
+        {activeStatus === 'Outstanding' && (
           <div className="flex flex-none items-center gap-2 text-sm text-text-secondary lg:hidden">
             <span>Showing Part-paid and Owing invoices</span>
 
             <button
               type="button"
-              onClick={() => setActiveStatus("All")}
+              onClick={() => setActiveStatus('All')}
               className="font-semibold text-primary-base hover:underline"
             >
               Clear
@@ -397,10 +397,10 @@ export default function InvoicesPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-default bg-background-main px-4 py-5 sm:px-6">
           <div>
             <h2 className="text-base font-semibold text-text-primary sm:text-lg">
-              {activeStatus === "Outstanding"
-                ? "Outstanding invoices"
-                : activeStatus === "All"
-                  ? "All invoices"
+              {activeStatus === 'Outstanding'
+                ? 'Outstanding invoices'
+                : activeStatus === 'All'
+                  ? 'All invoices'
                   : `${activeStatus} invoices`}
             </h2>
 
@@ -410,8 +410,8 @@ export default function InvoicesPage() {
           </div>
 
           <span className="rounded-full bg-background-muted px-4 py-2 text-xs font-medium text-text-secondary">
-            {filteredInvoices.length}{" "}
-            {filteredInvoices.length === 1 ? "result" : "results"}
+            {filteredInvoices.length}{' '}
+            {filteredInvoices.length === 1 ? 'result' : 'results'}
           </span>
         </div>
 
@@ -457,10 +457,10 @@ export default function InvoicesPage() {
 
             <p className="mt-1 max-w-xs text-sm leading-6 text-text-tertiary">
               {searchTerm
-                ? "Try searching with another customer, invoice number or product."
-                : activeStatus === "Outstanding"
-                  ? "There are no part-paid or owing invoices at the moment."
-                  : "There are no invoices in this category yet."}
+                ? 'Try searching with another customer, invoice number or product.'
+                : activeStatus === 'Outstanding'
+                  ? 'There are no part-paid or owing invoices at the moment.'
+                  : 'There are no invoices in this category yet.'}
             </p>
 
             {hasFilters && (
