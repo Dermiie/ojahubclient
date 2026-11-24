@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import {
   Check,
@@ -113,11 +112,7 @@ interface AddItemModalProps {
   onClose: () => void;
 }
 
-function AddItemModal({
-  lines,
-  onAdd,
-  onClose,
-}: AddItemModalProps) {
+function AddItemModal({ lines, onAdd, onClose }: AddItemModalProps) {
   const [products, setProducts] = useState(initialProducts);
   const [search, setSearch] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -141,8 +136,7 @@ function AddItemModal({
 
   const isAdded = (name: string) =>
     lines.some(
-      (line) =>
-        line.name.trim().toLowerCase() === name.trim().toLowerCase(),
+      (line) => line.name.trim().toLowerCase() === name.trim().toLowerCase(),
     );
 
   const handleAdd = (product: SampleProduct) => {
@@ -256,7 +250,7 @@ function AddItemModal({
             type="button"
             onClick={onClose}
             aria-label="Close modal"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-background-card text-icon-grey transition hover:bg-background-muted"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-background-main text-icon-grey transition hover:bg-primary-subtle"
           >
             <X size={16} />
           </button>
@@ -330,7 +324,7 @@ function AddItemModal({
                     setShowCreateForm(false);
                     setError("");
                   }}
-                  className="h-11 flex-1 rounded-full border border-border-default text-sm font-semibold text-text-secondary transition hover:bg-background-card"
+                  className="h-11 flex-1 rounded-full border border-border-default bg-background-main text-sm font-semibold text-text-secondary transition hover:bg-primary-subtle"
                 >
                   Cancel
                 </button>
@@ -354,11 +348,8 @@ function AddItemModal({
           <>
             {/* Search field */}
             <div className="shrink-0 px-5 pb-3 sm:px-6">
-              <div className="flex h-10 items-center gap-2 rounded-full bg-background-card px-3">
-                <Search
-                  size={15}
-                  className="shrink-0 text-text-tertiary"
-                />
+              <div className="flex h-10 items-center gap-2 rounded-full border border-border-default bg-background-main px-3">
+                <Search size={15} className="shrink-0 text-text-tertiary" />
 
                 <input
                   value={search}
@@ -551,8 +542,7 @@ export default function NewInvoicePage() {
     setLines((current) => {
       const existingIndex = current.findIndex(
         (line) =>
-          line.name.trim().toLowerCase() ===
-          newLine.name.trim().toLowerCase(),
+          line.name.trim().toLowerCase() === newLine.name.trim().toLowerCase(),
       );
 
       if (existingIndex >= 0) {
@@ -583,9 +573,7 @@ export default function NewInvoicePage() {
   const decreaseQuantity = (index: number) => {
     setLines((current) =>
       current
-        .map((line, i) =>
-          i === index ? { ...line, qty: line.qty - 1 } : line,
-        )
+        .map((line, i) => (i === index ? { ...line, qty: line.qty - 1 } : line))
         .filter((line) => line.qty > 0),
     );
 
@@ -640,9 +628,7 @@ export default function NewInvoicePage() {
   const reviewInvoice = () => {
     if (!saveDraft()) return;
 
-    navigate(
-      isDevRoute ? "/__dev/review-invoice" : "/invoices/new/review",
-    );
+    navigate(isDevRoute ? "/__dev/review-invoice" : "/invoices/new/review");
   };
 
   const goBack = () => {
@@ -871,7 +857,7 @@ export default function NewInvoicePage() {
               )}
 
               {lines.length > 0 && (
-                <div className="border-t border-border-subtle bg-background-card px-5 py-5 sm:px-6">
+                <div className="border-t border-border-subtle bg-background-main px-5 py-5 sm:px-6">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-text-secondary">
                       Subtotal

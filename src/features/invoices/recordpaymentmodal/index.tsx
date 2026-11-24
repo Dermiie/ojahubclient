@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import {
   Banknote,
   Building2,
@@ -145,7 +146,7 @@ export default function RecordPaymentModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-[#10251B]/35 sm:items-center sm:p-5"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-text-primary/55 sm:items-center sm:p-5"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !saving) {
           onClose();
@@ -156,22 +157,22 @@ export default function RecordPaymentModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="record-payment-title"
-        className="relative max-h-[94dvh] w-full overflow-y-auto rounded-t-[22px] bg-white px-4 pb-5 pt-5 shadow-2xl sm:max-h-[90vh] sm:max-w-[448px] sm:rounded-[18px] sm:px-6 sm:py-5"
+        className="relative max-h-[94dvh] w-full overflow-y-auto rounded-t-[22px] bg-background-main px-5 pb-6 pt-6 shadow-2xl sm:max-h-[90vh] sm:max-w-[448px] sm:rounded-[18px] sm:px-6 sm:py-6"
       >
         {/* Mobile handle */}
-        <div className="absolute left-1/2 top-2 h-1 w-9 -translate-x-1/2 rounded-full bg-[#DDE4DF] sm:hidden" />
+        <div className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-border-default sm:hidden" />
 
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2
               id="record-payment-title"
-              className="text-[15px] font-bold text-[#26382D]"
+              className="text-xl font-bold text-text-primary"
             >
               Record Payment
             </h2>
 
-            <p className="mt-1 text-[9px] text-[#879188]">
+            <p className="mt-1 text-sm text-text-secondary">
               {invoice.no} · {customer.name}
             </p>
           </div>
@@ -181,14 +182,14 @@ export default function RecordPaymentModal({
             onClick={onClose}
             disabled={saving}
             aria-label="Close payment modal"
-            className="grid size-7 flex-none place-items-center rounded-full bg-[#EDF3EF] text-[#405448] transition hover:bg-[#E1EBE4] disabled:opacity-50"
+            className="grid size-9 flex-none place-items-center rounded-full border border-border-default bg-background-main text-text-secondary transition hover:bg-primary-subtle disabled:opacity-50"
           >
-            <X size={13} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Payment mode */}
-        <div className="mt-4 grid grid-cols-3 rounded-full bg-[#EAF3ED] p-0.5">
+        <div className="mt-5 grid grid-cols-3 rounded-full bg-primary-subtle p-1">
           {modes.map((item) => (
             <button
               key={item.value}
@@ -196,10 +197,10 @@ export default function RecordPaymentModal({
               disabled={saving}
               onClick={() => setMode(item.value)}
               aria-pressed={mode === item.value}
-              className={`min-h-8 rounded-full px-1 text-[9px] font-semibold transition ${
+              className={`min-h-10 rounded-full px-2 text-xs font-semibold transition sm:text-sm ${
                 mode === item.value
-                  ? "bg-[#218B57] text-white shadow-sm"
-                  : "text-[#718078] hover:text-[#26382D]"
+                  ? "bg-primary-base text-text-inverse shadow-sm"
+                  : "text-text-secondary hover:text-text-primary"
               }`}
             >
               {item.label}
@@ -208,12 +209,12 @@ export default function RecordPaymentModal({
         </div>
 
         {/* Payment method */}
-        <div className="mt-4">
-          <p className="mb-2 text-[10px] font-semibold text-[#26382D]">
+        <div className="mt-5">
+          <p className="mb-3 text-sm font-semibold text-text-primary">
             {mode === "book-down" ? "Credit arrangement" : "How did they pay?"}
           </p>
 
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-3 gap-2">
             {methods.map((item) => {
               const Icon = item.icon;
               const selected = method === item.label;
@@ -225,17 +226,17 @@ export default function RecordPaymentModal({
                   disabled={mode === "book-down" || saving}
                   onClick={() => setMethod(item.label)}
                   aria-pressed={selected}
-                  className={`relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-lg border px-1 py-2 transition ${
+                  className={`relative flex min-h-[76px] flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 transition ${
                     mode === "book-down"
-                      ? "cursor-not-allowed border-[#E8EDE9] bg-[#FAFBFA] text-[#B1BBB4]"
+                      ? "cursor-not-allowed border-border-subtle bg-background-main text-text-disabled"
                       : selected
-                        ? "border-[#82B69A] bg-[#EFF7F1] text-[#218B57]"
-                        : "border-[#E3E9E4] bg-white text-[#4E5D53] hover:border-[#A6C8B2]"
+                        ? "border-primary-base bg-primary-subtle text-primary-base"
+                        : "border-border-default bg-background-main text-text-secondary hover:border-primary-base hover:bg-primary-subtle"
                   }`}
                 >
-                  <Icon size={14} />
+                  <Icon size={20} />
 
-                  <span className="text-center text-[8px] font-medium leading-3">
+                  <span className="text-center text-xs font-medium leading-4 sm:text-sm">
                     {item.label === "Transfer to my account" ? (
                       <>
                         Transfer to my
@@ -248,8 +249,8 @@ export default function RecordPaymentModal({
                   </span>
 
                   {selected && mode !== "book-down" && (
-                    <span className="absolute right-1 top-1">
-                      <Check size={9} />
+                    <span className="absolute right-2 top-2">
+                      <Check size={13} />
                     </span>
                   )}
                 </button>
@@ -259,16 +260,16 @@ export default function RecordPaymentModal({
         </div>
 
         {/* Amount */}
-        <div className="mt-4">
+        <div className="mt-5">
           <label
             htmlFor="payment-amount"
-            className="mb-2 block text-[10px] font-semibold text-[#26382D]"
+            className="mb-2 block text-sm font-semibold text-text-primary"
           >
             {amountLabel}
           </label>
 
-          <div className="flex h-11 items-center rounded-lg border border-[#7CA98D] bg-[#F9FBF9] px-3 shadow-[0_0_0_2px_rgba(33,139,87,0.05)]">
-            <span className="mr-1 text-sm font-bold text-[#218B57]">₦</span>
+          <div className="flex h-12 items-center rounded-lg border border-primary-base bg-background-main px-3 shadow-sm">
+            <span className="mr-2 text-lg font-bold text-primary-base">₦</span>
 
             <input
               id="payment-amount"
@@ -284,30 +285,34 @@ export default function RecordPaymentModal({
                 setError("");
               }}
               placeholder="Enter amount"
-              className="h-full w-full bg-transparent text-sm font-semibold text-[#26382D] outline-none placeholder:font-normal placeholder:text-[#A1AAA3] disabled:opacity-70"
+              className="h-full w-full bg-transparent text-base font-semibold text-text-primary outline-none placeholder:font-normal placeholder:text-text-tertiary disabled:opacity-70"
             />
           </div>
 
           {mode === "partial" && (
-            <p className="mt-1 text-[8px] text-[#9AA49C]">
+            <p className="mt-2 text-sm text-text-secondary">
               Outstanding balance: {formatNaira(outstanding)}
             </p>
           )}
         </div>
 
         {/* Payment summary */}
-        <div className="mt-3 space-y-2 rounded-lg bg-[#F7EEE3] p-3">
-          <div className="flex justify-between gap-3 text-[9px] text-[#806D59]">
+        <div className="mt-4 space-y-3 rounded-xl border border-border-subtle bg-primary-subtle p-4">
+          <div className="flex justify-between gap-3 text-sm text-text-secondary">
             <span>Invoice total</span>
-            <span>{formatNaira(total)}</span>
+            <span className="font-medium text-text-primary">
+              {formatNaira(total)}
+            </span>
           </div>
 
-          <div className="flex justify-between gap-3 text-[9px] text-[#806D59]">
+          <div className="flex justify-between gap-3 text-sm text-text-secondary">
             <span>Paid now</span>
-            <span>{formatNaira(paidNow)}</span>
+            <span className="font-medium text-text-primary">
+              {formatNaira(paidNow)}
+            </span>
           </div>
 
-          <div className="flex justify-between gap-3 border-t border-[#E9DCCB] pt-2 text-[9px] font-semibold text-[#71563B]">
+          <div className="flex justify-between gap-3 border-t border-border-default pt-3 text-sm font-semibold text-text-primary">
             <span>
               {mode === "book-down"
                 ? `Added to ${customer.name.split(" ")[0]}'s balance`
@@ -323,19 +328,19 @@ export default function RecordPaymentModal({
         </div>
 
         {/* OjaHub notice */}
-        <div className="mt-2.5 flex gap-2 rounded-lg bg-[#E7F4EB] p-2.5">
-          <div className="grid size-5 flex-none place-items-center rounded-full bg-[#D3EBDD]">
-            <CheckCircle2 size={11} className="text-[#218B57]" />
+        <div className="mt-3 flex gap-3 rounded-xl border border-success-base/20 bg-success-light p-3">
+          <div className="grid size-7 flex-none place-items-center rounded-full bg-background-main">
+            <CheckCircle2 size={17} className="text-success-base" />
           </div>
 
-          <p className="text-[8px] leading-[1.5] text-[#52745F]">
+          <p className="text-sm leading-relaxed text-text-secondary">
             {mode === "book-down"
               ? "This amount will be added to the customer's balance. No payment will be recorded as received."
               : "Paid through the OjaHub link? You don't need to record it. Transfer and card payments are marked paid automatically."}
           </p>
         </div>
 
-        <p className="mt-3 text-[8px] leading-4 text-[#9AA49C]">
+        <p className="mt-3 text-sm leading-relaxed text-text-secondary">
           {mode === "book-down"
             ? "The customer can pay the outstanding balance later."
             : "The remaining balance can be paid later using the same link."}
@@ -345,19 +350,19 @@ export default function RecordPaymentModal({
         {error && (
           <p
             role="alert"
-            className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-[9px] text-red-700"
+            className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700"
           >
             {error}
           </p>
         )}
 
         {/* Buttons */}
-        <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             disabled={saving}
             onClick={onClose}
-            className="h-10 rounded-full border border-[#E3E9E4] px-7 text-[10px] font-semibold text-[#405146] transition hover:bg-[#F6F8F6] disabled:opacity-50 sm:min-w-[110px]"
+            className="h-12 rounded-full border border-border-default bg-background-main px-7 text-sm font-semibold text-text-primary transition hover:bg-primary-subtle disabled:opacity-50 sm:min-w-[110px]"
           >
             Cancel
           </button>
@@ -366,7 +371,7 @@ export default function RecordPaymentModal({
             type="button"
             disabled={saving || outstanding <= 0}
             onClick={handleSave}
-            className="h-10 rounded-full bg-[#218B57] px-7 text-[10px] font-semibold text-white transition hover:bg-[#176F43] disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[130px]"
+            className="h-12 rounded-full bg-primary-base px-7 text-sm font-semibold text-text-inverse transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[140px]"
           >
             {saving ? "Saving..." : "Save payment"}
           </button>
