@@ -1,8 +1,4 @@
+// points to the real product page from features/products....
+import ProductsPage from "@/features/products/products-page";
 
-const index = () => {
-  return (
-    <div className="flex justify-center items-center w-full h-full">Products</div>
-  )
-}
-
-export default index
+export default ProductsPage;
