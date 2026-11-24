@@ -1,4 +1,5 @@
 import { createBrowserRouter, redirect, type RouteObject } from 'react-router';
+
 import Root from './root/layout';
 import AuthLayout from '@/routes/auth/layout';
 import ErrorBoundary from '@/components/provider/error-boundary';
@@ -17,7 +18,7 @@ import {
 import DashboardOverview from './Dashboard';
 import DashboardLayout from './Dashboard/layout';
 
-const routes = [
+const routes: RouteObject[] = [
   {
     path: '/',
     Component: Root,
@@ -30,6 +31,7 @@ const routes = [
       },
     },
     children: [
+      // AUTHENTICATION
       {
         path: 'auth',
         Component: AuthLayout,
@@ -45,7 +47,7 @@ const routes = [
             },
             lazy: async () => {
               const { default: Component } = await import('./auth/login');
-              return { Component: Component };
+              return { Component };
             },
           },
           {
@@ -58,10 +60,9 @@ const routes = [
             },
             lazy: async () => {
               const { default: Component } = await import('./auth/register');
-              return { Component: Component };
+              return { Component };
             },
           },
-
           {
             path: 'forgot-password',
             lazy: async () => {
@@ -70,7 +71,6 @@ const routes = [
               return { Component };
             },
           },
-
           {
             path: 'verify',
             lazy: async () => {
@@ -78,7 +78,6 @@ const routes = [
               return { Component };
             },
           },
-
           {
             path: 'set-new-password',
             lazy: async () => {
@@ -90,18 +89,22 @@ const routes = [
         ],
       },
 
+      // ONBOARDING
       {
         path: 'onboarding',
         Component: Onboarding,
         loader: onboardingLoader,
         children: [
-          { index: true, loader: () => redirect('step-one') },
+          {
+            index: true,
+            loader: () => redirect('step-one'),
+          },
           {
             path: 'step-one',
             lazy: async () => {
               const { default: Component } =
                 await import('./onboarding/stepone');
-              return { Component: Component };
+              return { Component };
             },
           },
           {
@@ -119,7 +122,7 @@ const routes = [
             lazy: async () => {
               const { default: Component } =
                 await import('./onboarding/stepthree');
-              return { Component: Component };
+              return { Component };
             },
           },
           {
@@ -128,29 +131,81 @@ const routes = [
             lazy: async () => {
               const { default: Component } =
                 await import('./onboarding/stepfour');
-              return { Component: Component };
+              return { Component };
             },
           },
           {
-            path: `success`,
+            path: 'success',
             lazy: async () => {
-              const { default: Component } = await import(
-                `./onboarding/success`
-              );
-              return { Component: Component };
+              const { default: Component } =
+                await import('./onboarding/success');
+              return { Component };
             },
           },
           {
-            path: `expired`,
+            path: 'expired',
             lazy: async () => {
-              const { default: Component } = await import(
-                `./onboarding/expired`
-              );
-              return { Component: Component };
+              const { default: Component } =
+                await import('./onboarding/expired');
+              return { Component };
             },
           },
         ],
       },
+
+      // // DEVELOPMENT INVOICE PREVIEW
+      // ...(import.meta.env.DEV
+      //   ? [
+      //       {
+      //         path: "__dev",
+      //         Component: DashboardLayout,
+      //         children: [
+      //           {
+      //             path: "invoice-preview",
+      //             lazy: async () => {
+      //               const { default: Component } =
+      //                 await import("./Dashboard/invoices/invoicepage");
+      //               return { Component };
+      //             },
+      //           },
+      //           {
+      //             path: "invoice-preview/:invoiceNo",
+      //             lazy: async () => {
+      //               const { default: Component } =
+      //                 await import("./Dashboard/invoices/invoicedetail");
+      //               return { Component };
+      //             },
+      //           },
+      //           {
+      //             path: "new-invoice",
+      //             lazy: async () => {
+      //               const { default: Component } =
+      //                 await import("./Dashboard/invoices/newinvoice");
+      //               return { Component };
+      //             },
+      //           },
+      //           {
+      //             path: "review-invoice",
+      //             lazy: async () => {
+      //               const { default: Component } =
+      //                 await import("./Dashboard/invoices/reviewinvoice");
+      //               return { Component };
+      //             },
+      //           },
+      //           {
+      //             path: "invoice-ready/:invoiceNo",
+      //             lazy: async () => {
+      //               const { default: Component } =
+      //                 await import("./Dashboard/invoices/invoiceready");
+      //               return { Component };
+      //             },
+      //           },
+      //         ],
+      //       },
+      //     ]
+      //   : []),
+
+      // PROTECTED DASHBOARD ROUTES
       {
         loader: protectedLoader,
         children: [
@@ -161,15 +216,59 @@ const routes = [
                 index: true,
                 Component: DashboardOverview,
               },
-              { path: 'dashboard', loader: () => redirect('/') },
+              {
+                path: 'dashboard',
+                loader: () => redirect('/'),
+              },
+
+              // INVOICES
               {
                 path: 'invoices',
-                lazy: async () => {
-                  const { default: Component } =
-                    await import('./Dashboard/invoices');
-                  return { Component };
-                },
+                children: [
+                  {
+                    index: true,
+                    lazy: async () => {
+                      const { default: Component } =
+                        await import('../features/invoices/invoicepage');
+                      return { Component };
+                    },
+                  },
+                  {
+                    path: 'new',
+                    lazy: async () => {
+                      const { default: Component } =
+                        await import('../features/invoices/newinvoice');
+                      return { Component };
+                    },
+                  },
+                  {
+                    path: 'new/review',
+                    lazy: async () => {
+                      const { default: Component } =
+                        await import('../features/invoices/reviewinvoice');
+                      return { Component };
+                    },
+                  },
+                  {
+                    path: ':invoiceNo/ready',
+                    lazy: async () => {
+                      const { default: Component } =
+                        await import('../features/invoices/invoiceready');
+                      return { Component };
+                    },
+                  },
+                  {
+                    path: ':invoiceNo',
+                    lazy: async () => {
+                      const { default: Component } =
+                        await import('../features/invoices/invoicedetail');
+                      return { Component };
+                    },
+                  },
+                ],
               },
+
+              // CUSTOMERS
               {
                 path: 'customers',
                 lazy: async () => {
@@ -178,6 +277,8 @@ const routes = [
                   return { Component };
                 },
               },
+
+              // PRODUCTS
               {
                 path: 'products',
                 lazy: async () => {
@@ -194,6 +295,8 @@ const routes = [
                   return { Component };
                 },
               },
+
+              // LOCATIONS
               {
                 path: 'locations',
                 lazy: async () => {
@@ -202,6 +305,8 @@ const routes = [
                   return { Component };
                 },
               },
+
+              // TRANSFERS
               {
                 path: 'transfers',
                 lazy: async () => {
@@ -210,6 +315,8 @@ const routes = [
                   return { Component };
                 },
               },
+
+              // PAYMENTS
               {
                 path: 'payments',
                 lazy: async () => {
@@ -218,6 +325,8 @@ const routes = [
                   return { Component };
                 },
               },
+
+              // SETTINGS
               {
                 path: 'settings',
                 lazy: async () => {
@@ -226,6 +335,8 @@ const routes = [
                   return { Component };
                 },
               },
+
+              // SUPPORT
               {
                 path: 'support',
                 lazy: async () => {
@@ -242,6 +353,6 @@ const routes = [
   },
 ];
 
-const router = createBrowserRouter(routes as RouteObject[]);
+const router = createBrowserRouter(routes);
 
 export default router;
