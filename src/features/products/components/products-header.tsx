@@ -2,7 +2,6 @@
 
 import truckIcon from "../assets/icons/truck.svg";
 import addIcon from "../assets/icons/add.svg";
-import menuIcon from "../assets/icons/menu.svg";
 import searchIcon from "../assets/icons/search-mobile.svg";
 import { Button } from "@/components/ui/button";
 
@@ -37,19 +36,10 @@ export default function ProductsHeader() {
       </div>
 
       {/* mobile view */}
-      <div className="flex items-center gap-3 lg:hidden">
-        {/* the menu button on the left */}
-        <button
-          type="button"
-          aria-label="Menu"
-          className="flex size-[46px] shrink-0 items-center justify-center rounded-full bg-background-card"
-        >
-          <img src={menuIcon} alt="" className="size-[22px]" />
-        </button>
-
+      <div className="flex items-center gap-3 pl-[58px] lg:hidden">
         {/* the title */}
         <h1 className="text-[30px] font-bold leading-[34px] text-text-primary">
-          Products
+          Stock
         </h1>
 
         {/* the search and add buttons on the right */}

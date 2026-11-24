@@ -85,13 +85,13 @@ export default function SummaryCards() {
         {/* Stock on the move card, full width */}
         <div className="col-span-2 flex flex-col gap-[6px] rounded-[24px] border border-border-default p-[15px]">
           <p className="text-[13px] leading-[1.3] text-text-secondary">
-            Stock value
+            Stock on the move
           </p>
           <p className="text-[24px] font-bold leading-[1.3] tracking-[-0.6px] text-text-primary">
-            ₦4.86m
+            60 bundles
           </p>
           <p className="text-[12px] leading-[1.3] text-text-secondary">
-            5 products · 3 locations
+            1 transfer in transit · 1 pending
           </p>
         </div>
       </div>
