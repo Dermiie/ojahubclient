@@ -24,6 +24,7 @@ export type Product = {
   unit: Unit;
   image?: string;
   coverImage?: string;
+  mobileCoverImage?: string;
   category?: string;
   priceTiers?: PriceTier[];
   stockBars?: Record<string, number>;

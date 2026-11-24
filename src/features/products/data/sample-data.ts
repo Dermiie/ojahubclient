@@ -6,6 +6,7 @@ import swissVoileLace from "../assets/images/swiss-voile-lace.png";
 import georgeWrapper from "../assets/images/george-wrapper.png";
 import asoOkeBundle from "../assets/images/aso-oke-bundle.png";
 import superWaxAnkaraCover from "../assets/images/super-wax-ankara-cover.jpg";
+import superWaxAnkaraMobileCover from "../assets/images/super-wax-ankara-mobile-cover.jpg";
 
 export const LOCATIONS: StockLocation[] = [
   { id: "stall-3", name: "Balogun Stall 3", shortName: "Stall 3" },
@@ -45,6 +46,7 @@ export const SAMPLE_PRODUCTS: Product[] = [
     unit: "bundle",
     image: superWaxAnkara,
     coverImage: superWaxAnkaraCover,
+    mobileCoverImage: superWaxAnkaraMobileCover,
     retailPrice: 10000,
     stock: { "stall-3": 15, "maza-maza": 85 },
     lowStockLevel: 20,

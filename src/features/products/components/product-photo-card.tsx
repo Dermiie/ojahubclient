@@ -11,7 +11,7 @@ export default function ProductPhotoCard({ product }: { product: Product }) {
     : `Sold by the ${product.unit}`;
 
   return (
-    <div className="relative h-[187.04px] overflow-hidden rounded-[22.72px]">
+    <div className="relative hidden h-[187.04px] overflow-hidden rounded-[22.72px] lg:block">
       <img
         src={photo}
         alt={product.name}
