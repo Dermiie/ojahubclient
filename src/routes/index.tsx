@@ -11,7 +11,9 @@ import {
   onboardingLoader,
   protectedLoader,
   requireBusinessLoader,
-} from "./guards";
+  stepFourLoader,
+  stepThreeLoader,
+} from './guards';
 
 import DashboardOverview from "./Dashboard";
 import DashboardLayout from "./Dashboard/layout";
@@ -115,8 +117,8 @@ const routes: RouteObject[] = [
             },
           },
           {
-            path: "step-three",
-            loader: requireBusinessLoader,
+            path: 'step-three',
+            loader: stepThreeLoader,
             lazy: async () => {
               const { default: Component } =
                 await import("./onboarding/stepthree");
@@ -124,8 +126,8 @@ const routes: RouteObject[] = [
             },
           },
           {
-            path: "step-four",
-            loader: requireBusinessLoader,
+            path: 'step-four',
+            loader: stepFourLoader,
             lazy: async () => {
               const { default: Component } =
                 await import("./onboarding/stepfour");

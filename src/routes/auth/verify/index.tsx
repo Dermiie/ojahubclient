@@ -1,30 +1,31 @@
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
-import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, Clock3 } from 'lucide-react';
-import notificationBell from '@/assets/logo/notification-bell.svg';
-import phoneLogo from '@/assets/logo/Phone logo verify desktop.svg';
-import desktopLogo from '@/assets/logo/Logo-forgot password.svg';
-import { parseApiError } from '@/api/api';
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, Clock3 } from "lucide-react";
+import notificationBell from "@/assets/logo/notification-bell.svg";
+import phoneLogo from "@/assets/logo/Phone logo verify desktop.svg";
+import desktopLogo from "@/assets/logo/Logo-forgot password.svg";
+import { parseApiError } from "@/api/api";
 import {
   useForgotPassword,
   useResendOtp,
   useVerifyEmail,
-} from '@/api/auth/authApi';
+} from "@/api/auth/authApi";
 
 // The backend only allows a new code every 60 seconds
 const RESEND_WAIT_SECONDS = 60;
 const CODE_LENGTH = 6;
-const EMPTY_CODE = ['', '', '', '', '', ''];
+const EMPTY_CODE = ["", "", "", "", "", ""];
 
 function formatCountdown(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
-  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 interface VerifyPageState {
   email?: string;
   codeSent?: boolean;
+  errorMessage?: string; // e.g. "incorrect OTP", sent back from set-new-password
 }
 
 export default function Verify() {
@@ -37,17 +38,20 @@ export default function Verify() {
   const codeSent = pageState?.codeSent === true;
 
   const flow =
-    searchParams.get('flow') === 'forgot-password'
-      ? 'forgot-password'
-      : 'register';
+    searchParams.get("flow") === "forgot-password"
+      ? "forgot-password"
+      : "register";
+  const isForgotFlow = flow === "forgot-password";
 
   const [otp, setOtp] = useState(EMPTY_CODE);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [resendCountdown, setResendCountdown] = useState(
     codeSent ? RESEND_WAIT_SECONDS : 0,
   );
-  const [errorMessage, setErrorMessage] = useState('');
-  const [infoMessage, setInfoMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(
+    pageState?.errorMessage ?? "",
+  );
+  const [infoMessage, setInfoMessage] = useState("");
   const [hasCodeBeenSent, setHasCodeBeenSent] = useState(codeSent);
   const { mutate: verifyEmail, isPending: isVerifying } = useVerifyEmail();
   const { mutate: resendOtp, isPending: isResendingOtp } = useResendOtp();
@@ -73,7 +77,7 @@ export default function Verify() {
     updatedOtp[index] = value.slice(-1);
 
     setOtp(updatedOtp);
-    setErrorMessage('');
+    setErrorMessage("");
     if (value && index < CODE_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -83,7 +87,7 @@ export default function Verify() {
     index: number,
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === 'Backspace' && !otp[index] && index > 0) {
+    if (event.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
@@ -91,12 +95,12 @@ export default function Verify() {
   const handleVerify = () => {
     if (!email) return;
 
-    const code = otp.join('');
-    setErrorMessage('');
-    setInfoMessage('');
+    const code = otp.join("");
+    setErrorMessage("");
+    setInfoMessage("");
 
-    if (flow === 'forgot-password') {
-      navigate('/auth/set-new-password', { state: { email, otp: code } });
+    if (flow === "forgot-password") {
+      navigate("/auth/set-new-password", { state: { email, otp: code } });
       return;
     }
 
@@ -105,7 +109,7 @@ export default function Verify() {
       {
         // A new account has no business yet, so it goes to onboarding.
         onSuccess: (user) => {
-          const nextPage = user.businessId ? '/' : '/onboarding/step-one';
+          const nextPage = user.businessId ? "/" : "/onboarding/step-one";
           navigate(nextPage, { replace: true });
         },
         onError: (error) => {
@@ -119,8 +123,8 @@ export default function Verify() {
     if (!email) return;
 
     setOtp(EMPTY_CODE);
-    setErrorMessage('');
-    setInfoMessage('');
+    setErrorMessage("");
+    setInfoMessage("");
 
     const callbacks = {
       onSuccess: (message: string) => {
@@ -134,7 +138,7 @@ export default function Verify() {
       },
     };
 
-    if (flow === 'forgot-password') {
+    if (flow === "forgot-password") {
       forgotPassword({ email }, callbacks);
     } else {
       resendOtp({ email }, callbacks);
@@ -145,22 +149,26 @@ export default function Verify() {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center gap-4 bg-background-main px-6 text-center">
         <h1 className="text-m-h1-bold text-text-primary">
-          We don't know which email to verify
+          {isForgotFlow
+            ? "We don't know which email to reset"
+            : "We don't know which email to verify"}
         </h1>
         <p className="max-w-[420px] text-b2-medium text-text-secondary">
-          Log in with your email address and we will help you verify it.
+          {isForgotFlow
+            ? "Enter your email address again and we will send you a new code."
+            : "Log in with your email address and we will help you verify it."}
         </p>
         <Link
-          to="/auth/login"
+          to={isForgotFlow ? "/auth/forgot-password" : "/auth/login"}
           className="text-b1-medium font-semibold text-primary-base hover:underline"
         >
-          Go to login
+          {isForgotFlow ? "Go to forgot password" : "Go to login"}
         </Link>
       </div>
     );
   }
 
-  const isCodeComplete = otp.every((digit) => digit !== '');
+  const isCodeComplete = otp.every((digit) => digit !== "");
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-white px-4 pt-[51px] pb-6 md:px-0 md:pt-0 md:pb-0">
@@ -178,7 +186,7 @@ export default function Verify() {
         {/* Desktop back button */}
         <button
           type="button"
-          onClick={() => navigate('/auth/login')}
+          onClick={() => navigate("/auth/login")}
           className="hidden items-center gap-[4px] rounded-full bg-[#E3E7E5] px-[8px] py-[4px] text-[11px] leading-none text-[#1F2A24] md:flex"
         >
           <ChevronLeft size={10} />
@@ -211,14 +219,20 @@ export default function Verify() {
 
           {/* Heading */}
           <h1 className="text-2xl font-bold text-text-primary md:text-[32px]">
-            Enter your OTP
+            {isForgotFlow ? "Enter your reset code" : "Enter your OTP"}
           </h1>
 
           {hasCodeBeenSent ? (
             <p className="mx-auto mt-2 text-[16px] leading-[1.4] font-semibold text-text-primary">
-              We sent a 6-digit code to{' '}
+              We sent a 6-digit {isForgotFlow ? "reset " : ""}code to{" "}
               <span className="text-primary-base">{email}</span>. Check your
               inbox.
+            </p>
+          ) : isForgotFlow ? (
+            <p className="mx-auto mt-2 text-[16px] leading-[1.4] font-semibold text-text-primary">
+              Tap <span className="text-primary-base">Resend code</span> to get
+              a 6-digit reset code for{" "}
+              <span className="text-primary-base">{email}</span>.
             </p>
           ) : (
             <p className="mx-auto mt-2 text-[16px] leading-[1.4] font-semibold text-text-primary">
@@ -242,7 +256,7 @@ export default function Verify() {
                   }}
                   type="text"
                   inputMode="numeric"
-                  autoComplete={index === 0 ? 'one-time-code' : 'off'}
+                  autoComplete={index === 0 ? "one-time-code" : "off"}
                   aria-label={`Digit ${index + 1} of ${CODE_LENGTH}`}
                   maxLength={1}
                   value={digit}
@@ -253,8 +267,8 @@ export default function Verify() {
                   // onPaste={handleOtpPaste}
                   className={`h-12 w-12 rounded-lg border text-center text-text-primary outline-none focus:border-primary-base focus:ring-1 focus:ring-primary-base ${
                     digit
-                      ? 'border-transparent bg-primary-subtle'
-                      : 'border-border-strong bg-background-main'
+                      ? "border-transparent bg-primary-subtle"
+                      : "border-border-strong bg-background-main"
                   } md:h-[70px] md:w-[60px] md:rounded-[10px] md:px-3 md:py-[10px] md:text-[30px] md:leading-[1] md:font-bold`}
                 />
               ))}
@@ -297,7 +311,7 @@ export default function Verify() {
                   disabled={isResending}
                   className="text-xs font-medium text-primary-base hover:underline disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                 >
-                  {isResending ? 'Sending code...' : 'Resend code'}
+                  {isResending ? "Sending code..." : "Resend code"}
                 </button>
               )}
             </div>
@@ -314,7 +328,9 @@ export default function Verify() {
             />
 
             <p className="w-[315px] text-[14px] leading-[1] font-medium tracking-[-0.02em] text-[#95A19C] md:w-[500px] md:text-[14px] md:leading-[1] md:tracking-[-0.02em] md:text-center md:text-[#727E79]">
-              This email also gets your payment and low stock alerts
+              {isForgotFlow
+                ? "If you didn't ask for this, you can ignore the email."
+                : "This email also gets your payment and low stock alerts"}
             </p>
           </div>
 
@@ -325,7 +341,11 @@ export default function Verify() {
             onClick={handleVerify}
             className="order-2 flex h-[44px] w-full max-w-[358px] items-center justify-center gap-[6px] rounded-[60px] bg-[#2E8B57] px-[10px] py-[12px] text-[16px] leading-[1] font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50 md:order-1 md:h-[48px] md:max-w-[500px] md:rounded-[60px] md:bg-[#2E8B57] md:px-[10px] md:py-[12px] md:text-[18px] md:font-bold"
           >
-            {isVerifying ? 'Verifying...' : 'Verify and continue'}
+            {isVerifying
+              ? "Verifying..."
+              : isForgotFlow
+                ? "Continue"
+                : "Verify and continue"}
           </button>
         </div>
       </div>

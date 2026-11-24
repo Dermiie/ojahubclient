@@ -1,4 +1,10 @@
+import {
+  BUSINESS_CATEGORIES,
+  LOCATION_TYPES,
+  PRODUCT_UNITS,
+} from '@/api/onboarding/onboarding';
 import { z } from 'zod';
+import { parseNaira } from './money';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -6,7 +12,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const strongPasswordSchema = z
   .string()
   .min(8, {
-    message: 'Password should be at least 8 characters',
+    message: 'At least 8 characters required.',
   })
   .max(16, {
     message: 'Password should not exceed 16 characters',
@@ -89,4 +95,78 @@ export const registerSchema = z.object({
     .regex(EMAIL_PATTERN, 'Please enter a valid email address.'),
 
   password: strongPasswordSchema,
+});
+
+// ---------- Onboarding ----------
+
+// Step 1: same rules as the backend's businessStep1Schema
+export const businessStepSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Enter your business name')
+    .max(100, 'Business name is too long'),
+  category: z.enum(BUSINESS_CATEGORIES, {
+    message: 'Choose what you sell',
+  }),
+  businessLocation: z
+    .string()
+    .trim()
+    .min(2, 'Enter your business location')
+    .max(200, 'Business location is too long'),
+});
+
+// Step 2: same rules as the backend's locationStep2Schema
+export const locationStepSchema = z.object({
+  type: z.enum(LOCATION_TYPES, {
+    message: 'Choose the type of place',
+  }),
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Enter a name for this place')
+    .max(100, 'Location name is too long'),
+  address: z
+    .string()
+    .trim()
+    .min(2, 'Enter an address or landmark')
+    .max(200, 'Address is too long'),
+});
+
+// Step 3: price and quantity stay as text while the user types.
+// The screen turns them into numbers (price in kobo) before sending.
+const MAX_PRICE_NAIRA = 10_000_000_000; // backend max is 1,000,000,000,000 kobo
+const MAX_QUANTITY = 10_000_000;
+
+export const productStepSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Enter the product name')
+    .max(100, 'Product name is too long'),
+  unit: z.enum(PRODUCT_UNITS, {
+    message: 'Choose how you sell it',
+  }),
+  price: z
+    .string()
+    .trim()
+    .min(1, 'Enter the price')
+    .refine(
+      (value) => parseNaira(value) !== null,
+      'Enter a valid amount, e.g. 55,000',
+    )
+    .refine(
+      (value) => (parseNaira(value) ?? 0) >= 1,
+      'Price must be at least ₦1',
+    )
+    .refine(
+      (value) => (parseNaira(value) ?? 0) <= MAX_PRICE_NAIRA,
+      'Price is too high',
+    ),
+  quantity: z
+    .string()
+    .trim()
+    .min(1, 'Enter how many you have')
+    .regex(/^\d+$/, 'Enter a whole number')
+    .refine((value) => Number(value) <= MAX_QUANTITY, 'Quantity is too high'),
 });
