@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { NavLink } from 'react-router';
 
 import {
   House,
@@ -18,97 +18,97 @@ import {
   CircleHelp,
   LogOut,
   Plus,
-} from "lucide-react";
+} from 'lucide-react';
 
 const navigationGroups = [
   {
-    title: "Overview",
-    items: [{ label: "Home", path: "/", icon: House }],
+    title: 'Overview',
+    items: [{ label: 'Home', path: '/', icon: House }],
   },
   {
-    title: "Sell",
+    title: 'Sell',
     items: [
-      { label: "Invoices", path: "/invoices", icon: FileText },
-      { label: "Customers", path: "/customers", icon: Users },
+      { label: 'Invoices', path: '/invoices', icon: FileText },
+      { label: 'Customers', path: '/customers', icon: Users },
     ],
   },
   {
-    title: "Stocks",
+    title: 'Stocks',
     items: [
-      { label: "Products", path: "/products", icon: Package },
-      { label: "Locations", path: "/locations", icon: MapPin },
-      { label: "Transfer", path: "/transfers", icon: ArrowLeftRight },
+      { label: 'Products', path: '/products', icon: Package },
+      { label: 'Locations', path: '/locations', icon: MapPin },
+      { label: 'Transfer', path: '/transfers', icon: ArrowLeftRight },
     ],
   },
   {
-    title: "Money",
+    title: 'Money',
     items: [
-      { label: "Payments", path: "/payments", icon: CreditCard },
-      { label: "Settings", path: "/settings", icon: Settings },
+      { label: 'Payments', path: '/payments', icon: CreditCard },
+      { label: 'Settings', path: '/settings', icon: Settings },
     ],
   },
 ];
 
 const mobileNavigationGroups = [
   {
-    title: "Sell",
+    title: 'Sell',
     items: [
       {
-        label: "Invoices",
-        description: "2 waiting for transfer",
+        label: 'Invoices',
+        description: '2 waiting for transfer',
         icon: FileText,
-        path: "/invoices",
+        path: '/invoices',
       },
       {
-        label: "Customers",
-        description: "8 owe you ₦1.24m",
+        label: 'Customers',
+        description: '8 owe you ₦1.24m',
         icon: Users,
-        path: "/customers",
+        path: '/customers',
       },
       {
-        label: "Payments",
-        description: "₦486,500 received today",
+        label: 'Payments',
+        description: '₦486,500 received today',
         icon: CreditCard,
-        path: "/payments",
+        path: '/payments',
       },
     ],
   },
   {
-    title: "Stock",
+    title: 'Stock',
     items: [
       {
-        label: "Stock",
-        description: "Products, locations and transfers",
+        label: 'Stock',
+        description: 'Products, locations and transfers',
         icon: Package,
-        path: "/products",
+        path: '/products',
       },
       {
-        label: "Price profiles",
-        description: "Retail · Semi-wholesale · Bulk",
+        label: 'Price profiles',
+        description: 'Retail · Semi-wholesale · Bulk',
         icon: Tags,
-        path: "/products",
+        path: '/products',
       },
     ],
   },
   {
-    title: "Alerts",
+    title: 'Alerts',
     items: [
       {
-        label: "Notifications",
-        description: "Payments, stock arrivals, low stock",
+        label: 'Notifications',
+        description: 'Payments, stock arrivals, low stock',
         icon: Bell,
-        path: "/dashboard",
+        path: '/dashboard',
       },
     ],
   },
   {
-    title: "Account",
+    title: 'Account',
     items: [
       {
-        label: "Settings",
-        description: "Business, billing, payout and security",
+        label: 'Settings',
+        description: 'Business, billing, payout and security',
         icon: Settings,
-        path: "/settings",
+        path: '/settings',
       },
     ],
   },
@@ -134,13 +134,13 @@ export default function Sidebar({
       {/* DESKTOP SIDEBAR */}
       <aside
         className={`fixed left-0 top-0 z-40 hidden h-screen shrink-0 flex-col gap-7 border-r border-border-default bg-white pt-7 pb-6 transition-[width] duration-300 ease-in-out lg:flex ${
-          collapsed ? "w-[80px] px-2" : "w-[260px] px-[14px]"
+          collapsed ? 'w-[80px] px-2' : 'w-[260px] px-[14px]'
         }`}
       >
         {/* BRAND */}
         <div
           className={`flex h-10 shrink-0 items-center ${
-            collapsed ? "justify-center" : "justify-between px-3"
+            collapsed ? 'justify-center' : 'justify-between px-3'
           }`}
         >
           {!collapsed && (
@@ -153,14 +153,14 @@ export default function Sidebar({
 
           <button
             onClick={onToggle}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border-default text-text-secondary transition-colors hover:bg-gray-100"
           >
             <PanelLeftClose
               size={18}
               className={`transition-transform duration-300 ${
-                collapsed ? "rotate-180" : ""
+                collapsed ? 'rotate-180' : ''
               }`}
             />
           </button>
@@ -184,17 +184,17 @@ export default function Sidebar({
                     <NavLink
                       key={item.path}
                       to={item.path}
-                      end={item.path === "/"}
+                      end={item.path === '/'}
                       title={collapsed ? item.label : undefined}
                       className={({ isActive }) =>
                         `flex h-[38px] w-full shrink-0 items-center rounded-[9px] text-[14px] font-medium transition-all duration-200 ${
                           collapsed
-                            ? "justify-center px-0"
-                            : "justify-start gap-[11px] px-[14px]"
+                            ? 'justify-center px-0'
+                            : 'justify-start gap-[11px] px-[14px]'
                         } ${
                           isActive
-                            ? "bg-primary-base text-white"
-                            : "bg-white text-text-primary hover:bg-primary-subtle hover:text-text-secondary"
+                            ? 'bg-primary-base text-white'
+                            : 'bg-white text-text-primary hover:bg-primary-subtle hover:text-text-secondary'
                         }`
                       }
                     >
@@ -245,8 +245,8 @@ export default function Sidebar({
           onClick={onMobileClose}
           className={`fixed inset-x-0 top-0 bottom-[82px] z-40 bg-black/40 transition-opacity duration-300 ${
             mobileOpen
-              ? "visible opacity-100"
-              : "invisible pointer-events-none opacity-0"
+              ? 'visible opacity-100'
+              : 'invisible pointer-events-none opacity-0'
           }`}
         />
 
@@ -255,8 +255,8 @@ export default function Sidebar({
           aria-hidden={!mobileOpen}
           className={`fixed bottom-[82px] left-0 z-40 flex h-[75dvh] w-full flex-col overflow-hidden rounded-t-[28px] border border-border-default bg-white px-3 pt-4 pb-4 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             mobileOpen
-              ? "pointer-events-auto translate-y-0 opacity-100"
-              : "pointer-events-none translate-y-[110%] opacity-0"
+              ? 'pointer-events-auto translate-y-0 opacity-100'
+              : 'pointer-events-none translate-y-[110%] opacity-0'
           }`}
         >
           {/* PROFILE HEADER */}
@@ -308,8 +308,8 @@ export default function Sidebar({
                         onClick={onMobileClose}
                         className={`flex items-center gap-3 py-3 ${
                           index !== group.items.length - 1
-                            ? "border-b border-border-default"
-                            : ""
+                            ? 'border-b border-border-default'
+                            : ''
                         }`}
                       >
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-primary-base">
@@ -373,7 +373,7 @@ export default function Sidebar({
         </aside>
 
         {/* FIXED MOBILE BOTTOM NAVIGATION */}
-        <nav className="fixed bottom-0 left-0 z-50 h-[82px] w-full lg:hidden">
+        <nav className="fixed bottom-0 left-0 z-50 h-16 w-full lg:hidden">
           {/* CURVED NAVIGATION BACKGROUND */}
           <svg
             className="absolute inset-0 h-full w-full"
@@ -414,7 +414,7 @@ export default function Sidebar({
               onClick={onMobileClose}
               className={({ isActive }) =>
                 `flex flex-1 flex-col items-center gap-1 text-xs ${
-                  isActive ? "text-primary-base" : "text-[#9AA6A2]"
+                  isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
                 }`
               }
             >
@@ -428,7 +428,7 @@ export default function Sidebar({
               onClick={onMobileClose}
               className={({ isActive }) =>
                 `flex flex-1 flex-col items-center gap-1 text-xs ${
-                  isActive ? "text-primary-base" : "text-[#9AA6A2]"
+                  isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
                 }`
               }
             >
@@ -440,14 +440,14 @@ export default function Sidebar({
             <div className="flex flex-1 justify-center">
               <button
                 onClick={() => (mobileOpen ? onMobileClose() : onMobileOpen())}
-                aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
+                aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
                 aria-expanded={mobileOpen}
-                className="absolute -top-[42px] flex h-[66px] w-[66px] items-center justify-center rounded-full bg-[#2D9360] text-white shadow-lg transition-transform duration-300 active:scale-95"
+                className="absolute -top-[30px] flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#2D9360] text-white shadow-lg transition-transform duration-300 active:scale-95"
               >
                 <Plus
                   size={32}
                   className={`transition-transform duration-500 ${
-                    mobileOpen ? "rotate-45" : ""
+                    mobileOpen ? 'rotate-45' : ''
                   }`}
                 />
               </button>
@@ -459,7 +459,7 @@ export default function Sidebar({
               onClick={onMobileClose}
               className={({ isActive }) =>
                 `flex flex-1 flex-col items-center gap-1 text-xs ${
-                  isActive ? "text-primary-base" : "text-[#9AA6A2]"
+                  isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
                 }`
               }
             >
@@ -473,7 +473,7 @@ export default function Sidebar({
               onClick={onMobileClose}
               className={({ isActive }) =>
                 `flex flex-1 flex-col items-center gap-1 text-xs ${
-                  isActive ? "text-primary-base" : "text-[#9AA6A2]"
+                  isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
                 }`
               }
             >
