@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Check,
-  CheckCircle2,
-  Copy,
-  Link2,
-  MessageCircle,
-  X,
-  FileText,
-} from "lucide-react";
+import { Check, Copy, Link2, MessageCircle, X, FileText } from "lucide-react";
 import { Link, useParams } from "react-router";
 
 import { Button } from "@/components/ui/button";
@@ -128,17 +120,32 @@ export default function InvoiceReadyPage() {
   const total = getInvoiceTotal(invoice);
   const customerName = customer?.name ?? "Customer";
 
+  // Placeholder business name until it is connected to the
+  // signed-in business or organisation data.
+  const businessName = "Adaeze Fabrics";
+
   // Placeholder URL until public invoice links and payment
   // provider integration are connected.
   const payLink = `ojahub.com/pay/${invoice.no}`;
   const fullPayLink = `https://${payLink}`;
 
-  const message =
-    `Hello ${customerName}, thank you for your business. ` +
-    `Your invoice ${invoice.no} for ` +
+  const sentTime = new Date()
+    .toLocaleTimeString("en-NG", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(/\s/g, "")
+    .toLowerCase();
+
+  const messageIntro =
+    `Hello ${customerName}, thank you for your business at ${businessName}. ` +
+    `Your invoice for ` +
     `${invoice.lines.map((line) => `${line.name} x${line.qty}`).join(", ")} ` +
     `is ready. Total due: ${formatNaira(total)}. ` +
-    `View your invoice here: ${fullPayLink}`;
+    `View details and pay instantly here: `;
+
+  const message = `${messageIntro}${fullPayLink}`;
 
   const copyLink = async () => {
     try {
@@ -155,21 +162,9 @@ export default function InvoiceReadyPage() {
   };
 
   return (
-    <main className="mx-auto min-h-full w-full max-w-[1250px] bg-background-main px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-      {/* Page heading */}
-      <header className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-text-secondary">Invoices</p>
-
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-            Send invoice
-          </h1>
-
-          <p className="mt-2 text-sm leading-6 text-text-secondary sm:text-base">
-            Your invoice has been created successfully.
-          </p>
-        </div>
-
+    <main className="mx-auto min-h-full w-full max-w-[520px] bg-background-main px-4 py-5 sm:px-6 sm:py-8 lg:max-w-[1250px] lg:px-8">
+      {/* Mobile close */}
+      <header className="flex justify-end lg:hidden">
         <Link
           to="/invoices"
           aria-label="Close"
@@ -179,148 +174,102 @@ export default function InvoiceReadyPage() {
         </Link>
       </header>
 
-      {/* Main content */}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(280px,0.78fr)_minmax(0,1.22fr)] xl:gap-8">
-        {/* WhatsApp message preview */}
-        <section className="min-w-0">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold text-text-primary sm:text-lg">
-              Message preview
-            </h2>
+      {/* Desktop page heading */}
+      <header className="mb-8 hidden lg:block">
+        <p className="text-sm font-medium text-text-secondary">Invoice</p>
 
-            <span className="rounded-full bg-primary-subtle px-3 py-1.5 text-xs font-semibold text-primary-base">
-              WhatsApp
-            </span>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-text-primary">
+          Send invoice
+        </h1>
+      </header>
+
+      {/* Main content */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:grid-rows-[auto_auto_1fr] lg:items-start lg:gap-x-8">
+        {/* Success heading */}
+        <section className="flex flex-col items-center text-center lg:col-start-2 lg:row-start-1 lg:flex-row lg:gap-4 lg:text-left">
+          <div className="grid size-16 flex-none place-items-center rounded-full bg-success-light lg:size-14">
+            <div className="grid size-12 place-items-center rounded-full bg-primary-base lg:size-10">
+              <Check size={26} className="text-text-inverse" strokeWidth={3} />
+            </div>
           </div>
 
-          <div className="rounded-2xl border border-primary-light bg-background-main p-4 sm:p-5">
-            <div className="mb-4 flex items-center gap-3 rounded-xl border border-border-subtle bg-background-main px-4 py-3">
-              <div className="grid size-10 place-items-center rounded-full bg-primary-subtle">
-                <MessageCircle size={19} className="text-primary-base" />
-              </div>
+          <div className="min-w-0">
+            <h2 className="mt-4 text-xl font-bold text-text-primary sm:text-2xl lg:mt-0">
+              Invoice ready
+            </h2>
 
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-text-primary">
-                  WhatsApp message
-                </p>
-                <p className="mt-1 text-xs text-text-secondary">
-                  Message to {customerName}
-                </p>
-              </div>
-            </div>
-
-            <div className="ml-auto max-w-[96%] rounded-xl rounded-tr-sm border border-success-base/20 bg-success-light p-4 text-sm leading-7 text-text-primary shadow-sm sm:p-5">
-              <p className="whitespace-pre-wrap break-words">{message}</p>
-
-              <div className="mt-3 flex justify-end">
-                <span className="text-xs font-medium text-text-secondary">
-                  Invoice preview
-                </span>
-              </div>
-            </div>
-
-            <p className="mt-4 text-center text-xs leading-5 text-text-secondary">
-              This is a preview of the message your customer will receive.
+            <p className="mt-2 break-words text-sm leading-6 text-text-secondary lg:mt-1">
+              {invoice.no} · {formatNaira(total)}
+              <span className="lg:hidden"> for {customerName}</span>
             </p>
           </div>
         </section>
 
-        {/* Invoice confirmation and actions */}
-        <section className="min-w-0 space-y-5">
-          {/* Success heading */}
-          <div className="flex items-center gap-4">
-            <div className="grid size-14 flex-none place-items-center rounded-full bg-success-light">
-              <CheckCircle2
-                size={30}
-                className="text-success-base"
-                strokeWidth={2.5}
-              />
-            </div>
-
-            <div className="min-w-0">
-              <h2 className="text-xl font-bold text-text-primary sm:text-2xl">
-                Invoice ready
-              </h2>
-
-              <p className="mt-2 break-words text-sm leading-6 text-text-secondary">
-                {invoice.no} · {formatNaira(total)} · {customerName}
-              </p>
-            </div>
+        {/* WhatsApp message preview */}
+        <section className="mt-6 rounded-2xl bg-secondary-base/15 p-4 lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:mt-0 lg:p-6">
+          <div className="flex justify-center">
+            <span className="rounded-full bg-background-main/80 px-3 py-1.5 text-xs font-semibold text-text-secondary">
+              Message preview
+            </span>
           </div>
 
-          {/* Invoice link */}
-          <div className="rounded-xl border border-border-default bg-background-main p-4 sm:p-5">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="grid size-10 flex-none place-items-center rounded-lg bg-primary-subtle">
-                <Link2 size={19} className="text-primary-base" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-text-secondary">
-                  Invoice link
-                </p>
-
-                <p className="mt-1.5 truncate text-sm font-semibold text-text-primary sm:text-base">
-                  {payLink}
-                </p>
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={copyLink}
-                className="h-10 flex-none gap-2 rounded-lg border-primary-base px-4 text-sm font-semibold text-primary-base hover:bg-primary-subtle"
-              >
-                {copied ? (
-                  <Check size={16} className="text-success-base" />
-                ) : (
-                  <Copy size={16} />
-                )}
-
-                {copied ? "Copied" : "Copy"}
-              </Button>
-            </div>
-
-            <p className="mt-3 text-xs leading-6 text-text-secondary">
-              Preview link only. Public invoice links and online payments will
-              become active after backend integration.
+          <div className="mt-4 rounded-xl rounded-tr-sm bg-success-light p-4 text-sm leading-6 text-text-primary shadow-sm">
+            <p className="whitespace-pre-wrap break-words">
+              {messageIntro}
+              <span className="break-all text-primary-base underline">
+                {payLink}
+              </span>
             </p>
+
+            <div className="mt-2 flex justify-end">
+              <span className="text-xs text-text-secondary">{sentTime}</span>
+            </div>
           </div>
+        </section>
 
-          {/* Actions */}
-          <div className="space-y-3">
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(message)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary-base px-5 py-3 text-sm font-semibold text-text-inverse transition hover:bg-primary-hover"
-            >
-              <MessageCircle size={18} />
-              Send on WhatsApp
-            </a>
+        {/* Invoice link */}
+        <section className="mt-5 flex min-w-0 items-center gap-3 rounded-xl border border-border-default bg-background-main px-4 py-3 lg:col-start-2 lg:row-start-2">
+          <Link2 size={18} className="flex-none text-text-secondary" />
 
-            <Link
-              to={`/invoices/${invoice.no}`}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-primary-base bg-background-main px-5 py-3 text-sm font-semibold text-primary-base transition hover:bg-primary-subtle"
-            >
-              <Check size={18} />
-              Done, view invoice
-            </Link>
-          </div>
+          <p className="min-w-0 flex-1 truncate text-sm font-medium text-text-primary">
+            {payLink}
+          </p>
 
-          {/* Confirmation note */}
-          <div className="flex items-start gap-3 rounded-xl border border-primary-light bg-primary-subtle p-4">
-            <CheckCircle2
-              size={18}
-              className="mt-0.5 flex-none text-primary-base"
-            />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={copyLink}
+            className="h-9 flex-none gap-2 rounded-lg border-border-default px-3 text-sm font-semibold text-text-primary hover:bg-primary-subtle"
+          >
+            {copied ? (
+              <Check size={16} className="text-success-base" />
+            ) : (
+              <Copy size={16} />
+            )}
 
-            <p className="text-sm leading-6 text-text-primary">
-              Your invoice has been saved. You can view it in your invoice list
-              at any time.
-            </p>
-          </div>
+            {copied ? "Copied" : "Copy"}
+          </Button>
+        </section>
+
+        {/* Actions */}
+        <section className="mt-10 space-y-3 lg:col-start-2 lg:row-start-3 lg:mt-3">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(message)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary-base px-5 py-3 text-sm font-semibold text-text-inverse transition hover:bg-primary-hover"
+          >
+            <MessageCircle size={18} />
+            Send on WhatsApp
+          </a>
+
+          <Link
+            to={`/invoices/${invoice.no}`}
+            className="flex min-h-12 w-full items-center justify-center rounded-full border border-primary-base bg-background-main px-5 py-3 text-sm font-semibold text-primary-base transition hover:bg-primary-subtle"
+          >
+            Done, view invoice
+          </Link>
         </section>
       </div>
     </main>
