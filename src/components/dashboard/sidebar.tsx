@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { NavLink, useLocation } from 'react-router';
 
 import {
   House,
@@ -114,6 +114,15 @@ const mobileNavigationGroups = [
   },
 ];
 
+const mobileBottomNavGroup = [
+  '/',
+  '/invoices',
+  '/customers',
+  '/products',
+  '/locations',
+  '/transfers',
+];
+
 type SidebarProps = {
   collapsed: boolean;
   onToggle: () => void;
@@ -129,6 +138,8 @@ export default function Sidebar({
   onMobileOpen,
   onMobileClose,
 }: SidebarProps) {
+  const { pathname } = useLocation();
+
   return (
     <>
       {/* DESKTOP SIDEBAR */}
@@ -373,115 +384,121 @@ export default function Sidebar({
         </aside>
 
         {/* FIXED MOBILE BOTTOM NAVIGATION */}
-        <nav className="fixed bottom-0 left-0 z-50 h-16 w-full lg:hidden">
-          {/* CURVED NAVIGATION BACKGROUND */}
-          <svg
-            className="absolute inset-0 h-full w-full"
-            viewBox="0 0 400 82"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <filter
-                id="navShadow"
-                x="-10%"
-                y="-50%"
-                width="120%"
-                height="200%"
-              >
-                <feGaussianBlur stdDeviation="5" />
-              </filter>
-            </defs>
-
-            <path
-              d="M0 1 H135 C145 1 153 8 160 16 C170 29 181 30 200 30 C219 30 230 29 240 16 C247 8 255 1 265 1 H400 V82 H0 Z"
-              fill="#000000"
-              opacity="0.08"
-              filter="url(#navShadow)"
-            />
-
-            <path
-              d="M0 0 H135 C145 0 153 7 160 15 C170 28 181 29 200 29 C219 29 230 28 240 15 C247 7 255 0 265 0 H400 V82 H0 Z"
-              fill="white"
-            />
-          </svg>
-
-          {/* NAVIGATION ITEMS */}
-          <div className="relative z-10 flex h-full items-center justify-around px-2">
-            {/* HOME */}
-            <NavLink
-              to="/"
-              end
-              onClick={onMobileClose}
-              className={({ isActive }) =>
-                `flex flex-1 flex-col items-center gap-1 text-xs ${
-                  isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
-                }`
-              }
+        {mobileBottomNavGroup.includes(pathname) && (
+          <nav className="fixed bottom-0 left-0 z-50 h-16 w-full lg:hidden">
+            {/* CURVED NAVIGATION BACKGROUND */}
+            <svg
+              className="absolute inset-0 h-full w-full"
+              viewBox="0 0 400 82"
+              preserveAspectRatio="none"
             >
-              <House size={23} />
-              <span>Home</span>
-            </NavLink>
+              <defs>
+                <filter
+                  id="navShadow"
+                  x="-10%"
+                  y="-50%"
+                  width="120%"
+                  height="200%"
+                >
+                  <feGaussianBlur stdDeviation="5" />
+                </filter>
+              </defs>
 
-            {/* INVOICES */}
-            <NavLink
-              to="/invoices"
-              onClick={onMobileClose}
-              className={({ isActive }) =>
-                `flex flex-1 flex-col items-center gap-1 text-xs ${
-                  isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
-                }`
-              }
-            >
-              <FileText size={23} />
-              <span>Invoices</span>
-            </NavLink>
+              <path
+                d="M0 1 H135 C145 1 153 8 160 16 C170 29 181 30 200 30 C219 30 230 29 240 16 C247 8 255 1 265 1 H400 V82 H0 Z"
+                fill="#000000"
+                opacity="0.08"
+                filter="url(#navShadow)"
+              />
 
-            {/* CENTRAL PLUS */}
-            <div className="flex flex-1 justify-center">
-              <button
-                onClick={() => (mobileOpen ? onMobileClose() : onMobileOpen())}
-                aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
-                aria-expanded={mobileOpen}
-                className="absolute -top-[30px] flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#2D9360] text-white shadow-lg transition-transform duration-300 active:scale-95"
+              <path
+                d="M0 0 H135 C145 0 153 7 160 15 C170 28 181 29 200 29 C219 29 230 28 240 15 C247 7 255 0 265 0 H400 V82 H0 Z"
+                fill="white"
+              />
+            </svg>
+
+            {/* NAVIGATION ITEMS */}
+            <div className="relative z-10 flex h-full items-center justify-around px-2">
+              {/* HOME */}
+              <NavLink
+                to="/"
+                end
+                onClick={onMobileClose}
+                className={({ isActive }) =>
+                  `flex flex-1 flex-col items-center gap-1 text-xs ${
+                    isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
+                  }`
+                }
               >
-                <Plus
-                  size={32}
-                  className={`transition-transform duration-500 ${
-                    mobileOpen ? 'rotate-45' : ''
-                  }`}
-                />
-              </button>
+                <House size={23} />
+                <span>Home</span>
+              </NavLink>
+
+              {/* INVOICES */}
+              <NavLink
+                to="/invoices"
+                onClick={onMobileClose}
+                className={({ isActive }) =>
+                  `flex flex-1 flex-col items-center gap-1 text-xs ${
+                    isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
+                  }`
+                }
+              >
+                <FileText size={23} />
+                <span>Invoices</span>
+              </NavLink>
+
+              {/* CENTRAL PLUS */}
+              <div className="flex flex-1 justify-center">
+                <button
+                  onClick={() =>
+                    mobileOpen ? onMobileClose() : onMobileOpen()
+                  }
+                  aria-label={
+                    mobileOpen ? 'Close navigation' : 'Open navigation'
+                  }
+                  aria-expanded={mobileOpen}
+                  className="absolute -top-[30px] flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#2D9360] text-white shadow-lg transition-transform duration-300 active:scale-95"
+                >
+                  <Plus
+                    size={32}
+                    className={`transition-transform duration-500 ${
+                      mobileOpen ? 'rotate-45' : ''
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* PRODUCTS */}
+              <NavLink
+                to="/products"
+                onClick={onMobileClose}
+                className={({ isActive }) =>
+                  `flex flex-1 flex-col items-center gap-1 text-xs ${
+                    isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
+                  }`
+                }
+              >
+                <Package size={23} />
+                <span>Products</span>
+              </NavLink>
+
+              {/* CUSTOMERS */}
+              <NavLink
+                to="/customers"
+                onClick={onMobileClose}
+                className={({ isActive }) =>
+                  `flex flex-1 flex-col items-center gap-1 text-xs ${
+                    isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
+                  }`
+                }
+              >
+                <Users size={23} />
+                <span>Customers</span>
+              </NavLink>
             </div>
-
-            {/* PRODUCTS */}
-            <NavLink
-              to="/products"
-              onClick={onMobileClose}
-              className={({ isActive }) =>
-                `flex flex-1 flex-col items-center gap-1 text-xs ${
-                  isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
-                }`
-              }
-            >
-              <Package size={23} />
-              <span>Products</span>
-            </NavLink>
-
-            {/* CUSTOMERS */}
-            <NavLink
-              to="/customers"
-              onClick={onMobileClose}
-              className={({ isActive }) =>
-                `flex flex-1 flex-col items-center gap-1 text-xs ${
-                  isActive ? 'text-primary-base' : 'text-[#9AA6A2]'
-                }`
-              }
-            >
-              <Users size={23} />
-              <span>Customers</span>
-            </NavLink>
-          </div>
-        </nav>
+          </nav>
+        )}
       </div>
     </>
   );
