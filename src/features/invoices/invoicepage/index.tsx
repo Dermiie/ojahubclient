@@ -1,16 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Search,
-  Plus,
-  FileText,
-  ChevronRight,
-  X,
-  CheckCircle2,
-  Clock3,
-  CircleAlert,
-  Receipt,
-} from 'lucide-react';
+import { Search, Plus, FileText, ChevronRight, X, Receipt } from 'lucide-react';
 import { Link } from 'react-router';
 
 import {
@@ -68,24 +58,24 @@ function CustomerAvatar({
 
   // Alternate between the green and tan avatar styles from Figma.
   const tone =
-    name.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0) % 2 === 0
-      ? "bg-primary-subtle text-primary-base"
-      : "bg-secondary-base/15 text-secondary-base";
+    name.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 2 === 0
+      ? 'bg-primary-subtle text-primary-base'
+      : 'bg-secondary-base/15 text-secondary-base';
 
   return (
     <div
       className={`grid flex-none place-items-center font-bold ${
-        small ? "size-7 rounded-lg text-[10px]" : "size-10 rounded-xl text-xs"
+        small ? 'size-7 rounded-lg text-[10px]' : 'size-10 rounded-xl text-xs'
       } ${tone}`}
     >
-      {initials || "CU"}
+      {initials || 'CU'}
     </div>
   );
 }
 
 export default function InvoicesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeStatus, setActiveStatus] = useState<InvoiceFilter>("All");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeStatus, setActiveStatus] = useState<InvoiceFilter>('All');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const {
@@ -128,7 +118,7 @@ export default function InvoicesPage() {
 
     const paidToday = invoices.filter(
       (invoice) =>
-        invoice.status === "Paid" && invoice.day.toLowerCase() === "today",
+        invoice.status === 'Paid' && invoice.day.toLowerCase() === 'today',
     );
 
     return {
@@ -208,7 +198,7 @@ export default function InvoicesPage() {
     return groups;
   }, [filteredInvoices]);
 
-  const hasFilters = Boolean(searchTerm) || activeStatus !== "All";
+  const hasFilters = Boolean(searchTerm) || activeStatus !== 'All';
 
   const filters: Array<'All' | Invoice['status']> = [
     'All',
@@ -229,10 +219,11 @@ export default function InvoicesPage() {
   };
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-[1600px] space-y-5 bg-background-main px-3 py-4 sm:space-y-6 sm:px-5 sm:py-6 lg:px-7">
+    // A div, not <main>: the dashboard layout already wraps every page in <main>
+    <div className="mx-auto w-full min-w-0 max-w-[1600px] space-y-5 bg-background-main">
       {/* Page heading */}
       <header className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+        <h1 className="min-w-0 truncate text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
           Invoices
         </h1>
 
@@ -241,7 +232,7 @@ export default function InvoicesPage() {
           <button
             type="button"
             onClick={() => setShowMobileSearch((current) => !current)}
-            aria-label={showMobileSearch ? "Hide search" : "Show search"}
+            aria-label={showMobileSearch ? 'Hide search' : 'Show search'}
             aria-expanded={showMobileSearch}
             className="grid size-10 place-items-center rounded-full border border-border-default bg-background-main text-text-primary transition hover:bg-background-muted"
           >
@@ -268,13 +259,16 @@ export default function InvoicesPage() {
       </header>
 
       {/* Summary cards */}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {/* Mobile: 2 columns, "Paid today" full width below. From md: 3 in a row.
+          min-w-0 on each card lets long amounts wrap instead of widening the grid. */}
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {/* Waiting */}
         <button
           type="button"
           onClick={() => setActiveStatus('Waiting')}
           aria-pressed={activeStatus === 'Waiting'}
-          className="group rounded-2xl bg-primary-active p-5 text-left text-text-inverse transition hover:shadow-md sm:p-6"
+          // relative + overflow-hidden keep the decorative arcs inside the card
+          className="group relative min-w-0 overflow-hidden rounded-2xl bg-primary-active p-5 text-left text-text-inverse transition hover:shadow-md sm:p-6"
         >
           {/* Decorative arcs */}
           <div className="pointer-events-none absolute -right-10 -top-16 size-44 rounded-full border border-text-inverse/10" />
@@ -285,11 +279,11 @@ export default function InvoicesPage() {
               Waiting for transfer
             </span>
 
-            <p className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">
+            <p className="mt-2 text-xl font-bold tracking-tight wrap-anywhere sm:text-2xl">
               {formatNaira(stats.waitingAmount)}
             </p>
-
-          <div className="mt-4 flex items-center justify-between">
+          </div>
+          <div className="relative mt-4 flex items-center justify-between">
             <span className="text-xs text-text-secondary-inverse">
               {stats.waitingCount}{' '}
               {stats.waitingCount === 1 ? 'invoice' : 'invoices'} awaiting
@@ -303,22 +297,19 @@ export default function InvoicesPage() {
           type="button"
           onClick={() => setActiveStatus('Outstanding')}
           aria-pressed={activeStatus === 'Outstanding'}
-          className="group rounded-2xl bg-secondary-base/15 p-5 text-left transition hover:shadow-md sm:p-6"
-          onClick={() => setActiveStatus("Outstanding")}
-          aria-pressed={activeStatus === "Outstanding"}
-          className="group rounded-2xl bg-secondary-base/15 p-4 text-left transition hover:shadow-md sm:p-5"
+          className="group min-w-0 rounded-2xl bg-secondary-base/15 p-5 text-left transition hover:shadow-md sm:p-6"
         >
           <span className="block text-xs font-medium text-text-secondary">
             <span className="sm:hidden">Owing / part-paid</span>
             <span className="hidden sm:inline">Owing or part-paid</span>
           </span>
 
-          <p className="mt-2 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+          <p className="mt-2 text-xl font-bold tracking-tight text-text-primary wrap-anywhere sm:text-2xl">
             {formatNaira(stats.outstandingAmount)}
           </p>
 
-          <div className="mt-4 flex items-center justify-between">
-            <span className="text-xs text-text-secondary">
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <span className="min-w-0 text-xs text-text-secondary">
               {stats.outstandingCount}{' '}
               {stats.outstandingCount === 1 ? 'invoice' : 'invoices'} part-paid
               or owing
@@ -326,12 +317,12 @@ export default function InvoicesPage() {
 
             <ChevronRight
               size={18}
-              className="text-secondary-base transition group-hover:translate-x-1"
+              className="shrink-0 text-secondary-base transition group-hover:translate-x-1"
             />
           </div>
           <span className="mt-2 block text-xs text-secondary-base">
-            {stats.outstandingCount}{" "}
-            {stats.outstandingCount === 1 ? "invoice" : "invoices"}
+            {stats.outstandingCount}{' '}
+            {stats.outstandingCount === 1 ? 'invoice' : 'invoices'}
           </span>
         </button>
 
@@ -340,43 +331,43 @@ export default function InvoicesPage() {
           type="button"
           onClick={() => setActiveStatus('Paid')}
           aria-pressed={activeStatus === 'Paid'}
-          className="group rounded-2xl border border-border-default bg-background-main p-5 text-left transition hover:shadow-md sm:col-span-2 sm:p-6 xl:col-span-1"
-          onClick={() => setActiveStatus("Paid")}
-          aria-pressed={activeStatus === "Paid"}
-          className="group hidden rounded-2xl border border-border-default bg-background-main p-5 text-left transition hover:shadow-md sm:block"
+          className="group col-span-2 min-w-0 rounded-2xl border border-border-default bg-background-main p-5 text-left transition hover:shadow-md sm:p-6 md:col-span-1"
+          // className="group hidden rounded-2xl border border-border-default bg-background-main p-5 text-left transition hover:shadow-md sm:block"
         >
           <span className="block text-xs font-medium text-text-secondary">
             Paid today
           </span>
 
-          <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
+          <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary wrap-anywhere">
             {formatNaira(stats.paidTodayAmount)}
           </p>
 
-          <div className="mt-4 flex items-center justify-between">
-            <span className="text-xs text-text-tertiary">
-              {stats.paidCount} completed{' '}
-              {stats.paidCount === 1 ? 'payment' : 'payments'}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <span className="min-w-0 text-xs text-text-tertiary">
+              {stats.paidTodayCount} completed{' '}
+              {stats.paidTodayCount === 1 ? 'payment' : 'payments'}
             </span>
 
             <ChevronRight
               size={18}
-              className="text-text-tertiary transition group-hover:translate-x-1"
+              className="shrink-0 text-text-tertiary transition group-hover:translate-x-1"
             />
           </div>
           <span className="mt-2 block text-xs text-success-base">
-            {stats.paidTodayCount}{" "}
-            {stats.paidTodayCount === 1 ? "invoice" : "invoices"} · all verified
+            {stats.paidTodayCount}{' '}
+            {stats.paidTodayCount === 1 ? 'invoice' : 'invoices'} · all verified
           </span>
         </button>
       </section>
 
       {/* Search and status filters */}
-      <section className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
+      {/* Stacked until xl. Side by side only from xl, where there is room
+          for the search box and all five filters (the sidebar takes 260px from lg). */}
+      <section className="flex min-w-0 flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center">
         {/* Search */}
         <div
           className={`${
-            showMobileSearch ? "block" : "hidden"
+            showMobileSearch ? 'block' : 'hidden'
           } relative min-w-0 flex-1 sm:block`}
         >
           <Search
@@ -405,9 +396,9 @@ export default function InvoicesPage() {
           )}
         </div>
 
-        {/* Filters */}
-        <div className="-mx-3 min-w-0 overflow-x-auto px-3 sm:mx-0 sm:px-0 lg:flex-none">
-          <div className="flex w-max items-center gap-2">
+        {/* Filters: wrap onto a second line on small screens instead of scrolling sideways */}
+        <div className="min-w-0 xl:flex-none">
+          <div className="flex flex-wrap items-center gap-2">
             {filters.map((status) => {
               const active = activeStatus === status;
 
@@ -432,10 +423,10 @@ export default function InvoicesPage() {
                   >
                     {statusCounts[status]}
                   </span>
-                  {status === "Waiting" && (
+                  {status === 'Waiting' && (
                     <span
                       className={`text-xs sm:hidden ${
-                        active ? "text-text-inverse/75" : "text-text-tertiary"
+                        active ? 'text-text-inverse/75' : 'text-text-tertiary'
                       }`}
                     >
                       · {statusCounts[status]}
@@ -447,8 +438,9 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        {activeStatus === "Outstanding" && (
-          <div className="flex flex-none items-center gap-2 text-sm text-text-secondary">
+        {activeStatus === 'Outstanding' && (
+          // basis-full: on its own line under the search and filters at xl
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary xl:basis-full">
             <span>Showing Part-paid and Owing invoices</span>
 
             <button
@@ -546,17 +538,18 @@ export default function InvoicesPage() {
           </div>
         ) : (
           <>
-            {/* Desktop invoice table */}
-            <div className="hidden overflow-x-auto md:block">
-              <table className="w-full min-w-[760px] bg-background-main text-left">
+            <div className="hidden md:block">
+              <table className="w-full table-fixed bg-background-main text-left">
                 <thead>
                   <tr className="border-b border-border-subtle text-xs font-medium text-text-secondary">
-                    <th className="px-5 py-3.5">Invoice</th>
-                    <th className="px-5 py-3.5">Customer</th>
-                    <th className="px-5 py-3.5">Items</th>
-                    <th className="px-5 py-3.5">Date</th>
-                    <th className="px-5 py-3.5">Amount</th>
-                    <th className="px-5 py-3.5">Status</th>
+                    <th className="w-28 px-4 py-3.5 xl:px-5">Invoice</th>
+                    <th className="px-4 py-3.5 xl:px-5">Customer</th>
+                    <th className="hidden px-4 py-3.5 xl:table-cell xl:px-5">
+                      Items
+                    </th>
+                    <th className="w-36 px-4 py-3.5 xl:px-5">Date</th>
+                    <th className="w-32 px-4 py-3.5 xl:px-5">Amount</th>
+                    <th className="w-36 px-4 py-3.5 xl:px-5">Status</th>
                   </tr>
                 </thead>
 
@@ -570,7 +563,7 @@ export default function InvoicesPage() {
                         key={invoice.no}
                         className="bg-background-main transition hover:bg-background-card"
                       >
-                        <td className="whitespace-nowrap px-5 py-4">
+                        <td className="truncate px-4 py-4 xl:px-5">
                           <Link
                             to={`/invoices/${invoice.no}`}
                             className="text-sm font-medium text-text-secondary transition hover:text-primary-base"
@@ -579,31 +572,32 @@ export default function InvoicesPage() {
                           </Link>
                         </td>
 
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-3">
+                        <td className="px-4 py-4 xl:px-5">
+                          {/* min-w-0 lets the name truncate inside the column */}
+                          <div className="flex min-w-0 items-center gap-3">
                             <CustomerAvatar name={customerName} small />
 
-                            <span className="max-w-[180px] truncate text-sm font-medium text-text-primary">
+                            <span className="min-w-0 truncate text-sm font-medium text-text-primary">
                               {customerName}
                             </span>
                           </div>
                         </td>
 
-                        <td className="max-w-[190px] px-5 py-4">
+                        <td className="hidden px-4 py-4 xl:table-cell xl:px-5">
                           <span className="block truncate text-sm text-text-secondary">
                             {getItemsSummary(invoice)}
                           </span>
                         </td>
 
-                        <td className="whitespace-nowrap px-5 py-4 text-sm text-text-secondary">
+                        <td className="truncate px-4 py-4 text-sm text-text-secondary xl:px-5">
                           {invoice.day} {invoice.time}
                         </td>
 
-                        <td className="whitespace-nowrap px-5 py-4 text-sm font-bold text-text-primary">
+                        <td className="truncate px-4 py-4 text-sm font-bold text-text-primary xl:px-5">
                           {formatNaira(amount)}
                         </td>
 
-                        <td className="px-5 py-4">
+                        <td className="px-4 py-4 xl:px-5">
                           <StatusBadge status={invoice.status} />
                         </td>
                       </tr>
@@ -614,7 +608,8 @@ export default function InvoicesPage() {
             </div>
 
             {/* Mobile invoice list grouped by day */}
-            <div className="bg-background-main md:hidden">
+            {/* px matches the results heading above, so rows don't touch the card edge */}
+            <div className="bg-background-main px-4 sm:px-6 md:hidden">
               {groupedInvoices.map((group) => (
                 <div key={group.day}>
                   <p className="pb-2 pt-3 text-sm font-semibold text-text-secondary">
@@ -661,6 +656,6 @@ export default function InvoicesPage() {
           </>
         )}
       </section>
-    </main>
+    </div>
   );
 }
