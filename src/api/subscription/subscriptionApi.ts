@@ -5,6 +5,10 @@ export const PLAN_IDS = ['monthly', 'six_months', 'yearly'] as const;
 
 export type PlanId = (typeof PLAN_IDS)[number];
 
+export const FREE_TRIAL_PLAN_ID = 'free_trial';
+
+export type SubscriptionPlanId = PlanId | typeof FREE_TRIAL_PLAN_ID;
+
 export type SubscriptionStatus = 'trialing' | 'active' | 'expired';
 
 // ---------- Response data ----------
@@ -12,18 +16,18 @@ export type SubscriptionStatus = 'trialing' | 'active' | 'expired';
 /** One plan from GET /api/subscription/plans */
 export interface Plan {
   id: PlanId;
-  label: string; // "Monthly", "6 months", "Yearly"
-  priceKobo: number; // full price for the whole period, e.g. 4800000 = ₦48,000
-  months: number; // 1, 6 or 12
+  label: string;
+  priceKobo: number;
+  months: number;
 }
 
 export interface PlansList {
-  trialDays: number; // 14
+  trialDays: number; // 7
   plans: Plan[];
 }
 
 export interface Subscription {
-  plan: PlanId;
+  plan: SubscriptionPlanId;
   planLabel: string;
   priceKobo: number;
   status: SubscriptionStatus;
@@ -40,7 +44,7 @@ export interface SubscriptionState {
   subscription: Subscription | null;
 }
 
-export const TRIAL_DAYS = 14;
+export const TRIAL_DAYS = 7;
 
 export const PLANS: Plan[] = [
   { id: 'monthly', label: 'Monthly', priceKobo: 500000, months: 1 }, // ₦5,000
