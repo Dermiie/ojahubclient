@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Check,
-  CheckCircle2,
   Clock3,
-  Copy,
+  Info,
   MessageCircle,
   Receipt,
+  Share2,
 } from "lucide-react";
 import { useLocation, useNavigate, useParams } from "react-router";
 
@@ -37,7 +37,6 @@ export default function InvoiceDetailPage() {
   const [data, setData] = useState<PageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
@@ -106,7 +105,7 @@ export default function InvoiceDetailPage() {
   const statusLabel = (status: Invoice["status"]) => {
     switch (status) {
       case "Paid":
-        return "Paid";
+        return "Paid · verified";
       case "Part-paid":
         return "Part-paid";
       case "Owing":
@@ -116,21 +115,25 @@ export default function InvoiceDetailPage() {
     }
   };
 
-  const statusStyles = (status: Invoice["status"]) => {
+  const statusDot = (status: Invoice["status"]) => {
     switch (status) {
       case "Paid":
-        return "bg-success-light text-success-base";
+        return "bg-success-base";
       case "Part-paid":
-        return "bg-secondary-base/15 text-secondary-base";
+        return "bg-secondary-base";
       case "Owing":
-        return "bg-background-muted text-text-primary";
+        return "bg-text-tertiary";
       default:
-        return "bg-primary-subtle text-primary-base";
+        return "bg-primary-base";
     }
   };
 
   const goBack = () => {
     navigate(isDevRoute ? "/__dev/invoice-preview" : "/invoices");
+  };
+
+  const viewPayment = () => {
+    navigate("/payments");
   };
 
   const shareInvoice = () => {
@@ -152,16 +155,38 @@ export default function InvoiceDetailPage() {
     );
   };
 
-  const copyInvoiceNumber = async () => {
+  const shareReceipt = () => {
     if (!invoice) return;
 
-    try {
-      await navigator.clipboard.writeText(invoice.no);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Unable to copy invoice number:", error);
-    }
+    const message = [
+      "OjaHub Receipt",
+      `Invoice: ${invoice.no}`,
+      `Customer: ${customer?.name ?? "Customer"}`,
+      `Amount paid: ${formatNaira(invoice.paid)}`,
+    ].join("\n");
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(message)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
+  const remindCustomer = () => {
+    if (!invoice) return;
+
+    const message = [
+      `Hello ${customer?.name ?? "Customer"}, this is a friendly reminder about invoice ${invoice.no}.`,
+      `Invoice total: ${formatNaira(total)}`,
+      `Amount paid: ${formatNaira(invoice.paid)}`,
+      `Balance: ${formatNaira(balance)}`,
+    ].join("\n");
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(message)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const handlePaymentSaved = (
@@ -222,8 +247,43 @@ export default function InvoiceDetailPage() {
     name: "Customer",
   };
 
+  const isPaid = balance <= 0;
+  const isPartPaid = !isPaid && invoice.status === "Part-paid";
+
+  const paidPercent =
+    total > 0 ? Math.min(100, Math.round((invoice.paid / total) * 100)) : 0;
+
+  const ringTone = isPartPaid
+    ? "border-text-inverse/10"
+    : "border-primary-base/10";
+
   const customerFirstName = resolvedCustomer.name.split(" ")[0];
-  const formattedDate = invoice.day || "Today";
+
+  // Generate initials from the first two words of the customer name.
+  const customerInitials = resolvedCustomer.name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+
+  const firstItemName = invoice.lines[0]?.name;
+
+  const paidNote = [
+    `Paid by transfer ${(invoice.day || "today").toLowerCase()}${
+      invoice.time ? ` at ${invoice.time}` : ""
+    }`,
+    firstItemName ? `${firstItemName} stock updated` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const heroNote = isPaid
+    ? paidNote
+    : invoice.paid > 0
+      ? `${formatNaira(invoice.paid)} paid · ${formatNaira(balance)} remaining`
+      : `${formatNaira(balance)} still to pay`;
 
   return (
     <div className="min-h-screen bg-background-main pb-8">
@@ -241,93 +301,174 @@ export default function InvoiceDetailPage() {
             </button>
 
             <div className="min-w-0">
-              <p className="text-[10px] font-medium text-text-tertiary">
+              <p className="hidden text-[10px] font-medium text-text-tertiary sm:block">
                 Invoices
               </p>
 
-              <div className="mt-0.5 flex items-center gap-2">
-                <h1 className="text-xl font-bold text-text-primary">
-                  {invoice.no}
-                </h1>
-
-                <button
-                  type="button"
-                  onClick={copyInvoiceNumber}
-                  aria-label="Copy invoice number"
-                  className="text-text-tertiary transition hover:text-primary-base"
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                </button>
-              </div>
+              <h1 className="text-xl font-bold text-text-primary sm:mt-0.5">
+                {invoice.no}
+              </h1>
             </div>
           </div>
 
           {/* Desktop actions */}
           <div className="hidden items-center gap-2 sm:flex">
-            <button
-              type="button"
-              onClick={shareInvoice}
-              className="inline-flex h-9 items-center gap-2 rounded-full border border-border-default bg-background-main px-4 text-[11px] font-semibold text-text-primary transition hover:bg-background-card"
-            >
-              <MessageCircle size={14} />
-              Resend on WhatsApp
-            </button>
+            {isPaid ? (
+              <>
+                <button
+                  type="button"
+                  onClick={viewPayment}
+                  className="inline-flex h-9 items-center gap-2 rounded-full border border-border-default bg-background-main px-4 text-[11px] font-semibold text-text-primary transition hover:bg-background-card"
+                >
+                  View payment
+                </button>
 
-            <button
-              type="button"
-              onClick={() => setShowPaymentModal(true)}
-              disabled={balance <= 0}
-              className="inline-flex h-9 items-center gap-2 rounded-full bg-primary-base px-4 text-[11px] font-semibold text-text-inverse transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Receipt size={14} />
-              Record payment
-            </button>
+                <button
+                  type="button"
+                  onClick={shareReceipt}
+                  className="inline-flex h-9 items-center gap-2 rounded-full bg-primary-base px-4 text-[11px] font-semibold text-text-inverse transition hover:bg-primary-hover"
+                >
+                  <Share2 size={14} />
+                  Share receipt
+                </button>
+              </>
+            ) : isPartPaid ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentModal(true)}
+                  className="inline-flex h-9 items-center gap-2 rounded-full border border-border-default bg-background-main px-4 text-[11px] font-semibold text-text-primary transition hover:bg-background-card"
+                >
+                  Paid another way
+                </button>
+
+                <button
+                  type="button"
+                  onClick={remindCustomer}
+                  className="inline-flex h-9 items-center gap-2 rounded-full bg-primary-base px-4 text-[11px] font-semibold text-text-inverse transition hover:bg-primary-hover"
+                >
+                  <MessageCircle size={14} />
+                  Remind {customerFirstName} to pay the rest
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={shareInvoice}
+                  className="inline-flex h-9 items-center gap-2 rounded-full border border-border-default bg-background-main px-4 text-[11px] font-semibold text-text-primary transition hover:bg-background-card"
+                >
+                  <MessageCircle size={14} />
+                  Resend on WhatsApp
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentModal(true)}
+                  className="inline-flex h-9 items-center gap-2 rounded-full bg-primary-base px-4 text-[11px] font-semibold text-text-inverse transition hover:bg-primary-hover"
+                >
+                  <Receipt size={14} />
+                  Record payment
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Invoice summary card */}
-        <section className="relative mb-5 min-h-[132px] overflow-hidden rounded-[17px] bg-primary-active px-5 py-5 text-text-inverse sm:px-7 sm:py-6">
+        <section
+          className={`relative mb-5 min-h-[132px] overflow-hidden rounded-[17px] px-5 py-5 sm:px-7 sm:py-6 ${
+            isPartPaid
+              ? "bg-primary-active text-text-inverse"
+              : "bg-success-light text-text-primary"
+          }`}
+        >
           {/* Decorative rings */}
-          <div className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 rounded-full border border-white/[0.08]" />
-          <div className="pointer-events-none absolute -right-1 -top-16 h-52 w-52 rounded-full border border-white/[0.08]" />
-          <div className="pointer-events-none absolute right-9 -top-8 h-36 w-36 rounded-full border border-white/[0.08]" />
+          <div
+            className={`pointer-events-none absolute -right-10 -top-24 h-64 w-64 rounded-full border ${ringTone}`}
+          />
+          <div
+            className={`pointer-events-none absolute -right-1 -top-16 h-52 w-52 rounded-full border ${ringTone}`}
+          />
+          <div
+            className={`pointer-events-none absolute right-9 -top-8 h-36 w-36 rounded-full border ${ringTone}`}
+          />
 
-          <div className="relative z-10">
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[9px] font-semibold ${statusStyles(invoice.status)}`}
-            >
-              {invoice.status === "Paid" ? (
-                <CheckCircle2 size={11} />
-              ) : (
-                <Clock3 size={11} />
-              )}
-              {statusLabel(invoice.status)}
-            </span>
+          {isPartPaid ? (
+            <div className="relative z-10">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-text-inverse/15 px-2.5 py-1 text-[9px] font-semibold text-text-inverse">
+                <span className="size-1.5 rounded-full bg-text-inverse" />
+                {statusLabel(invoice.status)}
+              </span>
 
-            {/* Figma shows invoice total here, not remaining balance */}
-            <h2 className="mt-2 text-[30px] font-bold tracking-tight sm:text-[36px]">
-              {formatNaira(total)}
-            </h2>
+              <p className="mt-3 text-[10px] text-text-secondary-inverse">
+                Still to pay
+              </p>
 
-            <div className="mt-1 flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-secondary-base text-[9px] font-bold text-text-inverse">
-                {resolvedCustomer.name.charAt(0).toUpperCase()}
+              <h2 className="mt-1 text-[30px] font-bold tracking-tight sm:text-[36px]">
+                {formatNaira(balance)}
+              </h2>
+
+              {/* Payment progress */}
+              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-text-inverse/20">
+                <div
+                  className="h-full rounded-full bg-primary-light"
+                  style={{ width: `${paidPercent}%` }}
+                />
               </div>
 
-              <span className="text-[10px] font-semibold text-text-inverse">
-                {resolvedCustomer.name}
-              </span>
-            </div>
+              <div className="mt-2 flex items-center justify-between gap-3 text-[9px] text-text-secondary-inverse">
+                <span>{formatNaira(invoice.paid)} paid · verified</span>
+                <span>of {formatNaira(total)}</span>
+              </div>
 
-            {invoice.paid > 0 && (
-              <p className="mt-3 text-[9px] text-text-secondary-inverse">
-                {formatNaira(invoice.paid)} paid
-                {balance > 0
-                  ? ` · ${formatNaira(balance)} remaining`
-                  : " · Fully paid"}
+              <div className="mt-3 flex items-center gap-2">
+                <div className="flex h-6 min-w-6 items-center justify-center rounded-lg bg-secondary-base px-1.5 text-[9px] font-bold text-text-inverse">
+                  {customerInitials || "CU"}
+                </div>
+
+                <span className="text-[10px] font-semibold text-text-inverse">
+                  {resolvedCustomer.name}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="relative z-10">
+              <span
+                className={`inline-flex items-center gap-1.5 text-[10px] font-semibold ${
+                  isPaid ? "text-success-base" : "text-text-secondary"
+                }`}
+              >
+                {isPaid ? (
+                  <span
+                    className={`size-1.5 rounded-full ${statusDot(invoice.status)}`}
+                  />
+                ) : (
+                  <Clock3 size={11} />
+                )}
+                {statusLabel(invoice.status)}
+              </span>
+
+              {/* Figma shows invoice total here, not remaining balance */}
+              <h2 className="mt-2 text-[30px] font-bold tracking-tight sm:text-[36px]">
+                {formatNaira(total)}
+              </h2>
+
+              <div className="mt-1 flex items-center gap-2">
+                <div className="flex h-6 min-w-6 items-center justify-center rounded-lg bg-background-main px-1.5 text-[9px] font-bold text-text-primary">
+                  {customerInitials || "CU"}
+                </div>
+
+                <span className="text-[10px] font-semibold text-text-primary">
+                  {resolvedCustomer.name}
+                </span>
+              </div>
+
+              <p className="mt-3 text-[9px] leading-4 text-text-secondary">
+                {heroNote}
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </section>
 
         {/* Activity and Items */}
@@ -339,7 +480,7 @@ export default function InvoiceDetailPage() {
             </h2>
 
             <div className="relative space-y-5">
-              <div className="absolute bottom-4 left-[6px] top-2 w-px bg-primary-light" />
+              <div className="absolute bottom-4 left-[6px] top-2 w-px bg-primary-base" />
 
               {/* Created */}
               <div className="relative flex gap-3">
@@ -353,12 +494,8 @@ export default function InvoiceDetailPage() {
                   </p>
 
                   <p className="mt-1 text-[9px] leading-4 text-text-secondary">
-                    Invoice created for {resolvedCustomer.name}
-                  </p>
-
-                  <p className="mt-1 text-[8px] text-text-tertiary">
-                    {formattedDate}
-                    {invoice.time ? ` · ${invoice.time}` : ""}
+                    {invoice.time ? `${invoice.time} · ` : ""}from Maza Maza
+                    Warehouse
                   </p>
                 </div>
               </div>
@@ -381,100 +518,94 @@ export default function InvoiceDetailPage() {
               </div>
 
               {/* Opened */}
-              <div className="relative flex gap-3">
-                <div className="relative z-10 flex h-[13px] w-[13px] shrink-0 items-center justify-center rounded-full bg-primary-base text-text-inverse ring-4 ring-background-main">
-                  <Check size={9} strokeWidth={3} />
-                </div>
+              {!isPartPaid && (
+                <div className="relative flex gap-3">
+                  <div className="relative z-10 flex h-[13px] w-[13px] shrink-0 items-center justify-center rounded-full bg-primary-base text-text-inverse ring-4 ring-background-main">
+                    <Check size={9} strokeWidth={3} />
+                  </div>
 
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-bold text-text-primary">
-                    Opened by {customerFirstName}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold text-text-primary">
+                      Opened by {customerFirstName}
+                    </p>
 
-                  <p className="mt-1 text-[9px] leading-4 text-text-secondary">
-                    Invoice viewed by customer
-                  </p>
+                    <p className="mt-1 text-[9px] leading-4 text-text-secondary">
+                      Invoice viewed by customer
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Payment status */}
               <div className="relative flex gap-3">
-                <div className="relative z-10 flex h-[13px] w-[13px] shrink-0 items-center justify-center rounded-full border border-secondary-base bg-background-main ring-4 ring-background-main">
-                  <span className="h-1 w-1 rounded-full bg-secondary-base" />
-                </div>
+                {isPaid || isPartPaid ? (
+                  <div className="relative z-10 flex h-[13px] w-[13px] shrink-0 items-center justify-center rounded-full bg-primary-base text-text-inverse ring-4 ring-background-main">
+                    <Check size={9} strokeWidth={3} />
+                  </div>
+                ) : (
+                  <div className="relative z-10 flex h-[13px] w-[13px] shrink-0 items-center justify-center rounded-full border border-secondary-base bg-background-main ring-4 ring-background-main">
+                    <span className="h-1 w-1 rounded-full bg-secondary-base" />
+                  </div>
+                )}
 
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] font-bold text-text-primary">
-                    Payment
+                    {isPartPaid
+                      ? `Paid ${formatNaira(invoice.paid)}`
+                      : isPaid
+                        ? "Paid"
+                        : "Payment"}
                   </p>
 
                   <p className="mt-1 text-[9px] leading-4 text-text-secondary">
-                    {balance > 0
-                      ? "Waiting for transfer"
-                      : "Invoice fully paid"}
+                    {isPaid || isPartPaid
+                      ? "Verified by OjaHub"
+                      : "Waiting for transfer"}
                   </p>
                 </div>
               </div>
+
+              {/* Remaining balance */}
+              {isPartPaid && (
+                <div className="relative flex gap-3">
+                  <div className="relative z-10 flex h-[13px] w-[13px] shrink-0 items-center justify-center rounded-full border border-dashed border-primary-base bg-background-main ring-4 ring-background-main" />
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold text-text-primary">
+                      {formatNaira(balance)} still to pay
+                    </p>
+
+                    <p className="mt-1 text-[9px] leading-4 text-text-secondary">
+                      {customerFirstName} can pay with the same link
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
 
           {/* Items */}
-          <section className="rounded-xl border border-border-default bg-background-main p-4 sm:p-5">
-            <h2 className="mb-5 text-[12px] font-bold text-text-primary">
+          <section
+            className={`bg-background-main sm:block sm:rounded-xl sm:border sm:border-border-default sm:p-5 ${
+              isPartPaid ? "hidden" : ""
+            }`}
+          >
+            <h2 className="mb-4 text-[12px] font-bold text-text-primary sm:mb-5">
               Items
             </h2>
 
-            {/* Desktop table */}
-            <div className="hidden sm:block">
-              <div className="grid grid-cols-[minmax(0,1fr)_55px_85px_95px] gap-3 border-b border-border-subtle pb-3 text-[9px] font-medium text-text-secondary">
-                <span>Product</span>
-                <span className="text-right">Qty</span>
-                <span className="text-right">Price</span>
-                <span className="text-right">Total</span>
-              </div>
-
-              <div className="divide-y divide-border-subtle">
-                {invoice.lines.map((line, index) => (
-                  <div
-                    key={`${line.name}-${index}`}
-                    className="grid grid-cols-[minmax(0,1fr)_55px_85px_95px] items-center gap-3 py-3"
-                  >
-                    <span className="break-words text-[10px] font-medium text-text-primary">
-                      {line.name}
-                    </span>
-
-                    <span className="text-right text-[9px] text-text-secondary">
-                      {line.qty}
-                    </span>
-
-                    <span className="text-right text-[9px] text-text-secondary">
-                      {formatNaira(line.price)}
-                    </span>
-
-                    <span className="text-right text-[10px] font-semibold text-text-primary">
-                      {formatNaira(line.qty * line.price)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Mobile item list */}
-            <div className="space-y-4 sm:hidden">
+            <div className="space-y-4">
               {invoice.lines.map((line, index) => (
                 <div
                   key={`${line.name}-${index}`}
                   className="flex items-start justify-between gap-3"
                 >
-                  <div className="min-w-0">
-                    <p className="break-words text-[10px] font-medium leading-5 text-text-primary">
-                      {line.name}
-                    </p>
-
-                    <p className="mt-0.5 text-[9px] text-text-secondary">
-                      {line.qty} × {formatNaira(line.price)}
-                    </p>
-                  </div>
+                  <p className="min-w-0 break-words text-[10px] font-medium leading-5 text-text-primary">
+                    {line.name}{" "}
+                    <span className="text-text-secondary">
+                      · {line.qty} × {formatNaira(line.price)}
+                    </span>
+                  </p>
 
                   <p className="shrink-0 text-[10px] font-semibold text-text-primary">
                     {formatNaira(line.qty * line.price)}
@@ -483,64 +614,130 @@ export default function InvoiceDetailPage() {
               ))}
             </div>
 
-            <div className="my-4 border-t border-border-subtle" />
+            <div className={isPaid ? "hidden sm:block" : ""}>
+              <div className="my-4 border-t border-border-subtle" />
 
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold text-text-secondary">
-                Total due
-              </span>
-
-              <span className="text-[11px] font-bold text-text-primary">
-                {formatNaira(total)}
-              </span>
-            </div>
-
-            {invoice.paid > 0 && (
-              <>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-text-secondary">
+              {isPaid || isPartPaid ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-text-primary">
                     Total paid
                   </span>
 
-                  <span className="text-[10px] font-bold text-success-base">
+                  <span className="text-[11px] font-bold text-text-primary">
                     {formatNaira(invoice.paid)}
                   </span>
                 </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-text-secondary">
+                      Total due
+                    </span>
 
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-text-secondary">
-                    Still to pay
-                  </span>
+                    <span className="text-[11px] font-bold text-text-primary">
+                      {formatNaira(total)}
+                    </span>
+                  </div>
 
-                  <span className="text-[10px] font-bold text-text-primary">
-                    {formatNaira(balance)}
-                  </span>
-                </div>
-              </>
-            )}
+                  {invoice.paid > 0 && (
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-[10px] font-semibold text-text-secondary">
+                        Total paid
+                      </span>
+
+                      <span className="text-[10px] font-bold text-success-base">
+                        {formatNaira(invoice.paid)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-text-secondary">
+                      Still to pay
+                    </span>
+
+                    <span className="text-[10px] font-bold text-text-primary">
+                      {formatNaira(balance)}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
           </section>
         </div>
 
+        {/* Mobile stock note */}
+        {isPartPaid && (
+          <div className="mt-4 flex items-start gap-2 rounded-xl bg-secondary-base/15 p-3 sm:hidden">
+            <Info size={14} className="mt-0.5 flex-none text-secondary-base" />
+
+            <p className="text-[10px] leading-4 text-text-secondary">
+              Stock leaves Maza Maza Warehouse when the invoice is fully paid,
+              unless you release the goods earlier.
+            </p>
+          </div>
+        )}
+
         {/* Mobile actions */}
         <div className="mt-5 grid grid-cols-1 gap-2 sm:hidden">
-          <button
-            type="button"
-            onClick={() => setShowPaymentModal(true)}
-            disabled={balance <= 0}
-            className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary-base text-[11px] font-semibold text-text-inverse transition hover:bg-primary-hover disabled:opacity-50"
-          >
-            <Receipt size={14} />
-            Record payment
-          </button>
+          {isPaid ? (
+            <>
+              <button
+                type="button"
+                onClick={shareReceipt}
+                className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary-base text-[11px] font-semibold text-text-inverse transition hover:bg-primary-hover"
+              >
+                Share receipt
+              </button>
 
-          <button
-            type="button"
-            onClick={shareInvoice}
-            className="flex h-11 items-center justify-center gap-2 rounded-full border border-border-default bg-background-main text-[11px] font-semibold text-text-primary transition hover:bg-background-card"
-          >
-            <MessageCircle size={14} />
-            Resend on WhatsApp
-          </button>
+              <button
+                type="button"
+                onClick={viewPayment}
+                className="flex h-11 items-center justify-center gap-2 rounded-full border border-border-default bg-background-main text-[11px] font-semibold text-text-primary transition hover:bg-background-card"
+              >
+                View payment
+              </button>
+            </>
+          ) : isPartPaid ? (
+            <>
+              <button
+                type="button"
+                onClick={remindCustomer}
+                className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary-base text-[11px] font-semibold text-text-inverse transition hover:bg-primary-hover"
+              >
+                <MessageCircle size={14} />
+                Remind {customerFirstName} to pay the rest
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowPaymentModal(true)}
+                className="flex h-11 items-center justify-center gap-2 rounded-full border border-border-default bg-background-main text-[11px] font-semibold text-text-primary transition hover:bg-background-card"
+              >
+                Paid another way?
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowPaymentModal(true)}
+                className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary-base text-[11px] font-semibold text-text-inverse transition hover:bg-primary-hover"
+              >
+                <Receipt size={14} />
+                Record payment
+              </button>
+
+              <button
+                type="button"
+                onClick={shareInvoice}
+                className="flex h-11 items-center justify-center gap-2 rounded-full border border-border-default bg-background-main text-[11px] font-semibold text-text-primary transition hover:bg-background-card"
+              >
+                <MessageCircle size={14} />
+                Resend on WhatsApp
+              </button>
+            </>
+          )}
         </div>
       </div>
 
