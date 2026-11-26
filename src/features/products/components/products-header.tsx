@@ -24,8 +24,10 @@ export default function ProductsHeader() {
 
         {/* the two buttons on the right */}
         <div className="flex items-center gap-[25px]">
+          {/* Move stock opens the Transfers page */}
           <Button
             variant="outline"
+            onClick={() => navigate("/transfers")}
             className="h-[46px] w-[145px] gap-1.5 rounded-full px-3 text-[16px] tracking-[-0.02em]"
           >
             <img src={truckIcon} alt="" className="size-5" />
