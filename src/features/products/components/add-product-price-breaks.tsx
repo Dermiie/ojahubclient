@@ -4,40 +4,77 @@ import plusIcon from "../assets/icons/plus.svg";
 
 export default function AddProductPriceBreaks() {
   return (
-    // desktop view
-    <div className="hidden flex-col gap-[12.98px] rounded-[22.72px] border-[0.81px] border-[#E3E7E5] px-[19.48px] py-[17.85px] lg:flex">
-      {/* title and optional */}
-      <div className="flex flex-col gap-[3.25px]">
-        <h2 className="text-[14px] font-semibold leading-[1.3] tracking-[-0.02em] text-text-primary">
-          Quantity price breaks
-        </h2>
-        <p className="text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary">
-          Optional
-        </p>
+    <>
+      {/* desktop view */}
+      <div className="hidden flex-col gap-[12.98px] rounded-[22.72px] border-[0.81px] border-[#E3E7E5] px-[19.48px] py-[17.85px] lg:flex">
+        {/* title and optional */}
+        <div className="flex flex-col gap-[3.25px]">
+          <h2 className="text-[14px] font-semibold leading-[1.3] tracking-[-0.02em] text-text-primary">
+            Quantity price breaks
+          </h2>
+          <p className="text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary">
+            Optional
+          </p>
+        </div>
+
+        {/* the green example box */}
+        <div className="flex items-center gap-[9.74px] rounded-[14.61px] bg-primary-subtle px-[12.98px] py-[11.36px] text-[12px] leading-[1.3] text-[#12432A]">
+          <img src={priceTagIcon} alt="" className="size-4 shrink-0" />
+          <p>
+            <span className="tracking-[-0.02em]">Example: </span>
+            <span className="font-medium tracking-[-0.02em]">6 or more at</span>
+            <span className="text-[12.17px]">
+              {" "}
+              ₦8,500 each. When a customer buys that many, the price drops by
+              itself.
+            </span>
+          </p>
+        </div>
+
+        {/* add a price break button */}
+        <button
+          type="button"
+          className="flex h-[40px] w-full items-center justify-center gap-[6px] rounded-[60px] border border-border-default bg-background-main px-4 py-3 text-[16px] font-medium leading-[1.3] tracking-[-0.02em] text-text-primary"
+        >
+          Add a price break
+          <img src={plusIcon} alt="" className="size-[18px]" />
+        </button>
       </div>
 
-      {/* the green example box */}
-      <div className="flex items-center gap-[9.74px] rounded-[14.61px] bg-primary-subtle px-[12.98px] py-[11.36px] text-[12px] leading-[1.3] text-[#12432A]">
-        <img src={priceTagIcon} alt="" className="size-4 shrink-0" />
-        <p>
-          <span className="tracking-[-0.02em]">Example: </span>
-          <span className="font-medium tracking-[-0.02em]">6 or more at</span>
-          <span className="text-[12.17px]">
-            {" "}
-            ₦8,500 each. When a customer buys that many, the price drops by
-            itself.
-          </span>
-        </p>
-      </div>
+      {/* mobile view */}
+      <div className="flex flex-col gap-3 rounded-[24px] border border-border-default bg-background-main p-4 lg:hidden">
+        {/* title and optional */}
+        <div className="flex flex-col gap-[3px]">
+          <h2 className="text-[16px] font-medium leading-[1.3] text-text-primary">
+            Quantity price breaks
+          </h2>
+          <p className="text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary">
+            Optional
+          </p>
+        </div>
 
-      {/* add a price break button */}
-      <button
-        type="button"
-        className="flex h-[40px] w-full items-center justify-center gap-[6px] rounded-[60px] border border-border-default bg-background-main px-4 py-3 text-[16px] font-medium leading-[1.3] tracking-[-0.02em] text-text-primary"
-      >
-        Add a price break
-        <img src={plusIcon} alt="" className="size-[18px]" />
-      </button>
-    </div>
+        {/* the green example box, the text breaks into three lines like the design */}
+        <div className="flex items-center gap-5 rounded-[6.88px] bg-primary-subtle px-5 py-2 text-[14px] leading-[1.3] tracking-[-0.02em] text-[#12432A]">
+          <img src={priceTagIcon} alt="" className="size-6 shrink-0" />
+          <p>
+            <span className="block">
+              <span>Example</span>
+              <span className="font-medium">: 6 or more at ₦8,500 each.</span>
+            </span>
+            <span className="block">When a customer buys that many, the</span>
+            <span className="block">price drops by itself.</span>
+          </p>
+        </div>
+
+        {/* add a price break button, dashed on mobile */}
+        <button
+          type="button"
+          className="flex h-[48px] w-full items-center justify-center gap-2 rounded-[35px] border border-dashed border-[#848E89] bg-background-main text-[16px] font-medium leading-[1.3] text-text-primary"
+        >
+          <img src={plusIcon} alt="" className="size-4" />
+          Add a price break
+        </button>
+      </div>
+    </>
   );
 }

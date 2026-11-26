@@ -26,6 +26,23 @@ export default function AddProductHeader() {
           </h1>
         </div>
       </div>
+
+      {/* mobile view */}
+      <div className="flex items-center gap-3 lg:hidden">
+        {/* round back button, goes to the products list */}
+        <Link
+          to="/products"
+          aria-label="Back to products"
+          className="flex size-[46px] shrink-0 items-center justify-center rounded-full border border-border-default"
+        >
+          <img src={backIcon} alt="" className="size-5" />
+        </Link>
+
+        {/* the title */}
+        <h1 className="text-[24px] font-bold leading-[27px] text-text-primary">
+          Add product
+        </h1>
+      </div>
     </>
   );
 }
