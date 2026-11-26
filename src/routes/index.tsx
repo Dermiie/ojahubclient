@@ -295,6 +295,13 @@ const routes: RouteObject[] = [
                   return { Component };
                 },
               },
+              {
+        path: 'products/new',
+        lazy: async () => {
+          const { default: Component } = await import('@/features/products/add-product-page');
+          return { Component };
+        },
+      },
 
               // LOCATIONS
               {
