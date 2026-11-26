@@ -1,6 +1,7 @@
 import { parseApiError } from '@/api/api';
 import { useChoosePlan } from '@/api/onboarding/onboarding';
 import {
+  FREE_TRIAL_PLAN_ID,
   PLANS,
   TRIAL_DAYS,
   type Plan,
@@ -24,6 +25,8 @@ const PERIOD_LABELS: Record<PlanId, string> = {
 
 const DEFAULT_PLAN: PlanId = 'yearly';
 
+const DASHBOARD = '/';
+
 /** Price per month in kobo. ₦48,000 for 12 months → 400000 (₦4,000) */
 function monthlyCostKobo(plan: Plan): number {
   return Math.round(plan.priceKobo / plan.months);
@@ -38,10 +41,6 @@ function planDescription(plan: Plan): string {
   return perMonth;
 }
 
-/**
- * The "Save 20%" badge, only on Yearly (as in the design).
- * Worked out against the monthly plan, so it stays right if prices change.
- */
 function planBadge(plan: Plan, plans: Plan[]): string | null {
   if (plan.id !== 'yearly') return null;
 
@@ -55,35 +54,76 @@ function planBadge(plan: Plan, plans: Plan[]): string | null {
   return `Save ${savingPercent}%`;
 }
 
+function payButtonLabel(planId: PlanId): string {
+  const plan = PLANS.find((item) => item.id === planId);
+  if (!plan) return 'Choose a plan';
+
+  return `Pay ${formatNaira(plan.priceKobo)} for ${plan.label}`;
+}
+
 export default function StepFour() {
   const navigate = useNavigate();
   const {
     mutate: choosePlan,
     isPending: isSaving,
     error: saveError,
+    variables: sentPlan,
   } = useChoosePlan();
 
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(DEFAULT_PLAN);
+  const [isGoingToPaystack, setIsGoingToPaystack] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
-  function onfreetrial() {
+  // One message for the banner: a failed request first, then payError.
+  let errorMessage: string | null = payError;
+  if (saveError) {
+    errorMessage = parseApiError(saveError).message;
+  }
+
+  const isBusy = isSaving || isGoingToPaystack;
+  const isStartingTrial = isSaving && sentPlan?.plan === FREE_TRIAL_PLAN_ID;
+  const isStartingPayment =
+    isGoingToPaystack || (isSaving && sentPlan?.plan !== FREE_TRIAL_PLAN_ID);
+
+  // const selectedPlanDetails = PLANS.find((plan) => plan.id === selectedPlan);
+
+  // const paymentDescription = selectedPlanDetails
+  //   ? `Pay for ${selectedPlan} at ₦${selectedPlanDetails.priceKobo / 100}`
+  //   : 'Choose a plan';
+
+  /** "Start free trial": no payment, straight to the dashboard. */
+  function onFreeTrial() {
     choosePlan(
-      { plan: selectedPlan },
+      { plan: FREE_TRIAL_PLAN_ID },
       {
         onSuccess: () => {
-          navigate('/onboarding/success');
+          navigate(DASHBOARD, { replace: true });
         },
       },
     );
   }
 
-  function onContinue() {
+  function onPay() {
     choosePlan(
       { plan: selectedPlan },
       {
-        onSuccess: () => {
-          navigate('/onboarding/success');
+        onSuccess: (result) => {
+          // Expected answer: { type: 'payment', payment: { authorizationUrl } }
+          if (result.type === 'payment' && result.payment.authorizationUrl) {
+            setIsGoingToPaystack(true);
+            // Leaves our app. Paystack sends the user back after paying.
+            window.location.assign(result.payment.authorizationUrl);
+            return;
+          }
+
+          // Anything else means the backend did not start a payment.
+          // Usually the backend is out of date (it has no Paystack step yet).
+          console.error(
+            'PUT /api/onboarding/plan did not return a Paystack link:',
+            result,
+          );
+          setPayError('We could not open Paystack. Please try again.');
         },
-        // Errors show in the banner above the buttons (from saveError)
       },
     );
   }
@@ -201,20 +241,28 @@ export default function StepFour() {
             you're ready
           </p>
         </div>
-        <Button variant={'outline'} onClick={onfreetrial}>
-          Start 7 day free trial
+        <Button
+          variant={'outline'}
+          size="lg"
+          disabled={isBusy}
+          onClick={onFreeTrial}
+        >
+          {isStartingTrial
+            ? 'Starting trial...'
+            : `Start ${TRIAL_DAYS}-day free trial`}
         </Button>
       </div>
 
-      <div className="mx-auto space-y-4 py-5 md:mt-20 md:w-8/12">
-        {/* 400 (earlier steps not done), 409 (trial already over), 500, network.
+      <div className="mx-auto space-y-4 py-5 md:mt-10 md:w-8/12">
+        {/* 400 (earlier steps not done), 409 (pending payment, trial still active),
+            502 (Paystack is down), 500, network, or no Paystack link (payError).
             401 and 403 ONBOARDING_REQUIRED are handled by the api instance. */}
-        {saveError && (
+        {errorMessage && (
           <p
             role="alert"
             className="rounded-xl bg-destructive/10 px-3 py-2 text-b2-medium text-destructive"
           >
-            {parseApiError(saveError).message}
+            {errorMessage}
           </p>
         )}
 
@@ -222,13 +270,15 @@ export default function StepFour() {
           <Button
             variant="outline"
             size="lg"
-            disabled={isSaving}
+            disabled={isBusy}
             onClick={() => navigate('/onboarding/step-three')}
           >
             Back
           </Button>
-          <Button size="lg" disabled={isSaving} onClick={onContinue}>
-            {isSaving ? 'Starting...' : `Start ${TRIAL_DAYS}-day free trial`}
+          <Button size="lg" disabled={isBusy} onClick={onPay}>
+            {isStartingPayment
+              ? 'Opening Paystack...'
+              : payButtonLabel(selectedPlan)}
             <ArrowRight />
           </Button>
         </div>

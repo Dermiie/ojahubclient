@@ -6,6 +6,10 @@ import {
 } from '@tanstack/react-query';
 import { api, type ApiSuccess, type User } from '../api';
 import { authKeys } from '../auth/authApi';
+import {
+  subscriptionKeys,
+  type SubscriptionPlanId,
+} from '../subscription/subscriptionApi';
 
 export const BUSINESS_CATEGORIES = [
   'Fabrics',
@@ -57,7 +61,7 @@ export interface ProductInput {
 }
 
 export interface PlanInput {
-  plan: PlanId;
+  plan: SubscriptionPlanId;
 }
 
 // ---------- Response data ----------
@@ -133,10 +137,32 @@ export interface SkipProductResult {
   onboardingStep: number;
 }
 
-export interface ChoosePlanResult {
-  subscription: Subscription;
-  onboardingStep: number;
+// export interface ChoosePlanResult {
+//   subscription: Subscription;
+//   onboardingStep: number;
+// }
+
+export interface PaymentStart {
+  reference: string; // e.g. "OJA-20261125-A1B2C3"
+  authorizationUrl: string; // the Paystack payment page
+  accessCode: string;
+  amountKobo: number;
+  plan: SubscriptionPlanId;
 }
+
+export interface TrialStartedResult {
+  type: 'trial';
+  subscription: Subscription;
+  onboardingStep: number; // 4
+}
+
+export interface PaymentStartedResult {
+  type: 'payment';
+  payment: PaymentStart;
+  onboardingStep: number; // still 3
+}
+
+export type ChoosePlanResult = TrialStartedResult | PaymentStartedResult;
 
 // ---------- Request functions ----------
 // All of these need a session, so they use `api` (not `publicApi`).
@@ -194,10 +220,10 @@ export async function skipProduct(): Promise<SkipProductResult> {
 }
 
 /** Step 4. PUT /api/onboarding/plan. Starts the 14-day free trial (no payment). */
-export async function choosePlan(input?: PlanInput): Promise<ChoosePlanResult> {
+export async function choosePlan(input: PlanInput): Promise<ChoosePlanResult> {
   const { data } = await api.put<ApiSuccess<ChoosePlanResult>>(
     '/api/onboarding/plan',
-    input ? input : null,
+    input,
   );
   return data.body;
 }
@@ -275,9 +301,19 @@ export function useSkipProduct() {
 }
 
 export function useChoosePlan() {
+  const queryClient = useQueryClient();
   const updateOnboardingStep = useUpdateOnboardingStep();
+
   return useMutation({
     mutationFn: choosePlan,
-    onSuccess: (result) => updateOnboardingStep(result.onboardingStep),
+    onSuccess: (result) => {
+      updateOnboardingStep(result.onboardingStep);
+
+      // The trial is now active, so the cached subscription is out of date.
+      // (For a payment nothing changes until Paystack confirms it.)
+      if (result.type === 'trial') {
+        queryClient.invalidateQueries({ queryKey: subscriptionKeys.current });
+      }
+    },
   });
 }
