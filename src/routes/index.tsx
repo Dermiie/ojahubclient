@@ -134,14 +134,14 @@ const routes: RouteObject[] = [
               return { Component };
             },
           },
-          {
-            path: 'success',
-            lazy: async () => {
-              const { default: Component } =
-                await import('./onboarding/success');
-              return { Component };
-            },
-          },
+          // {
+          //   path: 'success',
+          //   lazy: async () => {
+          //     const { default: Component } =
+          //       await import('./onboarding/success');
+          //     return { Component };
+          //   },
+          // },
           {
             path: 'expired',
             lazy: async () => {
@@ -152,58 +152,19 @@ const routes: RouteObject[] = [
           },
         ],
       },
-
-      // // DEVELOPMENT INVOICE PREVIEW
-      // ...(import.meta.env.DEV
-      //   ? [
-      //       {
-      //         path: "__dev",
-      //         Component: DashboardLayout,
-      //         children: [
-      //           {
-      //             path: "invoice-preview",
-      //             lazy: async () => {
-      //               const { default: Component } =
-      //                 await import("./Dashboard/invoices/invoicepage");
-      //               return { Component };
-      //             },
-      //           },
-      //           {
-      //             path: "invoice-preview/:invoiceNo",
-      //             lazy: async () => {
-      //               const { default: Component } =
-      //                 await import("./Dashboard/invoices/invoicedetail");
-      //               return { Component };
-      //             },
-      //           },
-      //           {
-      //             path: "new-invoice",
-      //             lazy: async () => {
-      //               const { default: Component } =
-      //                 await import("./Dashboard/invoices/newinvoice");
-      //               return { Component };
-      //             },
-      //           },
-      //           {
-      //             path: "review-invoice",
-      //             lazy: async () => {
-      //               const { default: Component } =
-      //                 await import("./Dashboard/invoices/reviewinvoice");
-      //               return { Component };
-      //             },
-      //           },
-      //           {
-      //             path: "invoice-ready/:invoiceNo",
-      //             lazy: async () => {
-      //               const { default: Component } =
-      //                 await import("./Dashboard/invoices/invoiceready");
-      //               return { Component };
-      //             },
-      //           },
-      //         ],
-      //       },
-      //     ]
-      //   : []),
+      {
+        path: 'payment',
+        loader: onboardingLoader,
+        children: [
+          {
+            path: 'callback',
+            lazy: async () => {
+              const { default: Component } = await import('./payment/callback');
+              return { Component };
+            },
+          },
+        ],
+      },
 
       // PROTECTED DASHBOARD ROUTES
       {
