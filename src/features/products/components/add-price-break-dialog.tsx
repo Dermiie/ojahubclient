@@ -5,9 +5,19 @@ import arrowDownIcon from "../assets/icons/arrow-down.svg";
 import minusIcon from "../assets/icons/minus.svg";
 import plusSmallIcon from "../assets/icons/plus-small.svg";
 
+// what the popup hands to the page when a price break is added
+export type NewPriceBreak = {
+  customer: string;
+  quantity: number;
+  price: string;
+};
+
 type Props = {
   open: boolean;
+  unit: string;
+  productName: string;
   onClose: () => void;
+  onAdd: (priceBreak: NewPriceBreak) => void;
 };
 
 // the small bold labels above each part (mobile left 18, desktop left 26)
@@ -18,11 +28,38 @@ const labelStyle =
 const smallTextStyle =
   "absolute left-[18px] text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary lg:left-[26px]";
 
-export default function AddPriceBreakDialog({ open, onClose }: Props) {
+export default function AddPriceBreakDialog({
+  open,
+  unit,
+  productName,
+  onClose,
+  onAdd,
+}: Props) {
   // what the user picks inside the popup
   const [customer, setCustomer] = useState("retail");
   const [quantity, setQuantity] = useState(6);
   const [price, setPrice] = useState("");
+
+  // put the popup back to how it started
+  const reset = () => {
+    setCustomer("retail");
+    setQuantity(6);
+    setPrice("");
+  };
+
+  // close without adding anything
+  const close = () => {
+    reset();
+    onClose();
+  };
+
+  // send the price break to the page, then close
+  const add = () => {
+    if (!price) return;
+    onAdd({ customer, quantity, price });
+    reset();
+    onClose();
+  };
 
   // when it is closed, show nothing
   if (!open) return null;
@@ -30,7 +67,7 @@ export default function AddPriceBreakDialog({ open, onClose }: Props) {
   return (
     // the dark green see-through background, clicking it closes the popup
     <div
-      onClick={onClose}
+      onClick={close}
       className="fixed inset-0 z-50 flex items-end justify-center bg-[#12432A]/55 lg:items-center"
     >
       {/* the white box, clicking inside it should not close it */}
@@ -41,19 +78,21 @@ export default function AddPriceBreakDialog({ open, onClose }: Props) {
         {/* the small grab handle, mobile only */}
         <div className="absolute left-1/2 top-[12px] h-1 w-[44px] -translate-x-1/2 rounded-[2px] bg-border-default lg:hidden" />
 
-        {/* title and the line under it */}
+        {/* title and the line under it, it shows the name typed on the page */}
         <h2 className="absolute left-[18px] top-[34px] text-[18px] font-bold leading-[1.3] text-text-primary lg:left-[26px] lg:top-[28px]">
           Add a price break
         </h2>
-        <p className={`${smallTextStyle} top-[64px] lg:top-[58px]`}>
-          Super Wax Ankara · per bundle
+        <p
+          className={`${smallTextStyle} top-[64px] max-w-[calc(100%-100px)] truncate lg:top-[58px]`}
+        >
+          {productName.trim() || "New product"} · per {unit}
         </p>
 
         {/* the close button */}
         <button
           type="button"
           aria-label="Close"
-          onClick={onClose}
+          onClick={close}
           className="absolute right-[18px] top-[32px] flex size-[44px] items-center justify-center rounded-full bg-background-card lg:right-[26px] lg:top-[26px]"
         >
           <img src={closeIcon} alt="" className="size-4" />
@@ -85,7 +124,7 @@ export default function AddPriceBreakDialog({ open, onClose }: Props) {
           When they buy at least
         </span>
         <span className={`${smallTextStyle} top-[218px] lg:top-[214px]`}>
-          bundles in one invoice
+          {unit}s in one invoice
         </span>
         <div className="absolute right-[18px] top-[196px] flex h-[40px] w-[138px] items-center lg:right-[26px] lg:top-[192px]">
           {/* minus, it stops at 1 */}
@@ -111,9 +150,9 @@ export default function AddPriceBreakDialog({ open, onClose }: Props) {
           </button>
         </div>
 
-        {/* price per bundle */}
+        {/* price per unit */}
         <span className={`${labelStyle} top-[264px] lg:top-[254px]`}>
-          Price per bundle
+          Price per {unit}
         </span>
         <div className="absolute inset-x-[18px] top-[290px] flex h-[52px] items-center gap-1 rounded-[16px] border border-border-default bg-white px-4 text-[16px] font-medium leading-[1.3] tracking-[-0.02em] text-text-primary lg:inset-x-[26px] lg:top-[280px]">
           <span>₦</span>
@@ -141,16 +180,17 @@ export default function AddPriceBreakDialog({ open, onClose }: Props) {
         {/* the two buttons at the bottom, equal halves on mobile */}
         <button
           type="button"
-          onClick={onClose}
+          onClick={close}
           className="absolute left-[18px] top-[464px] h-[46px] w-[calc((100%-46px)/2)] rounded-[60px] border border-border-default bg-white text-[16px] font-bold leading-[1.3] text-text-primary lg:left-[26px] lg:top-[456px] lg:w-[221px]"
         >
           Cancel
         </button>
-        {/* for now it only closes the popup, saving the break comes later */}
+        {/* it needs a price first, then it adds the break to the page */}
         <button
           type="button"
-          onClick={onClose}
-          className="absolute right-[18px] top-[464px] h-[46px] w-[calc((100%-46px)/2)] rounded-[60px] bg-primary-base text-[16px] font-bold leading-[1.3] text-white lg:right-[26px] lg:top-[456px] lg:w-[229px]"
+          onClick={add}
+          disabled={!price}
+          className="absolute right-[18px] top-[464px] h-[46px] w-[calc((100%-46px)/2)] rounded-[60px] bg-primary-base text-[16px] font-bold leading-[1.3] text-white disabled:opacity-50 lg:right-[26px] lg:top-[456px] lg:w-[229px]"
         >
           Add price break
         </button>

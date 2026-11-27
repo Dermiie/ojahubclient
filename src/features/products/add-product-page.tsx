@@ -5,6 +5,8 @@ import AddProductDetails from "./components/add-product-details";
 import AddProductPrices from "./components/add-product-prices";
 import type { Prices } from "./components/add-product-prices";
 import AddProductPriceBreaks from "./components/add-product-price-breaks";
+import type { PriceBreak } from "./components/add-product-price-breaks";
+import type { NewPriceBreak } from "./components/add-price-break-dialog";
 import AddProductOpeningStock from "./components/add-product-opening-stock";
 import AddProductPreview from "./components/add-product-preview";
 import AddProductBottomBar from "./components/add-product-bottom-bar";
@@ -20,10 +22,25 @@ export default function AddProductPage() {
     semiWholesale: "",
     bulk: "",
   });
+  // the price breaks the user has added
+  const [priceBreaks, setPriceBreaks] = useState<PriceBreak[]>([]);
 
   // change one of the three prices
   const changePrice = (key: keyof Prices, value: string) => {
     setPrices((current) => ({ ...current, [key]: value }));
+  };
+
+  // add a price break to the list, with its own id
+  const addPriceBreak = (priceBreak: NewPriceBreak) => {
+    setPriceBreaks((current) => [
+      ...current,
+      { ...priceBreak, id: crypto.randomUUID() },
+    ]);
+  };
+
+  // remove one price break from the list
+  const removePriceBreak = (id: string) => {
+    setPriceBreaks((current) => current.filter((item) => item.id !== id));
   };
 
   return (
@@ -44,8 +61,19 @@ export default function AddProductPage() {
             photo={photo}
             onPhotoChange={setPhoto}
           />
-          <AddProductPrices prices={prices} onPriceChange={changePrice} />
-          <AddProductPriceBreaks />
+          {/* soldBy is the unit: bundle, yard or piece */}
+          <AddProductPrices
+            unit={soldBy}
+            prices={prices}
+            onPriceChange={changePrice}
+          />
+          <AddProductPriceBreaks
+            unit={soldBy}
+            productName={name}
+            breaks={priceBreaks}
+            onAdd={addPriceBreak}
+            onRemove={removePriceBreak}
+          />
         </div>
 
         {/* right column */}

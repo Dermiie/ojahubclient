@@ -7,8 +7,9 @@ export type Prices = {
   bulk: string;
 };
 
-// the page gives us the prices and a way to change one
+// the page gives us the unit, the prices and a way to change one
 type Props = {
+  unit: string;
   prices: Prices;
   onPriceChange: (key: keyof Prices, value: string) => void;
 };
@@ -28,7 +29,11 @@ const FIELDS: { key: keyof Prices; label: string; placeholder: string }[] = [
   { key: "bulk", label: "Bulk importer", placeholder: "Same as retail" },
 ];
 
-export default function AddProductPrices({ prices, onPriceChange }: Props) {
+export default function AddProductPrices({
+  unit,
+  prices,
+  onPriceChange,
+}: Props) {
   return (
     <>
       {/* desktop view */}
@@ -37,7 +42,7 @@ export default function AddProductPrices({ prices, onPriceChange }: Props) {
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-[3.25px]">
             <h2 className="text-[14px] font-semibold leading-[1.3] tracking-[-0.02em] text-text-primary">
-              Prices per bundle
+              Prices per {unit}
             </h2>
             <p className="text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary">
               Only retail is required. Each customer gets their profile’s price
@@ -83,7 +88,7 @@ export default function AddProductPrices({ prices, onPriceChange }: Props) {
         {/* title and the manage profiles link */}
         <div className="flex items-center justify-between">
           <h2 className="text-[16px] font-medium leading-[1.3] text-text-primary">
-            Prices per bundle
+            Prices per {unit}
           </h2>
           <button
             type="button"
