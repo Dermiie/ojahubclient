@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+
 import {
-  CheckCircle2,
+  Check,
   ChevronRight,
   LoaderCircle,
   Plus,
@@ -9,12 +10,26 @@ import {
   X,
 } from "lucide-react";
 
-import { fetchCustomers, saveCustomer, type Customer } from "@/lib/invoices";
+import {
+  fetchCustomers,
+  saveCustomer,
+  formatNaira,
+  type Customer,
+} from "@/lib/invoices";
 
 interface ChooseCustomerDialogProps {
   value: string;
   onChange: (customerName: string) => void;
 }
+
+// Optional customer details used by the Figma list. These only show when
+// your customer data includes them (rename to match your Customer type).
+type CustomerDetails = Customer & {
+  type?: string;
+  phone?: string;
+  owes?: number;
+  balance?: number;
+};
 
 export default function ChooseCustomerDialog({
   value,
@@ -55,9 +70,14 @@ export default function ChooseCustomerDialog({
 
     if (!term) return customers;
 
-    return customers.filter((customer) =>
-      customer.name.toLowerCase().includes(term),
-    );
+    return customers.filter((customer) => {
+      const phone = (customer as CustomerDetails).phone ?? "";
+
+      return (
+        customer.name.toLowerCase().includes(term) ||
+        phone.toLowerCase().includes(term)
+      );
+    });
   }, [customers, search]);
 
   const selectedCustomer = customers.find(
@@ -73,6 +93,19 @@ export default function ChooseCustomerDialog({
       .join("")
       .slice(0, 2)
       .toUpperCase();
+
+  // Example: "Bulk importer, owes ₦0". Falls back when details are missing.
+  const getCustomerSubtitle = (customer: Customer) => {
+    const details = customer as CustomerDetails;
+    const owed = details.owes ?? details.balance;
+
+    const parts = [
+      details.type,
+      typeof owed === "number" ? `owes ${formatNaira(owed)}` : "",
+    ].filter(Boolean);
+
+    return parts.length > 0 ? parts.join(", ") : "Saved customer";
+  };
 
   const selectCustomer = (customer: Customer) => {
     onChange(customer.name);
@@ -127,35 +160,35 @@ export default function ChooseCustomerDialog({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-3 rounded-xl border border-border-default bg-background-main p-3 text-left transition hover:border-primary-base"
+        className="flex w-full items-center gap-3 rounded-xl border border-border-default bg-background-main p-3 text-left transition hover:border-primary-base hover:bg-primary-subtle"
       >
-        <div className="grid size-10 flex-none place-items-center rounded-xl bg-primary-subtle text-xs font-bold text-primary-base">
+        <div className="grid size-11 flex-none place-items-center rounded-xl bg-primary-subtle text-sm font-bold text-primary-base">
           {selectedCustomer ? (
             getInitials(selectedCustomer.name)
           ) : (
-            <UserRound size={18} />
+            <UserRound size={20} />
           )}
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] text-text-tertiary">Customer</p>
+          <p className="text-xs font-medium text-text-secondary">Customer</p>
 
-          <p className="mt-1 truncate text-xs font-semibold text-text-primary">
+          <p className="mt-1 truncate text-sm font-semibold text-text-primary sm:text-base">
             {value || "Choose a customer"}
           </p>
 
-          <p className="mt-1 text-[9px] text-text-secondary">
+          <p className="mt-1 text-xs text-text-secondary">
             {selectedCustomer
               ? "Selected customer"
               : "Select from your saved customers"}
           </p>
         </div>
 
-        <span className="flex-none text-[10px] font-semibold text-primary-base">
+        <span className="flex-none text-sm font-semibold text-primary-base">
           {value ? "Change" : "Choose"}
         </span>
 
-        <ChevronRight size={16} className="flex-none text-icon-grey" />
+        <ChevronRight size={18} className="flex-none text-icon-grey" />
       </button>
 
       {/* Customer selection dialog */}
@@ -175,20 +208,20 @@ export default function ChooseCustomerDialog({
             className="flex max-h-[88dvh] w-full max-w-[480px] flex-col overflow-hidden rounded-t-[24px] bg-background-main shadow-2xl sm:max-h-[min(680px,90dvh)] sm:rounded-[24px]"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-border-subtle px-5 py-4 sm:px-6">
+            <div className="flex items-center justify-between px-5 pb-3 pt-5 sm:px-6">
               <div>
                 <h2
                   id="choose-customer-title"
-                  className="text-base font-bold text-text-primary"
+                  className="text-lg font-bold text-text-primary"
                 >
                   {showNewCustomer ? "New customer" : "Choose customer"}
                 </h2>
 
-                <p className="mt-1 text-[10px] text-text-secondary">
-                  {showNewCustomer
-                    ? "Add a customer to your saved customer list."
-                    : "Select a customer for this invoice."}
-                </p>
+                {showNewCustomer && (
+                  <p className="mt-1 text-sm text-text-secondary">
+                    Add a customer to your saved customer list.
+                  </p>
+                )}
               </div>
 
               <button
@@ -199,7 +232,7 @@ export default function ChooseCustomerDialog({
                   setError("");
                 }}
                 aria-label="Close customer selection"
-                className="grid size-9 place-items-center rounded-full border border-border-default text-icon-grey transition hover:bg-background-card"
+                className="grid size-8 place-items-center rounded-full border border-border-default bg-background-main text-icon-grey transition hover:bg-primary-subtle"
               >
                 <X size={16} />
               </button>
@@ -207,11 +240,11 @@ export default function ChooseCustomerDialog({
 
             {showNewCustomer ? (
               /* New customer form */
-              <div className="space-y-4 overflow-y-auto p-5 sm:p-6">
+              <div className="space-y-5 overflow-y-auto p-5 sm:p-6">
                 <div>
                   <label
                     htmlFor="new-customer-name"
-                    className="mb-2 block text-xs font-semibold text-text-secondary"
+                    className="mb-2 block text-sm font-semibold text-text-primary"
                   >
                     Customer name
                   </label>
@@ -230,17 +263,17 @@ export default function ChooseCustomerDialog({
                       }
                     }}
                     placeholder="Enter customer or business name"
-                    className="h-11 w-full rounded-xl border border-border-default bg-background-main px-3 text-sm text-text-primary outline-none transition placeholder:text-text-tertiary focus:border-primary-base focus:ring-2 focus:ring-primary-base/10"
+                    className="h-12 w-full rounded-xl border border-border-default bg-background-main px-3 text-base text-text-primary outline-none transition placeholder:text-text-tertiary focus:border-primary-base focus:ring-2 focus:ring-primary-base/10"
                   />
                 </div>
 
                 {error && (
-                  <p role="alert" className="text-xs text-red-600">
+                  <p role="alert" className="text-sm text-red-600">
                     {error}
                   </p>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={() => {
@@ -248,7 +281,7 @@ export default function ChooseCustomerDialog({
                       setNewCustomerName("");
                       setError("");
                     }}
-                    className="h-11 flex-1 rounded-full border border-border-default text-xs font-semibold text-text-secondary transition hover:bg-background-card"
+                    className="h-12 flex-1 rounded-full border border-border-default bg-background-main text-sm font-semibold text-text-primary transition hover:bg-primary-subtle"
                   >
                     Back
                   </button>
@@ -257,10 +290,10 @@ export default function ChooseCustomerDialog({
                     type="button"
                     onClick={createCustomer}
                     disabled={saving}
-                    className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary-base text-xs font-semibold text-text-inverse transition hover:bg-primary-hover disabled:opacity-60"
+                    className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary-base text-sm font-semibold text-text-inverse transition hover:bg-primary-hover disabled:opacity-60"
                   >
                     {saving && (
-                      <LoaderCircle size={15} className="animate-spin" />
+                      <LoaderCircle size={18} className="animate-spin" />
                     )}
                     {saving ? "Saving..." : "Save customer"}
                   </button>
@@ -269,18 +302,18 @@ export default function ChooseCustomerDialog({
             ) : (
               <>
                 {/* Search */}
-                <div className="px-5 pt-4 sm:px-6">
+                <div className="px-5 pt-2 sm:px-6">
                   <div className="relative">
                     <Search
-                      size={16}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary"
+                      size={17}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary"
                     />
 
                     <input
                       value={search}
                       onChange={(event) => setSearch(event.target.value)}
-                      placeholder="Search name"
-                      className="h-11 w-full rounded-xl border border-border-default bg-background-card pl-10 pr-3 text-xs text-text-primary outline-none transition placeholder:text-text-tertiary focus:border-primary-base focus:bg-background-main"
+                      placeholder="Search name or phone"
+                      className="h-11 w-full rounded-xl border border-transparent bg-background-card pl-10 pr-3 text-sm text-text-primary outline-none transition placeholder:text-text-tertiary focus:border-primary-base focus:bg-background-main"
                     />
                   </div>
                 </div>
@@ -294,63 +327,51 @@ export default function ChooseCustomerDialog({
                       setSearch("");
                       setError("");
                     }}
-                    className="flex w-full items-center gap-3 rounded-xl border border-primary-light bg-primary-subtle px-3 py-3 text-left transition hover:bg-primary-light/50"
+                    className="flex w-full items-center gap-3 rounded-xl border border-primary-light bg-primary-subtle px-4 py-3.5 text-left transition hover:bg-primary-light/50"
                   >
-                    <span className="grid size-8 place-items-center rounded-full bg-background-main text-primary-base">
-                      <Plus size={17} />
-                    </span>
+                    <Plus size={18} className="flex-none text-primary-base" />
 
-                    <span className="flex-1 text-xs font-semibold text-primary-hover">
+                    <span className="flex-1 text-sm font-semibold text-primary-hover">
                       New customer
                     </span>
 
-                    <ChevronRight size={16} className="text-primary-base" />
+                    <ChevronRight size={18} className="text-primary-base" />
                   </button>
                 </div>
 
                 {/* Customer list */}
                 <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-3 sm:px-4">
-                  <div className="mb-2 flex items-center justify-between px-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-text-secondary">
-                      Saved customers
-                    </p>
-
-                    <span className="text-[10px] text-text-secondary">
-                      {filteredCustomers.length} customers
-                    </span>
-                  </div>
-
                   {loading ? (
-                    <div className="flex min-h-32 items-center justify-center gap-2 text-xs text-text-secondary">
+                    <div className="flex min-h-32 items-center justify-center gap-3 text-sm text-text-secondary">
                       <LoaderCircle
-                        size={17}
+                        size={20}
                         className="animate-spin text-primary-base"
                       />
                       Loading customers...
                     </div>
                   ) : error ? (
                     <div className="p-5 text-center">
-                      <p className="text-xs text-red-600">{error}</p>
+                      <p className="text-sm text-red-600">{error}</p>
 
                       <button
                         type="button"
                         onClick={loadCustomers}
-                        className="mt-3 text-xs font-semibold text-primary-base"
+                        className="mt-3 text-sm font-semibold text-primary-base"
                       >
                         Try again
                       </button>
                     </div>
                   ) : filteredCustomers.length === 0 ? (
                     <div className="px-4 py-10 text-center">
-                      <div className="mx-auto grid size-11 place-items-center rounded-full bg-primary-subtle">
-                        <UserRound size={19} className="text-text-secondary" />
+                      <div className="mx-auto grid size-12 place-items-center rounded-full bg-primary-subtle">
+                        <UserRound size={21} className="text-primary-base" />
                       </div>
 
-                      <p className="mt-3 text-xs font-semibold text-text-primary">
+                      <p className="mt-3 text-sm font-semibold text-text-primary">
                         No customers found
                       </p>
 
-                      <p className="mt-1 text-[10px] text-text-secondary">
+                      <p className="mt-1 text-sm text-text-secondary">
                         {search
                           ? "Try another search."
                           : "Add your first customer to continue."}
@@ -368,16 +389,12 @@ export default function ChooseCustomerDialog({
                             type="button"
                             key={customer.id}
                             onClick={() => selectCustomer(customer)}
-                            className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition ${
-                              isSelected
-                                ? "border border-primary-light bg-primary-subtle"
-                                : "border border-transparent bg-background-main hover:bg-background-card"
-                            }`}
+                            className="flex w-full items-center gap-3 rounded-xl px-2 py-2.5 text-left transition hover:bg-background-card"
                           >
                             <span
-                              className={`grid size-10 flex-none place-items-center rounded-xl text-[10px] font-bold ${
+                              className={`grid size-9 flex-none place-items-center rounded-lg text-xs font-bold ${
                                 isSelected
-                                  ? "bg-primary-light text-primary-base"
+                                  ? "bg-primary-subtle text-primary-base"
                                   : "bg-secondary-base/15 text-secondary-base"
                               }`}
                             >
@@ -385,24 +402,20 @@ export default function ChooseCustomerDialog({
                             </span>
 
                             <span className="min-w-0 flex-1">
-                              <span className="block truncate text-xs font-semibold text-text-primary">
+                              <span className="block truncate text-sm font-semibold text-text-primary">
                                 {customer.name}
                               </span>
 
-                              <span className="mt-1 block text-[10px] text-text-secondary">
-                                Saved customer
+                              <span className="mt-0.5 block truncate text-xs text-text-secondary">
+                                {getCustomerSubtitle(customer)}
                               </span>
                             </span>
 
-                            {isSelected ? (
-                              <CheckCircle2
-                                size={19}
-                                className="flex-none text-primary-base"
-                              />
-                            ) : (
-                              <ChevronRight
-                                size={16}
-                                className="flex-none text-text-tertiary"
+                            {isSelected && (
+                              <Check
+                                size={18}
+                                strokeWidth={2.5}
+                                className="mr-1 flex-none text-primary-base"
                               />
                             )}
                           </button>

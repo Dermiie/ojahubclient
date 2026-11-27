@@ -1,16 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Search,
-  Plus,
-  FileText,
-  ChevronRight,
-  X,
-  CheckCircle2,
-  Clock3,
-  CircleAlert,
-  Receipt,
-} from 'lucide-react';
+import { Search, Plus, FileText, ChevronRight, X, Receipt } from 'lucide-react';
 import { Link } from 'react-router';
 
 import {
@@ -51,7 +41,13 @@ function StatusBadge({ status }: { status: Invoice['status'] }) {
   );
 }
 
-function CustomerAvatar({ name }: { name: string }) {
+function CustomerAvatar({
+  name,
+  small = false,
+}: {
+  name: string;
+  small?: boolean;
+}) {
   const initials = name
     .split(' ')
     .filter(Boolean)
@@ -60,8 +56,18 @@ function CustomerAvatar({ name }: { name: string }) {
     .slice(0, 2)
     .toUpperCase();
 
+  // Alternate between the green and tan avatar styles from Figma.
+  const tone =
+    name.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 2 === 0
+      ? 'bg-primary-subtle text-primary-base'
+      : 'bg-secondary-base/15 text-secondary-base';
+
   return (
-    <div className="grid size-9 flex-none place-items-center rounded-xl bg-primary-subtle text-xs font-bold text-primary-base">
+    <div
+      className={`grid flex-none place-items-center font-bold ${
+        small ? 'size-7 rounded-lg text-[10px]' : 'size-10 rounded-xl text-xs'
+      } ${tone}`}
+    >
       {initials || 'CU'}
     </div>
   );
@@ -70,6 +76,7 @@ function CustomerAvatar({ name }: { name: string }) {
 export default function InvoicesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeStatus, setActiveStatus] = useState<InvoiceFilter>('All');
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const {
     data: invoices = [],
@@ -109,7 +116,10 @@ export default function InvoicesPage() {
       (invoice) => invoice.status === 'Owing' || invoice.status === 'Part-paid',
     );
 
-    const paid = invoices.filter((invoice) => invoice.status === 'Paid');
+    const paidToday = invoices.filter(
+      (invoice) =>
+        invoice.status === 'Paid' && invoice.day.toLowerCase() === 'today',
+    );
 
     return {
       waitingAmount: waiting.reduce(
@@ -124,8 +134,11 @@ export default function InvoicesPage() {
       ),
       outstandingCount: outstanding.length,
 
-      paidAmount: paid.reduce((sum, invoice) => sum + invoice.paid, 0),
-      paidCount: paid.length,
+      paidTodayAmount: paidToday.reduce(
+        (sum, invoice) => sum + invoice.paid,
+        0,
+      ),
+      paidTodayCount: paidToday.length,
     };
   }, [invoices]);
 
@@ -168,6 +181,23 @@ export default function InvoicesPage() {
     });
   }, [invoices, customerMap, activeStatus, searchTerm]);
 
+  // Group invoices by day (Today, Yesterday...) for the mobile list.
+  const groupedInvoices = useMemo(() => {
+    const groups: Array<{ day: string; items: Invoice[] }> = [];
+
+    filteredInvoices.forEach((invoice) => {
+      const group = groups.find((item) => item.day === invoice.day);
+
+      if (group) {
+        group.items.push(invoice);
+      } else {
+        groups.push({ day: invoice.day, items: [invoice] });
+      }
+    });
+
+    return groups;
+  }, [filteredInvoices]);
+
   const hasFilters = Boolean(searchTerm) || activeStatus !== 'All';
 
   const filters: Array<'All' | Invoice['status']> = [
@@ -189,86 +219,97 @@ export default function InvoicesPage() {
   };
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-[1600px] space-y-6 bg-background-main ">
+    // A div, not <main>: the dashboard layout already wraps every page in <main>
+    <div className="mx-auto w-full min-w-0 max-w-[1600px] space-y-5 bg-background-main">
       {/* Page heading */}
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-text-tertiary">
-            Sell / Invoices
-          </p>
+      <header className="flex items-center justify-between gap-4">
+        <h1 className="min-w-0 truncate text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+          Invoices
+        </h1>
 
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-            Invoices
-          </h1>
+        {/* Mobile actions */}
+        <div className="flex items-center gap-2 sm:hidden">
+          <button
+            type="button"
+            onClick={() => setShowMobileSearch((current) => !current)}
+            aria-label={showMobileSearch ? 'Hide search' : 'Show search'}
+            aria-expanded={showMobileSearch}
+            className="grid size-10 place-items-center rounded-full border border-border-default bg-background-main text-text-primary transition hover:bg-background-muted"
+          >
+            <Search size={18} />
+          </button>
 
-          <p className="mt-1 text-sm text-text-secondary sm:text-base">
-            Manage payments and keep track of your customer invoices.
-          </p>
+          <Link
+            to="/invoices/new"
+            aria-label="New invoice"
+            className="grid size-10 place-items-center rounded-full bg-primary-base text-text-inverse shadow-sm transition hover:bg-primary-hover"
+          >
+            <Plus size={20} />
+          </Link>
         </div>
 
+        {/* Desktop action */}
         <Link
           to="/invoices/new"
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-primary-base px-5 text-sm font-semibold text-text-inverse shadow-sm transition hover:bg-primary-hover"
+          className="hidden h-10 items-center gap-2 rounded-full bg-primary-base px-4 text-sm font-semibold text-text-inverse shadow-sm transition hover:bg-primary-hover sm:inline-flex"
         >
-          <Plus size={18} />
-          New invoice
+          <Plus size={16} />
+          New Invoice
         </Link>
       </header>
 
       {/* Summary cards */}
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {/* Mobile: 2 columns, "Paid today" full width below. From md: 3 in a row.
+          min-w-0 on each card lets long amounts wrap instead of widening the grid. */}
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {/* Waiting */}
         <button
           type="button"
           onClick={() => setActiveStatus('Waiting')}
           aria-pressed={activeStatus === 'Waiting'}
-          className="group rounded-2xl bg-primary-active p-5 text-left text-text-inverse transition hover:shadow-md sm:p-6"
+          // relative + overflow-hidden keep the decorative arcs inside the card
+          className="group relative min-w-0 overflow-hidden rounded-2xl bg-primary-active p-5 text-left text-text-inverse transition hover:shadow-md sm:p-6"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-text-secondary-inverse">
+          {/* Decorative arcs */}
+          <div className="pointer-events-none absolute -right-10 -top-16 size-44 rounded-full border border-text-inverse/10" />
+          <div className="pointer-events-none absolute -right-3 -top-10 size-28 rounded-full border border-text-inverse/10" />
+
+          <div className="relative">
+            <span className="block text-xs font-medium text-text-secondary-inverse">
               Waiting for transfer
             </span>
-            <Clock3 size={19} className="text-text-secondary-inverse" />
+
+            <p className="mt-2 text-xl font-bold tracking-tight wrap-anywhere sm:text-2xl">
+              {formatNaira(stats.waitingAmount)}
+            </p>
           </div>
-
-          <p className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
-            {formatNaira(stats.waitingAmount)}
-          </p>
-
-          <div className="mt-4 flex items-center justify-between">
+          <div className="relative mt-4 flex items-center justify-between">
             <span className="text-xs text-text-secondary-inverse">
               {stats.waitingCount}{' '}
               {stats.waitingCount === 1 ? 'invoice' : 'invoices'} awaiting
               payment
             </span>
-
-            <ChevronRight
-              size={18}
-              className="text-text-secondary-inverse transition group-hover:translate-x-1"
-            />
           </div>
         </button>
 
-        {/* Outstanding */}
+        {/* Owing or part-paid */}
         <button
           type="button"
           onClick={() => setActiveStatus('Outstanding')}
           aria-pressed={activeStatus === 'Outstanding'}
-          className="group rounded-2xl bg-secondary-base/15 p-5 text-left transition hover:shadow-md sm:p-6"
+          className="group min-w-0 rounded-2xl bg-secondary-base/15 p-5 text-left transition hover:shadow-md sm:p-6"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-text-secondary">
-              Outstanding balances
-            </span>
-            <CircleAlert size={19} className="text-secondary-base" />
-          </div>
+          <span className="block text-xs font-medium text-text-secondary">
+            <span className="sm:hidden">Owing / part-paid</span>
+            <span className="hidden sm:inline">Owing or part-paid</span>
+          </span>
 
-          <p className="mt-3 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+          <p className="mt-2 text-xl font-bold tracking-tight text-text-primary wrap-anywhere sm:text-2xl">
             {formatNaira(stats.outstandingAmount)}
           </p>
 
-          <div className="mt-4 flex items-center justify-between">
-            <span className="text-xs text-text-secondary">
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <span className="min-w-0 text-xs text-text-secondary">
               {stats.outstandingCount}{' '}
               {stats.outstandingCount === 1 ? 'invoice' : 'invoices'} part-paid
               or owing
@@ -276,49 +317,61 @@ export default function InvoicesPage() {
 
             <ChevronRight
               size={18}
-              className="text-secondary-base transition group-hover:translate-x-1"
+              className="shrink-0 text-secondary-base transition group-hover:translate-x-1"
             />
           </div>
+          <span className="mt-2 block text-xs text-secondary-base">
+            {stats.outstandingCount}{' '}
+            {stats.outstandingCount === 1 ? 'invoice' : 'invoices'}
+          </span>
         </button>
 
-        {/* Fully paid */}
+        {/* Paid today */}
         <button
           type="button"
           onClick={() => setActiveStatus('Paid')}
           aria-pressed={activeStatus === 'Paid'}
-          className="group rounded-2xl border border-border-default bg-background-main p-5 text-left transition hover:shadow-md sm:col-span-2 sm:p-6 xl:col-span-1"
+          className="group col-span-2 min-w-0 rounded-2xl border border-border-default bg-background-main p-5 text-left transition hover:shadow-md sm:p-6 md:col-span-1"
+          // className="group hidden rounded-2xl border border-border-default bg-background-main p-5 text-left transition hover:shadow-md sm:block"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-text-tertiary">
-              Fully paid invoices
-            </span>
-            <CheckCircle2 size={19} className="text-success-base" />
-          </div>
+          <span className="block text-xs font-medium text-text-secondary">
+            Paid today
+          </span>
 
-          <p className="mt-3 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-            {formatNaira(stats.paidAmount)}
+          <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary wrap-anywhere">
+            {formatNaira(stats.paidTodayAmount)}
           </p>
 
-          <div className="mt-4 flex items-center justify-between">
-            <span className="text-xs text-text-tertiary">
-              {stats.paidCount} completed{' '}
-              {stats.paidCount === 1 ? 'payment' : 'payments'}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <span className="min-w-0 text-xs text-text-tertiary">
+              {stats.paidTodayCount} completed{' '}
+              {stats.paidTodayCount === 1 ? 'payment' : 'payments'}
             </span>
 
             <ChevronRight
               size={18}
-              className="text-text-tertiary transition group-hover:translate-x-1"
+              className="shrink-0 text-text-tertiary transition group-hover:translate-x-1"
             />
           </div>
+          <span className="mt-2 block text-xs text-success-base">
+            {stats.paidTodayCount}{' '}
+            {stats.paidTodayCount === 1 ? 'invoice' : 'invoices'} · all verified
+          </span>
         </button>
       </section>
 
       {/* Search and status filters */}
-      <section className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
+      {/* Stacked until xl. Side by side only from xl, where there is room
+          for the search box and all five filters (the sidebar takes 260px from lg). */}
+      <section className="flex min-w-0 flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center">
         {/* Search */}
-        <div className="relative min-w-0 flex-1">
+        <div
+          className={`${
+            showMobileSearch ? 'block' : 'hidden'
+          } relative min-w-0 flex-1 sm:block`}
+        >
           <Search
-            size={19}
+            size={17}
             className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary"
           />
 
@@ -328,7 +381,7 @@ export default function InvoicesPage() {
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search invoice, customer or product..."
             aria-label="Search invoices"
-            className="h-12 w-full rounded-xl border border-border-default bg-background-main pl-12 pr-11 text-sm text-text-primary outline-none transition placeholder:text-text-tertiary focus:border-primary-base focus:ring-2 focus:ring-primary-base/10"
+            className="h-10 w-full rounded-xl border border-transparent bg-background-card pl-11 pr-10 text-sm text-text-primary outline-none transition placeholder:text-text-tertiary focus:border-primary-base focus:bg-background-main focus:ring-2 focus:ring-primary-base/10"
           />
 
           {searchTerm && (
@@ -336,16 +389,16 @@ export default function InvoicesPage() {
               type="button"
               onClick={() => setSearchTerm('')}
               aria-label="Clear search"
-              className="absolute right-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-text-tertiary transition hover:bg-background-muted"
+              className="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-text-tertiary transition hover:bg-background-muted"
             >
-              <X size={17} />
+              <X size={16} />
             </button>
           )}
         </div>
 
-        {/* Filters */}
-        <div className="-mx-3 min-w-0 overflow-x-auto px-3 sm:mx-0 sm:px-0 lg:flex-none">
-          <div className="flex w-max items-center gap-2">
+        {/* Filters: wrap onto a second line on small screens instead of scrolling sideways */}
+        <div className="min-w-0 xl:flex-none">
+          <div className="flex flex-wrap items-center gap-2">
             {filters.map((status) => {
               const active = activeStatus === status;
 
@@ -355,7 +408,7 @@ export default function InvoicesPage() {
                   type="button"
                   onClick={() => setActiveStatus(status)}
                   aria-pressed={active}
-                  className={`inline-flex h-10 flex-none items-center gap-2 rounded-full border px-4 text-sm font-medium transition ${
+                  className={`inline-flex h-9 flex-none items-center gap-1.5 rounded-full border px-4 text-sm font-medium transition sm:h-8 sm:px-3.5 sm:text-xs ${
                     active
                       ? 'border-primary-base bg-primary-base text-text-inverse'
                       : 'border-border-default bg-background-main text-text-secondary hover:border-primary-base/50'
@@ -370,6 +423,15 @@ export default function InvoicesPage() {
                   >
                     {statusCounts[status]}
                   </span>
+                  {status === 'Waiting' && (
+                    <span
+                      className={`text-xs sm:hidden ${
+                        active ? 'text-text-inverse/75' : 'text-text-tertiary'
+                      }`}
+                    >
+                      · {statusCounts[status]}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -377,7 +439,8 @@ export default function InvoicesPage() {
         </div>
 
         {activeStatus === 'Outstanding' && (
-          <div className="flex flex-none items-center gap-2 text-sm text-text-secondary lg:hidden">
+          // basis-full: on its own line under the search and filters at xl
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary xl:basis-full">
             <span>Showing Part-paid and Owing invoices</span>
 
             <button
@@ -475,22 +538,22 @@ export default function InvoicesPage() {
           </div>
         ) : (
           <>
-            {/* Desktop invoice table */}
-            <div className="hidden overflow-x-auto md:block">
-              <table className="w-full min-w-[760px] bg-background-main text-left">
+            <div className="hidden md:block">
+              <table className="w-full table-fixed bg-background-main text-left">
                 <thead>
-                  <tr className="bg-background-muted/50 text-xs font-semibold uppercase tracking-wide text-text-tertiary">
-                    <th className="px-5 py-4">Invoice</th>
-                    <th className="px-5 py-4">Customer</th>
-                    <th className="px-5 py-4">Items</th>
-                    <th className="px-5 py-4">Date</th>
-                    <th className="px-5 py-4">Amount</th>
-                    <th className="px-5 py-4">Status</th>
-                    <th className="px-5 py-4 text-right" />
+                  <tr className="border-b border-border-subtle text-xs font-medium text-text-secondary">
+                    <th className="w-28 px-4 py-3.5 xl:px-5">Invoice</th>
+                    <th className="px-4 py-3.5 xl:px-5">Customer</th>
+                    <th className="hidden px-4 py-3.5 xl:table-cell xl:px-5">
+                      Items
+                    </th>
+                    <th className="w-36 px-4 py-3.5 xl:px-5">Date</th>
+                    <th className="w-32 px-4 py-3.5 xl:px-5">Amount</th>
+                    <th className="w-36 px-4 py-3.5 xl:px-5">Status</th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-border-default">
+                <tbody className="divide-y divide-border-subtle">
                   {filteredInvoices.map((invoice) => {
                     const customerName = getCustomerName(invoice);
                     const amount = getInvoiceTotal(invoice);
@@ -500,57 +563,42 @@ export default function InvoicesPage() {
                         key={invoice.no}
                         className="bg-background-main transition hover:bg-background-card"
                       >
-                        <td className="whitespace-nowrap px-5 py-5">
+                        <td className="truncate px-4 py-4 xl:px-5">
                           <Link
                             to={`/invoices/${invoice.no}`}
-                            className="text-sm font-semibold text-text-primary transition hover:text-primary-base"
+                            className="text-sm font-medium text-text-secondary transition hover:text-primary-base"
                           >
                             {invoice.no}
                           </Link>
                         </td>
 
-                        <td className="px-5 py-5">
-                          <div className="flex items-center gap-3">
-                            <CustomerAvatar name={customerName} />
+                        <td className="px-4 py-4 xl:px-5">
+                          {/* min-w-0 lets the name truncate inside the column */}
+                          <div className="flex min-w-0 items-center gap-3">
+                            <CustomerAvatar name={customerName} small />
 
-                            <span className="max-w-[180px] truncate text-sm font-medium text-text-primary">
+                            <span className="min-w-0 truncate text-sm font-medium text-text-primary">
                               {customerName}
                             </span>
                           </div>
                         </td>
 
-                        <td className="max-w-[190px] px-5 py-5">
+                        <td className="hidden px-4 py-4 xl:table-cell xl:px-5">
                           <span className="block truncate text-sm text-text-secondary">
                             {getItemsSummary(invoice)}
                           </span>
                         </td>
 
-                        <td className="whitespace-nowrap px-5 py-5">
-                          <div className="text-sm text-text-primary">
-                            {invoice.day}
-                          </div>
-
-                          <div className="mt-1 text-xs text-text-tertiary">
-                            {invoice.time}
-                          </div>
+                        <td className="truncate px-4 py-4 text-sm text-text-secondary xl:px-5">
+                          {invoice.day} {invoice.time}
                         </td>
 
-                        <td className="whitespace-nowrap px-5 py-5 text-sm font-semibold text-text-primary">
+                        <td className="truncate px-4 py-4 text-sm font-bold text-text-primary xl:px-5">
                           {formatNaira(amount)}
                         </td>
 
-                        <td className="px-5 py-5">
+                        <td className="px-4 py-4 xl:px-5">
                           <StatusBadge status={invoice.status} />
-                        </td>
-
-                        <td className="px-5 py-5 text-right">
-                          <Link
-                            to={`/invoices/${invoice.no}`}
-                            aria-label={`View invoice ${invoice.no}`}
-                            className="inline-grid size-9 place-items-center rounded-full text-text-tertiary transition hover:bg-background-muted hover:text-primary-base"
-                          >
-                            <ChevronRight size={19} />
-                          </Link>
                         </td>
                       </tr>
                     );
@@ -559,70 +607,55 @@ export default function InvoicesPage() {
               </table>
             </div>
 
-            {/* Mobile invoice cards */}
-            <div className="divide-y divide-border-default bg-background-main md:hidden">
-              {filteredInvoices.map((invoice) => {
-                const customerName = getCustomerName(invoice);
-                const amount = getInvoiceTotal(invoice);
+            {/* Mobile invoice list grouped by day */}
+            {/* px matches the results heading above, so rows don't touch the card edge */}
+            <div className="bg-background-main px-4 sm:px-6 md:hidden">
+              {groupedInvoices.map((group) => (
+                <div key={group.day}>
+                  <p className="pb-2 pt-3 text-sm font-semibold text-text-secondary">
+                    {group.day}
+                  </p>
 
-                return (
-                  <Link
-                    key={invoice.no}
-                    to={`/invoices/${invoice.no}`}
-                    className="flex items-center gap-3 bg-background-main px-4 py-5 transition active:bg-background-card"
-                  >
-                    <CustomerAvatar name={customerName} />
+                  <div className="divide-y divide-border-subtle">
+                    {group.items.map((invoice) => {
+                      const customerName = getCustomerName(invoice);
+                      const amount = getInvoiceTotal(invoice);
 
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-text-primary">
-                        {customerName}
-                      </p>
+                      return (
+                        <Link
+                          key={invoice.no}
+                          to={`/invoices/${invoice.no}`}
+                          className="flex items-center gap-3 bg-background-main py-4 transition active:bg-background-card"
+                        >
+                          <CustomerAvatar name={customerName} />
 
-                      <p className="mt-1 text-xs text-text-tertiary">
-                        {invoice.no} · {invoice.day}
-                      </p>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-text-primary">
+                              {customerName}
+                            </p>
 
-                      <p className="mt-1 truncate text-xs text-text-secondary">
-                        {getItemsSummary(invoice)}
-                      </p>
-                    </div>
+                            <p className="mt-1 text-xs text-text-tertiary">
+                              {invoice.no} · {invoice.time}
+                            </p>
+                          </div>
 
-                    <div className="flex flex-none flex-col items-end gap-2">
-                      <span className="text-sm font-bold text-text-primary">
-                        {formatNaira(amount)}
-                      </span>
+                          <div className="flex flex-none flex-col items-end gap-2">
+                            <span className="text-sm font-bold text-text-primary">
+                              {formatNaira(amount)}
+                            </span>
 
-                      <StatusBadge status={invoice.status} />
-                    </div>
-
-                    <ChevronRight
-                      size={17}
-                      className="flex-none text-text-tertiary"
-                    />
-                  </Link>
-                );
-              })}
+                            <StatusBadge status={invoice.status} />
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </>
         )}
       </section>
-
-      {/* Results footer */}
-      {!isLoading && !hasError && filteredInvoices.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-2 bg-background-main pb-3">
-          <p className="text-xs text-text-tertiary">
-            Showing {filteredInvoices.length} of {invoices.length} invoices
-          </p>
-
-          <Link
-            to="/invoices/new"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-base transition hover:underline"
-          >
-            <Plus size={16} />
-            Create invoice
-          </Link>
-        </div>
-      )}
-    </main>
+    </div>
   );
 }
