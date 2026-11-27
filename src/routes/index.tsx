@@ -302,6 +302,15 @@ const routes: RouteObject[] = [
           return { Component };
         },
       },
+      {
+                path: 'products/:productId/edit',
+                lazy: async () => {
+                  const { default: Component } = await import(
+                    '@/features/products/edit-product-page'
+                  );
+                  return { Component };
+                },
+              },
 
               // LOCATIONS
               {

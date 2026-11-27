@@ -2,15 +2,24 @@
 import { Link } from "react-router";
 import backIcon from "../assets/icons/back.svg";
 
-export default function AddProductHeader() {
+// the title and back link can change, so the Edit page can use this header too
+type Props = {
+  title?: string;
+  backTo?: string;
+};
+
+export default function AddProductHeader({
+  title = "Add product",
+  backTo = "/products",
+}: Props) {
   return (
     <>
       {/* desktop view */}
       <div className="hidden items-center gap-[14px] lg:flex">
         {/* round back button, goes to the products list */}
         <Link
-          to="/products"
-          aria-label="Back to products"
+          to={backTo}
+          aria-label="Go back"
           className="flex size-[44px] items-center justify-center rounded-full border border-[#E3E7E5]"
         >
           <img src={backIcon} alt="" className="size-5" />
@@ -22,7 +31,7 @@ export default function AddProductHeader() {
             Products
           </span>
           <h1 className="text-[24px] font-semibold leading-[1.3] text-text-primary">
-            Add product
+            {title}
           </h1>
         </div>
       </div>
@@ -31,8 +40,8 @@ export default function AddProductHeader() {
       <div className="flex items-center gap-3 lg:hidden">
         {/* round back button, goes to the products list */}
         <Link
-          to="/products"
-          aria-label="Back to products"
+          to={backTo}
+          aria-label="Go back"
           className="flex size-[46px] shrink-0 items-center justify-center rounded-full border border-border-default"
         >
           <img src={backIcon} alt="" className="size-5" />
@@ -40,7 +49,7 @@ export default function AddProductHeader() {
 
         {/* the title */}
         <h1 className="text-[24px] font-bold leading-[27px] text-text-primary">
-          Add product
+          {title}
         </h1>
       </div>
     </>

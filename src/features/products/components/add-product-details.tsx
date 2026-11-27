@@ -29,6 +29,8 @@ type Props = {
   onCategoryChange: (value: string) => void;
   photo: File | null;
   onPhotoChange: (file: File | null) => void;
+  // the product's saved photo, only the Edit page gives this
+  existingPhoto?: string;
 };
 
 export default function AddProductDetails({
@@ -40,6 +42,7 @@ export default function AddProductDetails({
   onCategoryChange,
   photo,
   onPhotoChange,
+  existingPhoto,
 }: Props) {
   // the hidden file input, the photo boxes click it to open the file picker
   const fileInput = useRef<HTMLInputElement>(null);
@@ -56,6 +59,9 @@ export default function AddProductDetails({
     setPhotoUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [photo]);
+
+  // what the photo box shows: a newly picked photo, else the saved one, else nothing
+  const shownPhoto = photoUrl ?? existingPhoto ?? null;
 
   return (
     <>
@@ -80,8 +86,8 @@ export default function AddProductDetails({
         {/* photo box and product name */}
         <div className="flex items-start gap-[12.98px]">
           <div className="relative w-[144px] shrink-0">
-            {photoUrl ? (
-              // the chosen photo, click it to change it
+            {shownPhoto ? (
+              // the photo, click it to change it
               <button
                 type="button"
                 aria-label="Change photo"
@@ -89,7 +95,7 @@ export default function AddProductDetails({
                 className="block h-[99px] w-full overflow-hidden rounded-[24px] bg-[#E3E7E5]"
               >
                 <img
-                  src={photoUrl}
+                  src={shownPhoto}
                   alt="Product"
                   className="size-full object-cover"
                 />
@@ -180,31 +186,39 @@ export default function AddProductDetails({
       <div className="flex flex-col gap-[14px] pb-[21px] lg:hidden">
         {/* photo box and product name */}
         <div className="flex items-center gap-3">
-          {photoUrl ? (
-            <button
-              type="button"
-              aria-label="Change photo"
-              onClick={openPicker}
-              className="h-[76px] w-[91px] shrink-0 overflow-hidden rounded-[21.624px] bg-[#E3E7E5]"
-            >
-              <img
-                src={photoUrl}
-                alt="Product"
-                className="size-full object-cover"
-              />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={openPicker}
-              className="flex h-[76px] w-[91px] shrink-0 flex-col items-center justify-center gap-[7.208px] rounded-[21.624px] border-[1.351px] border-dashed border-[#848E89] bg-background-card px-[18.02px]"
-            >
-              <img src={cameraIcon} alt="" className="size-5" />
-              <span className="text-[10px] font-medium leading-[1.3] tracking-[-0.02em] text-text-primary">
-                Add photo
-              </span>
-            </button>
-          )}
+          {/* the photo box with the green plus badge on its corner */}
+          <div className="relative h-[76px] w-[91px] shrink-0">
+            {shownPhoto ? (
+              <button
+                type="button"
+                aria-label="Change photo"
+                onClick={openPicker}
+                className="size-full overflow-hidden rounded-[21.624px] bg-[#E3E7E5]"
+              >
+                <img
+                  src={shownPhoto}
+                  alt="Product"
+                  className="size-full object-cover"
+                />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={openPicker}
+                className="flex size-full flex-col items-center justify-center gap-[7.208px] rounded-[21.624px] border-[1.351px] border-dashed border-[#848E89] bg-background-card px-[18.02px]"
+              >
+                <img src={cameraIcon} alt="" className="size-5" />
+                <span className="text-[10px] font-medium leading-[1.3] tracking-[-0.02em] text-text-primary">
+                  Add photo
+                </span>
+              </button>
+            )}
+
+            {/* the green plus badge, shown whether or not a photo is picked */}
+            <span className="pointer-events-none absolute left-[80px] top-[55.5px] flex size-7 items-center justify-center rounded-full border-[3px] border-white bg-primary-base">
+              <img src={plusSmallIcon} alt="" className="size-3" />
+            </span>
+          </div>
 
           <label className="flex min-w-0 flex-1 flex-col gap-[7px]">
             <span className={mobileLabelStyle}>Product name</span>

@@ -1,5 +1,5 @@
 // Top of the Product details page: the back button, the label, the name and the two buttons.
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import backIcon from "../assets/icons/back.svg";
 import editIcon from "../assets/icons/edit.svg";
 import addIcon from "../assets/icons/add.svg";
@@ -11,8 +11,13 @@ export default function ProductDetailsHeader({
 }: {
   product: Product;
 }) {
+  const navigate = useNavigate();
+
   // the big photo if the product has one, if not the normal photo
   const photo = product.coverImage ?? product.image;
+
+  // both Edit buttons go to this product's edit page
+  const goToEdit = () => navigate(`/products/${product.id}/edit`);
 
   return (
     <>
@@ -41,6 +46,7 @@ export default function ProductDetailsHeader({
         <div className="flex items-center gap-[25px]">
           <Button
             variant="outline"
+            onClick={goToEdit}
             className="h-[46px] w-[100px] gap-1.5 rounded-[30px] border-border-default bg-background-main px-3 py-2.5 text-[16px] font-medium leading-[1.3] tracking-[-0.02em] text-text-primary"
           >
             <img src={editIcon} alt="" className="size-5" />
@@ -81,6 +87,7 @@ export default function ProductDetailsHeader({
           </Link>
           <button
             type="button"
+            onClick={goToEdit}
             className="flex h-[46px] items-center gap-[6px] rounded-full bg-background-main px-[18px] text-[14px] font-medium leading-[1.3] tracking-[-0.02em] text-text-primary"
           >
             <img src={editIcon} alt="" className="size-4" />

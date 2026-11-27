@@ -16,6 +16,8 @@ type Props = {
   breaks: PriceBreak[];
   onAdd: (priceBreak: NewPriceBreak) => void;
   onRemove: (id: string) => void;
+  // the small line under the title, the Edit page changes it
+  subtitle?: string;
 };
 
 // the names we show for each customer type
@@ -34,6 +36,7 @@ export default function AddProductPriceBreaks({
   breaks,
   onAdd,
   onRemove,
+  subtitle = "Optional",
 }: Props) {
   // remembers if the price break popup is open
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -42,13 +45,13 @@ export default function AddProductPriceBreaks({
     <>
       {/* desktop view */}
       <div className="hidden flex-col gap-[12.98px] rounded-[22.72px] border-[0.81px] border-[#E3E7E5] px-[19.48px] py-[17.85px] lg:flex">
-        {/* title and optional */}
+        {/* title and the small line under it */}
         <div className="flex flex-col gap-[3.25px]">
           <h2 className="text-[14px] font-semibold leading-[1.3] tracking-[-0.02em] text-text-primary">
             Quantity price breaks
           </h2>
           <p className="text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary">
-            Optional
+            {subtitle}
           </p>
         </div>
 
@@ -107,13 +110,13 @@ export default function AddProductPriceBreaks({
 
       {/* mobile view */}
       <div className="flex flex-col gap-3 rounded-[24px] border border-border-default bg-background-main p-4 lg:hidden">
-        {/* title and optional */}
+        {/* title and the small line under it */}
         <div className="flex flex-col gap-[3px]">
           <h2 className="text-[16px] font-medium leading-[1.3] text-text-primary">
             Quantity price breaks
           </h2>
           <p className="text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary">
-            Optional
+            {subtitle}
           </p>
         </div>
 

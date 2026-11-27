@@ -131,6 +131,7 @@ export default function AddProductPage() {
             breaks={priceBreaks}
             onAdd={addPriceBreak}
             onRemove={removePriceBreak}
+            subtitle="Price drops automatically when a customer buys more"
           />
         </div>
 
