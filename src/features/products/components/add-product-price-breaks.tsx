@@ -1,8 +1,13 @@
 // The Quantity price breaks card on the Add product form: the example box and the add button.
+import { useState } from "react";
 import priceTagIcon from "../assets/icons/price-tag.svg";
 import plusIcon from "../assets/icons/plus.svg";
+import AddPriceBreakDialog from "./add-price-break-dialog";
 
 export default function AddProductPriceBreaks() {
+  // remembers if the price break popup is open
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
     <>
       {/* desktop view */}
@@ -31,9 +36,10 @@ export default function AddProductPriceBreaks() {
           </p>
         </div>
 
-        {/* add a price break button */}
+        {/* add a price break button, opens the popup */}
         <button
           type="button"
+          onClick={() => setDialogOpen(true)}
           className="flex h-[40px] w-full items-center justify-center gap-[6px] rounded-[60px] border border-border-default bg-background-main px-4 py-3 text-[16px] font-medium leading-[1.3] tracking-[-0.02em] text-text-primary"
         >
           Add a price break
@@ -52,7 +58,6 @@ export default function AddProductPriceBreaks() {
             Optional
           </p>
         </div>
-
         {/* the green example box, the text breaks into three lines like the design */}
         <div className="flex items-center gap-5 rounded-[6.88px] bg-primary-subtle px-5 py-2 text-[14px] leading-[1.3] tracking-[-0.02em] text-[#12432A]">
           <img src={priceTagIcon} alt="" className="size-6 shrink-0" />
@@ -64,17 +69,24 @@ export default function AddProductPriceBreaks() {
             <span className="block">When a customer buys that many, the</span>
             <span className="block">price drops by itself.</span>
           </p>
-        </div>
-
-        {/* add a price break button, dashed on mobile */}
+        </div>s
+        {/* add a price break button, dashed on mobile, opens the popup */}
         <button
           type="button"
+          onClick={() => setDialogOpen(true)}
           className="flex h-[48px] w-full items-center justify-center gap-2 rounded-[35px] border border-dashed border-[#848E89] bg-background-main text-[16px] font-medium leading-[1.3] text-text-primary"
         >
           <img src={plusIcon} alt="" className="size-4" />
           Add a price break
         </button>
+        s
       </div>
+
+      {/* the popup, it shows only when dialogOpen is true */}
+      <AddPriceBreakDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+      />
     </>
   );
 }

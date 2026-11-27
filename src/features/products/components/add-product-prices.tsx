@@ -33,14 +33,23 @@ export default function AddProductPrices({ prices, onPriceChange }: Props) {
     <>
       {/* desktop view */}
       <div className="hidden flex-col gap-[12.98px] rounded-[22.72px] border-[0.81px] border-[#E3E7E5] px-[19.48px] py-[17.85px] lg:flex">
-        {/* title and subtitle */}
-        <div className="flex flex-col gap-[3.25px]">
-          <h2 className="text-[14px] font-semibold leading-[1.3] tracking-[-0.02em] text-text-primary">
-            Prices per bundle
-          </h2>
-          <p className="text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary">
-            Only retail is required. Each customer gets their profile’s price
-          </p>
+        {/* title and subtitle on the left, the manage profiles link on the right */}
+        <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-[3.25px]">
+            <h2 className="text-[14px] font-semibold leading-[1.3] tracking-[-0.02em] text-text-primary">
+              Prices per bundle
+            </h2>
+            <p className="text-[12px] leading-[1.3] tracking-[-0.02em] text-text-secondary">
+              Only retail is required. Each customer gets their profile’s price
+            </p>
+          </div>
+          {/* does nothing yet, it will open the Price profile page */}
+          <button
+            type="button"
+            className="py-[6.49px] text-[11px] font-medium leading-[1.3] tracking-[-0.02em] text-[#257349]"
+          >
+            Manage profiles
+          </button>
         </div>
 
         {/* the three fields */}
