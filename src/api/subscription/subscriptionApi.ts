@@ -1,5 +1,11 @@
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { api, type ApiSuccess } from '../api';
+import { onboardingKeys, type OnboardingState } from '../onboarding/onboarding';
 
 export const PLAN_IDS = ['monthly', 'six_months', 'yearly'] as const;
 
@@ -31,7 +37,7 @@ export interface Subscription {
   planLabel: string;
   priceKobo: number;
   status: SubscriptionStatus;
-  endsAt: string; // ISO date, e.g. "2026-12-03T14:05:22.014Z"
+  endsAt: string; // ISO date
   daysLeft: number;
 }
 
@@ -42,6 +48,15 @@ export interface SubscriptionState {
   // false when expired: the business can view its data but not change it
   canWrite: boolean;
   subscription: Subscription | null;
+}
+
+export interface VerifyPaymentResult {
+  // true when the Paystack webhook already confirmed it. Still a success.
+  alreadyProcessed: boolean;
+  message: string;
+  reference: string;
+  plan: PlanId;
+  currentPeriodEnd: string; // ISO date
 }
 
 export const TRIAL_DAYS = 7;
@@ -74,6 +89,18 @@ export async function getSubscription(): Promise<SubscriptionState> {
   return data.body;
 }
 
+/**
+ * Asks the backend to check the payment with Paystack
+ */
+export async function verifyPayment(
+  reference: string,
+): Promise<VerifyPaymentResult> {
+  const { data } = await api.post<ApiSuccess<VerifyPaymentResult>>(
+    `/api/payment/verify/${encodeURIComponent(reference)}`,
+  );
+  return data.body;
+}
+
 // ---------- Query hooks ----------
 
 export const plansQueryOptions = queryOptions({
@@ -90,3 +117,24 @@ export const subscriptionQueryOptions = queryOptions({
 });
 
 export const useSubscription = () => useQuery(subscriptionQueryOptions);
+
+export function useVerifyPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: verifyPayment,
+    onSuccess: () => {
+      // The backend has finished onboarding (step 4). Update the cache now,
+      // so the dashboard guard lets the user in without a redirect to step 4.
+      queryClient.setQueryData<OnboardingState>(
+        onboardingKeys.state,
+        (state) => {
+          if (!state) return state;
+          return { ...state, onboardingStep: 4 };
+        },
+      );
+      queryClient.invalidateQueries({ queryKey: onboardingKeys.state });
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.current });
+    },
+  });
+}
