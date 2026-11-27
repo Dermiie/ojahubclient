@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: '0.0.0.0',
-      port: 3900,
+      port: 5173,
       strictPort: true,
       open: true,
       allowedHosts: ['localhost', '0.0.0.0'],
