@@ -2,7 +2,16 @@
 import boxIcon from "../assets/icons/box.svg";
 import ringsIcon from "../assets/icons/after-save-rings.svg";
 
-export default function AddProductPreview() {
+// the page tells us what to do when a save button is clicked
+type Props = {
+  onSave: () => void;
+  onSaveAndAddAnother: () => void;
+};
+
+export default function AddProductPreview({
+  onSave,
+  onSaveAndAddAnother,
+}: Props) {
   return (
     // desktop view
     <div className="hidden flex-col gap-[25px] lg:flex">
@@ -53,12 +62,14 @@ export default function AddProductPreview() {
         <div className="flex flex-col gap-[14px]">
           <button
             type="button"
+            onClick={onSave}
             className="flex h-[50px] w-full items-center justify-center rounded-[60px] bg-primary-base px-[10px] py-3 text-[14px] font-bold leading-[1.3] text-white"
           >
             Save product
           </button>
           <button
             type="button"
+            onClick={onSaveAndAddAnother}
             className="flex h-[50px] w-full items-center justify-center rounded-[60px] border border-primary-base px-[10px] py-3 text-[14px] font-bold leading-[1.3] text-primary-base"
           >
             Save and add another

@@ -1,5 +1,4 @@
 // The Opening stock card on the Add product form: a counter for each location and the total.
-import { useState } from "react";
 import shopIcon from "../assets/icons/shop.svg";
 import warehouseBoxIcon from "../assets/icons/warehouse-box.svg";
 import minusIcon from "../assets/icons/minus.svg";
@@ -27,22 +26,25 @@ const LOCATION_ROWS = [
   },
 ];
 
-export default function AddProductOpeningStock() {
-  // how many the user has put in for each location, they all start at 0
-  const [quantities, setQuantities] = useState<Record<string, number>>({
-    "stall-3": 0,
-    "maza-maza": 0,
-    "trade-fair": 0,
-  });
+// the numbers when the form is empty, every location starts at 0
+export const EMPTY_STOCK: Record<string, number> = {
+  "stall-3": 0,
+  "maza-maza": 0,
+  "trade-fair": 0,
+};
 
-  // add or take away one, it never goes below 0
-  const change = (id: string, amount: number) => {
-    setQuantities((current) => ({
-      ...current,
-      [id]: Math.max(0, current[id] + amount),
-    }));
-  };
+// the page gives us the unit, the numbers and a way to change one
+type Props = {
+  unit: string;
+  quantities: Record<string, number>;
+  onChange: (id: string, amount: number) => void;
+};
 
+export default function AddProductOpeningStock({
+  unit,
+  quantities,
+  onChange,
+}: Props) {
   // the total across all locations
   const total = Object.values(quantities).reduce((a, b) => a + b, 0);
 
@@ -99,7 +101,7 @@ export default function AddProductOpeningStock() {
                 <button
                   type="button"
                   aria-label={`Take one away from ${row.name}`}
-                  onClick={() => change(row.id, -1)}
+                  onClick={() => onChange(row.id, -1)}
                   className="flex size-[30px] items-center justify-center rounded-[9px] bg-background-main"
                 >
                   <img src={minusIcon} alt="" className="size-[15px]" />
@@ -110,7 +112,7 @@ export default function AddProductOpeningStock() {
                 <button
                   type="button"
                   aria-label={`Add one to ${row.name}`}
-                  onClick={() => change(row.id, 1)}
+                  onClick={() => onChange(row.id, 1)}
                   className="flex size-[30px] items-center justify-center rounded-[9px] bg-primary-base"
                 >
                   <img src={plusSmallIcon} alt="" className="size-[15px]" />
@@ -126,7 +128,7 @@ export default function AddProductOpeningStock() {
             Total
           </span>
           <span className="text-[14px] font-semibold leading-[1.3] tracking-[-0.02em] text-[#4E331C]">
-            {total} bundles
+            {total} {unit}s
           </span>
         </div>
       </div>
@@ -169,7 +171,7 @@ export default function AddProductOpeningStock() {
                 <button
                   type="button"
                   aria-label={`Take one away from ${row.name}`}
-                  onClick={() => change(row.id, -1)}
+                  onClick={() => onChange(row.id, -1)}
                   className="flex items-center rounded-[8.5px] bg-background-main p-[7.083px]"
                 >
                   <img src={minusIcon} alt="" className="size-[14.167px]" />
@@ -180,7 +182,7 @@ export default function AddProductOpeningStock() {
                 <button
                   type="button"
                   aria-label={`Add one to ${row.name}`}
-                  onClick={() => change(row.id, 1)}
+                  onClick={() => onChange(row.id, 1)}
                   className="flex items-center rounded-[8.5px] bg-primary-base p-[7.083px]"
                 >
                   <img src={plusSmallIcon} alt="" className="size-[14.167px]" />
@@ -196,7 +198,7 @@ export default function AddProductOpeningStock() {
             Total
           </span>
           <span className="text-[14px] font-medium leading-[1.3] tracking-[-0.02em] text-[#4E331C]">
-            {total} bundles
+            {total} {unit}s
           </span>
         </div>
       </div>

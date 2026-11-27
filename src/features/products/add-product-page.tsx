@@ -1,5 +1,6 @@
 // The Add product page. The pieces get added one by one.
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import AddProductHeader from "./components/add-product-header";
 import AddProductDetails from "./components/add-product-details";
 import AddProductPrices from "./components/add-product-prices";
@@ -7,23 +8,28 @@ import type { Prices } from "./components/add-product-prices";
 import AddProductPriceBreaks from "./components/add-product-price-breaks";
 import type { PriceBreak } from "./components/add-product-price-breaks";
 import type { NewPriceBreak } from "./components/add-price-break-dialog";
-import AddProductOpeningStock from "./components/add-product-opening-stock";
+import AddProductOpeningStock, {
+  EMPTY_STOCK,
+} from "./components/add-product-opening-stock";
 import AddProductPreview from "./components/add-product-preview";
 import AddProductBottomBar from "./components/add-product-bottom-bar";
 
+// the prices when the form is empty
+const EMPTY_PRICES: Prices = { retail: "", semiWholesale: "", bulk: "" };
+
 export default function AddProductPage() {
+  const navigate = useNavigate();
+
   // the page remembers what the user types, so Save can collect it later
   const [name, setName] = useState("");
   const [soldBy, setSoldBy] = useState("bundle");
   const [category, setCategory] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
-  const [prices, setPrices] = useState<Prices>({
-    retail: "",
-    semiWholesale: "",
-    bulk: "",
-  });
+  const [prices, setPrices] = useState<Prices>(EMPTY_PRICES);
   // the price breaks the user has added
   const [priceBreaks, setPriceBreaks] = useState<PriceBreak[]>([]);
+  // how many the user has put in for each location
+  const [stock, setStock] = useState<Record<string, number>>(EMPTY_STOCK);
 
   // change one of the three prices
   const changePrice = (key: keyof Prices, value: string) => {
@@ -41,6 +47,58 @@ export default function AddProductPage() {
   // remove one price break from the list
   const removePriceBreak = (id: string) => {
     setPriceBreaks((current) => current.filter((item) => item.id !== id));
+  };
+
+  // add or take away one at a location, it never goes below 0
+  const changeStock = (id: string, amount: number) => {
+    setStock((current) => ({
+      ...current,
+      [id]: Math.max(0, current[id] + amount),
+    }));
+  };
+
+  // put the whole form back to empty
+  const resetForm = () => {
+    setName("");
+    setSoldBy("bundle");
+    setCategory("");
+    setPhoto(null);
+    setPrices(EMPTY_PRICES);
+    setPriceBreaks([]);
+    setStock(EMPTY_STOCK);
+  };
+
+  // collect everything, returns true if it was ready to save
+  const collectProduct = () => {
+    // the name and the retail price are needed
+    if (name.trim() === "" || prices.retail === "") {
+      console.log("Fill in the name and the retail price first");
+      return false;
+    }
+
+    const product = {
+      name,
+      soldBy,
+      category,
+      photo,
+      prices,
+      priceBreaks,
+      openingStock: stock,
+    };
+
+    // TODO: send to the backend
+    console.log("Saving product:", product);
+    return true;
+  };
+
+  // save, then go back to the products list
+  const saveProduct = () => {
+    if (collectProduct()) navigate("/products");
+  };
+
+  // save, then clear the form for the next product
+  const saveAndAddAnother = () => {
+    if (collectProduct()) resetForm();
   };
 
   return (
@@ -77,14 +135,24 @@ export default function AddProductPage() {
         </div>
 
         {/* right column */}
-        <AddProductPreview />
+        <AddProductPreview
+          onSave={saveProduct}
+          onSaveAndAddAnother={saveAndAddAnother}
+        />
 
         {/* opening stock sits under the left column */}
-        <AddProductOpeningStock />
+        <AddProductOpeningStock
+          unit={soldBy}
+          quantities={stock}
+          onChange={changeStock}
+        />
       </div>
 
       {/* the save buttons at the bottom on mobile */}
-      <AddProductBottomBar />
+      <AddProductBottomBar
+        onSave={saveProduct}
+        onSaveAndAddAnother={saveAndAddAnother}
+      />
     </div>
   );
 }
