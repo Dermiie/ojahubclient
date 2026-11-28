@@ -12,17 +12,6 @@ import { ArrowRight, Check, X } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 
-/*
- * Paystack sends the user back here after paying:
- *   /onboarding/success?reference=OJA-20261126-A1B2C3
- *
- * We never trust the redirect alone. The page asks the backend to check
- * the payment with Paystack, then shows one of three screens:
- *   1. Confirming...   while the backend checks
- *   2. Success         payment worked, subscription active
- *   3. Failed          payment not completed (or no reference in the link)
- */
-
 type ResultVariant = 'success' | 'failed';
 
 interface Detail {
