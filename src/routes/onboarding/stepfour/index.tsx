@@ -85,12 +85,6 @@ export default function StepFour() {
   const isStartingPayment =
     isGoingToPaystack || (isSaving && sentPlan?.plan !== FREE_TRIAL_PLAN_ID);
 
-  // const selectedPlanDetails = PLANS.find((plan) => plan.id === selectedPlan);
-
-  // const paymentDescription = selectedPlanDetails
-  //   ? `Pay for ${selectedPlan} at ₦${selectedPlanDetails.priceKobo / 100}`
-  //   : 'Choose a plan';
-
   /** "Start free trial": no payment, straight to the dashboard. */
   function onFreeTrial() {
     choosePlan(

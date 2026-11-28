@@ -47,7 +47,7 @@ const baseConfig: CreateAxiosDefaults = {
   baseURL: BASE_URL,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 15000,
+  timeout: 30000,
 };
 
 /**
