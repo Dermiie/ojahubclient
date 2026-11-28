@@ -10,10 +10,17 @@ import {
 import { Button } from '@/components/ui/button';
 import StepProgress from '@/components/ui/stepProgress';
 import { formatNaira } from '@/lib/money';
+import { openPaystackPopup } from '@/lib/paystack';
 import { cn } from 'cn';
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+
+interface StartedPayment {
+  plan: PlanId;
+  accessCode: string;
+  authorizationUrl: string;
+}
 
 // The plans and prices are hard-coded in subscriptionApi.ts for now.
 // Only the words around the prices live here.
@@ -26,6 +33,8 @@ const PERIOD_LABELS: Record<PlanId, string> = {
 const DEFAULT_PLAN: PlanId = 'yearly';
 
 const DASHBOARD = '/';
+
+const PAYMENT_CALLBACK = '/payment/callback';
 
 /** Price per month in kobo. ₦48,000 for 12 months → 400000 (₦4,000) */
 function monthlyCostKobo(plan: Plan): number {
@@ -68,10 +77,14 @@ export default function StepFour() {
     isPending: isSaving,
     error: saveError,
     variables: sentPlan,
+    reset: clearSaveError,
   } = useChoosePlan();
 
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(DEFAULT_PLAN);
-  const [isGoingToPaystack, setIsGoingToPaystack] = useState(false);
+  const [isPaystackOpen, setIsPaystackOpen] = useState(false);
+  const [startedPayment, setStartedPayment] = useState<StartedPayment | null>(
+    null,
+  );
   const [payError, setPayError] = useState<string | null>(null);
 
   // One message for the banner: a failed request first, then payError.
@@ -80,10 +93,10 @@ export default function StepFour() {
     errorMessage = parseApiError(saveError).message;
   }
 
-  const isBusy = isSaving || isGoingToPaystack;
+  const isBusy = isSaving || isPaystackOpen;
   const isStartingTrial = isSaving && sentPlan?.plan === FREE_TRIAL_PLAN_ID;
   const isStartingPayment =
-    isGoingToPaystack || (isSaving && sentPlan?.plan !== FREE_TRIAL_PLAN_ID);
+    isPaystackOpen || (isSaving && sentPlan?.plan !== FREE_TRIAL_PLAN_ID);
 
   /** "Start free trial": no payment, straight to the dashboard. */
   function onFreeTrial() {
@@ -97,16 +110,54 @@ export default function StepFour() {
     );
   }
 
+  function showPaystack(payment: StartedPayment) {
+    clearSaveError();
+    setPayError(null);
+    setIsPaystackOpen(true);
+
+    openPaystackPopup(payment.accessCode, {
+      onSuccess: (reference) => {
+        setStartedPayment(null);
+        // Paid. The callback page asks the backend to confirm it.
+        navigate(
+          `${PAYMENT_CALLBACK}?reference=${encodeURIComponent(reference)}`,
+          { replace: true },
+        );
+      },
+      onCancel: () => {
+        // Keep startedPayment, so the next tap reopens the same payment.
+        setIsPaystackOpen(false);
+        setPayError(
+          'You closed the payment window. Tap the pay button to continue.',
+        );
+      },
+      onError: () => {
+        // The popup could not load: open Paystack's full payment page instead.
+        // Paystack then sends the user back to the callback page.
+        window.location.assign(payment.authorizationUrl);
+      },
+    });
+  }
+
   function onPay() {
+    if (startedPayment && startedPayment.plan === selectedPlan) {
+      showPaystack(startedPayment);
+      return;
+    }
+
     choosePlan(
       { plan: selectedPlan },
       {
         onSuccess: (result) => {
           // Expected answer: { type: 'payment', payment: { authorizationUrl } }
           if (result.type === 'payment' && result.payment.authorizationUrl) {
-            setIsGoingToPaystack(true);
-            // Leaves our app. Paystack sends the user back after paying.
-            window.location.assign(result.payment.authorizationUrl);
+            const payment: StartedPayment = {
+              plan: selectedPlan,
+              accessCode: result.payment.accessCode,
+              authorizationUrl: result.payment.authorizationUrl,
+            };
+            setStartedPayment(payment);
+            showPaystack(payment);
             return;
           }
 
