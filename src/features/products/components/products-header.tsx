@@ -1,11 +1,15 @@
 // Top of the Products page.... the label, the title and the two buttons
 
+import { useNavigate } from "react-router";
 import truckIcon from "../assets/icons/truck.svg";
 import addIcon from "../assets/icons/add.svg";
 import searchIcon from "../assets/icons/search-mobile.svg";
 import { Button } from "@/components/ui/button";
 
 export default function ProductsHeader() {
+  // lets a button take the user to another page
+  const navigate = useNavigate();
+
   return (
     <>
       {/* desktop view */}
@@ -20,15 +24,21 @@ export default function ProductsHeader() {
 
         {/* the two buttons on the right */}
         <div className="flex items-center gap-[25px]">
+          {/* Move stock opens the Transfers page */}
           <Button
             variant="outline"
+            onClick={() => navigate("/transfers")}
             className="h-[46px] w-[145px] gap-1.5 rounded-full px-3 text-[16px] tracking-[-0.02em]"
           >
             <img src={truckIcon} alt="" className="size-5" />
             Move stock
           </Button>
 
-          <Button className="h-[46px] w-[132px] gap-1.5 rounded-full px-3 text-[16px] tracking-[-0.02em]">
+          {/* Add stock opens the Add product page for now */}
+          <Button
+            onClick={() => navigate("/products/new")}
+            className="h-[46px] w-[132px] gap-1.5 rounded-full px-3 text-[16px] tracking-[-0.02em]"
+          >
             <img src={addIcon} alt="" className="size-5" />
             Add stock
           </Button>
@@ -52,9 +62,11 @@ export default function ProductsHeader() {
             <img src={searchIcon} alt="" className="size-5" />
           </button>
 
+          {/* the add button opens the Add product page for now */}
           <button
             type="button"
             aria-label="Add stock"
+            onClick={() => navigate("/products/new")}
             className="flex size-[46px] items-center justify-center rounded-full bg-primary-base"
           >
             <img src={addIcon} alt="" className="size-5" />

@@ -5,6 +5,8 @@ import hollandisWaxPrint from "../assets/images/hollandis-wax-print.png";
 import swissVoileLace from "../assets/images/swiss-voile-lace.png";
 import georgeWrapper from "../assets/images/george-wrapper.png";
 import asoOkeBundle from "../assets/images/aso-oke-bundle.png";
+import superWaxAnkaraCover from "../assets/images/super-wax-ankara-cover.jpg";
+import superWaxAnkaraMobileCover from "../assets/images/super-wax-ankara-mobile-cover.jpg";
 
 export const LOCATIONS: StockLocation[] = [
   { id: "stall-3", name: "Balogun Stall 3", shortName: "Stall 3" },
@@ -20,15 +22,38 @@ export const LOCATIONS: StockLocation[] = [
 export const SAMPLE_PRODUCTS: Product[] = [
   {
     id: "super-wax-ankara",
+    category: "Wax prints",
+    priceTiers: [
+      { label: "Retail", price: 10000, note: "6 or more: ₦8,500" },
+      { label: "Semi-wholesale", price: 9200, minimum: 12 },
+      { label: "Bulk importer", price: 8000, minimum: 20 },
+    ],
+    stockBars: { "stall-3": 12, "maza-maza": 70 },
+    stockNotes: { "stall-3": "Runs out in about 2 days at current speed" },
+    weeklySales: {
+      revenue: 431000,
+      days: [
+        { day: "Wed", quantity: 4 },
+        { day: "Thu", quantity: 6 },
+        { day: "Fri", quantity: 7 },
+        { day: "Sat", quantity: 9 },
+        { day: "Sun", quantity: 3 },
+        { day: "Mon", quantity: 8 },
+        { day: "Today", quantity: 9 },
+      ],
+    },
     name: "Super Wax Ankara",
     unit: "bundle",
     image: superWaxAnkara,
+    coverImage: superWaxAnkaraCover,
+    mobileCoverImage: superWaxAnkaraMobileCover,
     retailPrice: 10000,
     stock: { "stall-3": 15, "maza-maza": 85 },
     lowStockLevel: 20,
   },
   {
     id: "hollandis-wax-print",
+    category: "Wax prints",
     name: "Hollandis Wax Print",
     unit: "bundle",
     image: hollandisWaxPrint,

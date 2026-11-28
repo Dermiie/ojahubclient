@@ -248,6 +248,37 @@ const routes: RouteObject[] = [
                   return { Component };
                 },
               },
+               {
+                path: 'products/:productId',
+                lazy: async () => {
+                  const { default: Component } =
+                    await import('@/features/products/product-details-page');
+                  return { Component };
+                },
+              },
+              {
+        path: 'products/new',
+        lazy: async () => {
+          const { default: Component } = await import('@/features/products/add-product-page');
+          return { Component };
+        },
+      },
+      {
+                path: 'products/:productId/edit',
+                lazy: async () => {
+                  const { default: Component } = await import(
+                    '@/features/products/edit-product-page'
+                  );
+                  return { Component };
+                },
+              },
+              {
+  path: 'products/price-profile',
+  lazy: async () => {
+    const { default: Component } = await import('@/features/products/price-profile-page');
+    return { Component };
+  },
+},
 
               // LOCATIONS
               {
