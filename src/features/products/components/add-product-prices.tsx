@@ -1,4 +1,5 @@
 // The Prices per bundle card on the Add product form: retail, semi-wholesale and bulk importer.
+import { useNavigate } from "react-router";
 
 // the three prices the page remembers
 export type Prices = {
@@ -34,6 +35,11 @@ export default function AddProductPrices({
   prices,
   onPriceChange,
 }: Props) {
+  const navigate = useNavigate();
+
+  // opens the Price profile page
+  const goToProfiles = () => navigate("/products/price-profile");
+
   return (
     <>
       {/* desktop view */}
@@ -48,9 +54,10 @@ export default function AddProductPrices({
               Only retail is required. Each customer gets their profile’s price
             </p>
           </div>
-          {/* does nothing yet, it will open the Price profile page */}
+          {/* opens the Price profile page */}
           <button
             type="button"
+            onClick={goToProfiles}
             className="py-[6.49px] text-[11px] font-medium leading-[1.3] tracking-[-0.02em] text-[#257349]"
           >
             Manage profiles
@@ -92,6 +99,7 @@ export default function AddProductPrices({
           </h2>
           <button
             type="button"
+            onClick={goToProfiles}
             className="py-2 text-[12px] font-medium leading-[1.3] tracking-[-0.02em] text-[#257349]"
           >
             Manage profiles

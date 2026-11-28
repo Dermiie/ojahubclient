@@ -1,4 +1,5 @@
 // The Prices card on the Product details page: the price boxes for each tier.
+import { Link } from "react-router";
 import type { Product } from "../types";
 
 // the look of each box: background, label colour and small-line colour
@@ -36,9 +37,13 @@ export default function ProductPricesCard({ product }: { product: Product }) {
               per {product.unit}
             </span>
           </div>
-          <span className="text-[12px] font-medium leading-[1.3] tracking-[-0.02em] text-primary-base">
+          {/* opens the Price profile page */}
+          <Link
+            to="/products/price-profile"
+            className="text-[12px] font-medium leading-[1.3] tracking-[-0.02em] text-primary-base"
+          >
             Price profiles
-          </span>
+          </Link>
         </div>
 
         {/* the price boxes, two in a row */}

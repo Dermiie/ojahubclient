@@ -272,6 +272,13 @@ const routes: RouteObject[] = [
                   return { Component };
                 },
               },
+              {
+  path: 'products/price-profile',
+  lazy: async () => {
+    const { default: Component } = await import('@/features/products/price-profile-page');
+    return { Component };
+  },
+},
 
               // LOCATIONS
               {
